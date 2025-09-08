@@ -1,34 +1,95 @@
-import { Colors } from "@/constants/Colors";
-import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-export type tabEnum = "Threads" | "Reposts" | "Replies";
-type TabsProps = {
-  onTabChange: (tab: tabEnum) => void;
-};
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useEffect, useRef } from "react";
+import {
+  Animated,
+  Dimensions,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-const Tabs = ({ onTabChange }: TabsProps) => {
-  const [activeTab, setActiveTab] = useState("Threads");
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+export type tabEnum = "Threads" | "Replies" | "Reposts";
+
+interface TabsProps {
+  onTabChange: (tab: tabEnum) => void;
+  activeTab?: tabEnum;
+}
+
+const Tabs: React.FC<TabsProps> = ({ onTabChange, activeTab = "Threads" }) => {
   const tabs: tabEnum[] = ["Threads", "Replies", "Reposts"];
+  const tabWidth = SCREEN_WIDTH / tabs.length;
+  const translateX = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const activeIndex = tabs.indexOf(activeTab);
+    Animated.parallel([
+      Animated.spring(translateX, {
+        toValue: activeIndex * tabWidth,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }),
+      Animated.spring(scale, {
+        toValue: 1.05,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }),
+    ]).start();
+  }, [activeTab, tabWidth, translateX, scale]);
+
   const handleTabPress = (tab: tabEnum) => {
-    setActiveTab(tab);
     onTabChange(tab);
   };
 
   return (
     <View style={styles.container}>
-      {tabs.map((tab) => (
-        <TouchableOpacity
-          key={tab}
-          style={[styles.tab, activeTab === tab && styles.activeTab]}
-          onPress={() => handleTabPress(tab)}
-        >
-          <Text
-            style={[styles.tabText, activeTab === tab && styles.activeTabText]}
+      {/* Gradient indicator */}
+      <Animated.View
+        style={[
+          styles.indicatorContainer,
+          {
+            width: tabWidth,
+            transform: [{ translateX }],
+          },
+        ]}
+      >
+        <LinearGradient
+          colors={["#667eea", "#764ba2"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.gradient}
+        />
+      </Animated.View>
+
+      {/* Tab buttons */}
+      {tabs.map((tab) => {
+        const isActive = tab === activeTab;
+
+        return (
+          <TouchableOpacity
+            key={tab}
+            style={[styles.tab, { width: tabWidth }]}
+            onPress={() => handleTabPress(tab)}
+            activeOpacity={0.7}
           >
-            {tab}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <Animated.Text
+              style={[
+                styles.tabText,
+                isActive && styles.activeTabText,
+                {
+                  transform: [{ scale: isActive ? scale : 1 }],
+                },
+              ]}
+            >
+              {tab}
+            </Animated.Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };
@@ -36,24 +97,37 @@ const Tabs = ({ onTabChange }: TabsProps) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
+    backgroundColor: "#fff",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#f0f0f0",
+    position: "relative",
+  },
+  indicatorContainer: {
+    position: "absolute",
+    bottom: 0,
+    height: 3,
+    alignItems: "center",
+  },
+  gradient: {
+    width: "40%",
+    height: "100%",
+    borderRadius: 2,
   },
   tab: {
+    paddingVertical: 16,
     alignItems: "center",
-    flex: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    paddingVertical: 12,
+    justifyContent: "center",
   },
   tabText: {
-    color: Colors.border,
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#666",
+    fontFamily: "DMSans_500Medium",
   },
   activeTabText: {
-    color: "black",
-    fontWeight: "bold",
-  },
-
-  activeTab: {
-    borderBottomColor: "black",
+    color: "#000",
+    fontWeight: "700",
+    fontFamily: "DMSans_700Bold",
   },
 });
 

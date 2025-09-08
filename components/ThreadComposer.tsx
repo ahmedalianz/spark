@@ -22,7 +22,7 @@ import {
 type ThreadComposerProps = {
   isPreview?: boolean;
   isReply?: boolean;
-  threadId?: Id<"messages">;
+  threadId?: Id<"threads">;
 };
 
 const ThreadComposer: React.FC<ThreadComposerProps> = ({
@@ -34,11 +34,11 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
   const [threadContent, setThreadContent] = useState("");
   const { userProfile } = useUserProfile();
   const inputAccessoryViewID = "uniqueID";
-  const addThread = useMutation(api.messages.addThread);
+  const addThread = useMutation(api.threads.addThread);
   const [mediaFiles, setMediaFiles] = useState<ImagePicker.ImagePickerAsset[]>(
     []
   );
-  const generateUploadUrl = useMutation(api.messages.generateUploadUrl);
+  const generateUploadUrl = useMutation(api.threads.generateUploadUrl);
 
   const handleSubmit = async () => {
     const mediaStorageIds = await Promise.all(

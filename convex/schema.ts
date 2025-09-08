@@ -16,7 +16,7 @@ export const User = {
   pushToken: v.optional(v.string()),
 };
 
-export const Message = {
+export const Thread = {
   userId: v.id("users"), // Foreign key to users table
   threadId: v.optional(v.string()),
   content: v.string(),
@@ -33,5 +33,5 @@ export default defineSchema({
     .searchIndex("searchUsers", {
       searchField: "username",
     }),
-  messages: defineTable(Message),
+  threads: defineTable(Thread),
 });

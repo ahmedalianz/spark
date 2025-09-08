@@ -5,9 +5,11 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import {
+  ActivityIndicator,
   Animated,
   FlatList,
   Platform,
+  RefreshControl,
   StatusBar,
   StyleSheet,
   Text,
@@ -19,7 +21,7 @@ import { api } from "@/convex/_generated/api";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@clerk/clerk-expo";
 import { usePaginatedQuery } from "convex/react";
-import { useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ProfileLoader from "./ProfileLoader";
 import Tabs, { tabEnum } from "./Tabs";
@@ -37,28 +39,135 @@ export default function Profile({
 }: ProfileProps) {
   const { top } = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<tabEnum>("Threads");
+  const [refreshing, setRefreshing] = useState(false);
   const { userProfile, isLoading } = useUserProfile();
   const router = useRouter();
   const { signOut } = useAuth();
   const scrollY = useRef(new Animated.Value(0)).current;
-  const { results, status, loadMore } = usePaginatedQuery(
-    api.messages.getThreads,
+
+  // Different queries based on active tab
+  const threadsQuery = usePaginatedQuery(
+    api.threads.getThreads,
     { userId: userId || userProfile?._id },
     { initialNumItems: 10 }
   );
 
-  const handleTabChange = (tab: tabEnum) => {
-    setActiveTab(tab);
-  };
+  // Get the current active query based on tab
+  const currentQuery = useMemo(() => {
+    switch (activeTab) {
+      case "Threads":
+        return threadsQuery;
+      case "Replies":
+      // return repliesQuery;
+      case "Reposts":
+      // return repostsQuery;
+      default:
+        return threadsQuery;
+    }
+  }, [activeTab, threadsQuery]);
 
-  const signOutHandler = () => {
+  const { results, status, loadMore } = currentQuery;
+
+  const handleTabChange = useCallback((tab: tabEnum) => {
+    setActiveTab(tab);
+  }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    // The queries will automatically refresh when the component re-renders
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
+
+  const handleLoadMore = useCallback(() => {
+    if (status === "CanLoadMore") {
+      loadMore(10);
+    }
+  }, [status, loadMore]);
+
+  const signOutHandler = useCallback(() => {
     signOut();
-  };
+  }, [signOut]);
+
   const headerOpacity = scrollY.interpolate({
     inputRange: [100, 400],
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
+
+  const renderEmptyComponent = useCallback(() => {
+    const emptyMessages = {
+      Threads: {
+        icon: "create-outline",
+        title: "No threads yet",
+        subtitle: "Share your first thought with the world",
+      },
+      Replies: {
+        icon: "chatbubble-outline",
+        title: "No replies yet",
+        subtitle: "Join the conversation by replying to others",
+      },
+      Reposts: {
+        icon: "repeat-outline",
+        title: "No reposts yet",
+        subtitle: "Share interesting content with your followers",
+      },
+    };
+
+    const message = emptyMessages[activeTab];
+
+    return (
+      <View style={styles.emptyState}>
+        <Ionicons name={message.icon as any} size={48} color="#c0c0c0" />
+        <Text style={styles.emptyStateText}>{message.title}</Text>
+        <Text style={styles.emptyStateSubtext}>{message.subtitle}</Text>
+      </View>
+    );
+  }, [activeTab]);
+
+  const renderFooter = useCallback(() => {
+    if (status === "LoadingMore") {
+      return (
+        <View style={styles.loadingFooter}>
+          <ActivityIndicator color="#667eea" size="small" />
+          <Text style={styles.loadingText}>Loading more...</Text>
+        </View>
+      );
+    }
+
+    if (status === "CanLoadMore") {
+      return (
+        <TouchableOpacity
+          style={styles.loadMoreButton}
+          onPress={handleLoadMore}
+        >
+          <Text style={styles.loadMoreText}>Load More</Text>
+          <Ionicons name="chevron-down" size={16} color="#667eea" />
+        </TouchableOpacity>
+      );
+    }
+
+    if (results && results.length > 0 && status === "Exhausted") {
+      return (
+        <View style={styles.endMessage}>
+          <Text style={styles.endMessageText}>{"You've reached the end"}</Text>
+        </View>
+      );
+    }
+
+    return null;
+  }, [status, results, handleLoadMore]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: any }) => (
+      <Link href={`/feed/${item._id}`} asChild>
+        <TouchableOpacity style={styles.threadWrapper}>
+          <Thread thread={item as Doc<"threads"> & { creator: Doc<"users"> }} />
+        </TouchableOpacity>
+      </Link>
+    ),
+    []
+  );
+
   return (
     <>
       <StatusBar
@@ -139,31 +248,29 @@ export default function Profile({
 
         <FlatList
           data={results}
+          renderItem={renderItem}
+          keyExtractor={(item) => item._id}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor="#667eea"
+              colors={["#667eea"]}
+            />
+          }
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
             { useNativeDriver: false }
           )}
           scrollEventThrottle={16}
-          renderItem={({ item }) => (
-            <Link href={`/feed/${item._id}`} asChild>
-              <TouchableOpacity style={styles.threadWrapper}>
-                <Thread
-                  thread={item as Doc<"messages"> & { creator: Doc<"users"> }}
-                />
-              </TouchableOpacity>
-            </Link>
-          )}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Ionicons name="create-outline" size={48} color="#c0c0c0" />
-              <Text style={styles.emptyStateText}>No threads yet</Text>
-              <Text style={styles.emptyStateSubtext}>
-                Share your first thought with the world
-              </Text>
-            </View>
+            status === "LoadingFirstPage" ? null : renderEmptyComponent
           }
           ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListFooterComponent={renderFooter}
           ListHeaderComponent={
             <>
               <LinearGradient
@@ -228,8 +335,18 @@ export default function Profile({
               </View>
 
               <View style={styles.tabsContainer}>
-                <Tabs onTabChange={handleTabChange} />
+                <Tabs onTabChange={handleTabChange} activeTab={activeTab} />
               </View>
+
+              {/* Loading indicator for first page */}
+              {status === "LoadingFirstPage" && (
+                <View style={styles.firstPageLoading}>
+                  <ActivityIndicator color="#667eea" size="large" />
+                  <Text style={styles.loadingText}>
+                    Loading {activeTab.toLowerCase()}...
+                  </Text>
+                </View>
+              )}
             </>
           }
         />
@@ -274,7 +391,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   heroGradient: {
-    paddingTop: 60, // Account for status bar and safe area
+    paddingTop: 60,
     paddingBottom: 20,
   },
   heroContent: {
@@ -333,10 +450,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  loadingContainer: {
-    padding: 40,
-    alignItems: "center",
-  },
   tabsContainer: {
     backgroundColor: "#fff",
   },
@@ -374,6 +487,51 @@ const styles = StyleSheet.create({
     color: "#999",
     textAlign: "center",
     marginTop: 8,
+    fontFamily: "DMSans_400Regular",
+  },
+  firstPageLoading: {
+    alignItems: "center",
+    paddingVertical: 40,
+    gap: 12,
+  },
+  loadingFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 20,
+    gap: 8,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: "#666",
+    fontFamily: "DMSans_400Regular",
+  },
+  loadMoreButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    backgroundColor: "#f8f9ff",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e6eafe",
+    gap: 6,
+  },
+  loadMoreText: {
+    fontSize: 14,
+    color: "#667eea",
+    fontWeight: "600",
+    fontFamily: "DMSans_500Medium",
+  },
+  endMessage: {
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  endMessageText: {
+    fontSize: 14,
+    color: "#999",
     fontFamily: "DMSans_400Regular",
   },
 });
