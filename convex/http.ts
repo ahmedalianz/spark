@@ -16,6 +16,7 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
         imageUrl: data.image_url,
         username: data.username,
         followersCount: 0,
+        followingsCount: 0,
       });
 
       break;

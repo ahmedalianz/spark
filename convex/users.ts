@@ -6,13 +6,7 @@ import {
   query,
   QueryCtx,
 } from "./_generated/server";
-export const getAllUsers = query({
-  args: {},
-  handler: async (ctx) => {
-    const users = await ctx.db.query("users").collect();
-    return users;
-  },
-});
+
 export const getUserByClerkId = query({
   args: {
     clerkId: v.optional(v.string()),
@@ -66,6 +60,7 @@ export const createUser = internalMutation({
     bio: v.optional(v.string()),
     websiteUrl: v.optional(v.string()),
     followersCount: v.number(),
+    followingsCount: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await ctx.db.insert("users", {

@@ -12,6 +12,7 @@ export const User = {
   location: v.optional(v.string()),
   websiteUrl: v.optional(v.string()),
   followersCount: v.number(),
+  followingsCount: v.number(),
   pushToken: v.optional(v.string()),
 };
 
