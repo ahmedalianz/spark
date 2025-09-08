@@ -32,10 +32,9 @@ type ProfileProps = {
 };
 
 export default function Profile({
-  // userId,
+  userId,
   showBackButton = false,
 }: ProfileProps) {
-  const userId = "j576y0ac16zeh752jxyp0ffa7n7q68na";
   const { top } = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<tabEnum>("Threads");
   const { userProfile, isLoading } = useUserProfile();
