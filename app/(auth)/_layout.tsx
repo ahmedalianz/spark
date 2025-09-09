@@ -17,7 +17,8 @@ const Layout = () => {
         name="(modals)/create-thread"
         options={{
           presentation: "modal",
-          title: "New thread",
+          title: "",
+          // headerShown: false,
           headerRight: () => (
             <TouchableOpacity>
               <Ionicons
@@ -27,6 +28,20 @@ const Layout = () => {
               />
             </TouchableOpacity>
           ),
+          gestureEnabled: true,
+          gestureDirection: "vertical",
+          ...Platform.select({
+            ios: {
+              animationDuration: 200,
+            },
+            android: {
+              animation: "slide_from_bottom",
+              animationDuration: 100,
+              // Android-specific configs:
+              cardOverlayEnabled: true,
+              cardShadowEnabled: true,
+            },
+          }),
         }}
       />
       <Stack.Screen
