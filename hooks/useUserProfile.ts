@@ -8,7 +8,7 @@ export function useUserProfile() {
   const userProfile = useQuery(api.users.getUserByClerkId, { clerkId });
   return {
     userProfile,
-    isLoading: userProfile === undefined,
+    isLoading: !userProfile?._id,
     error: userProfile === null,
   };
 }

@@ -21,7 +21,7 @@ import {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 type ThreadProps = {
-  thread: Doc<"messages"> & { creator: Doc<"users"> };
+  thread: Doc<"threads"> & { creator: Doc<"users"> };
 };
 
 const Thread = ({ thread }: ThreadProps) => {
@@ -34,7 +34,7 @@ const Thread = ({ thread }: ThreadProps) => {
     creator,
   } = thread;
 
-  const likeThread = useMutation(api.messages.likeThread);
+  const likeThread = useMutation(api.threads.likeThread);
   const [isLiked, setIsLiked] = useState(false);
   const [localLikeCount, setLocalLikeCount] = useState(likeCount);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -59,7 +59,7 @@ const Thread = ({ thread }: ThreadProps) => {
     ]).start();
 
     try {
-      await likeThread({ messageId: thread._id });
+      await likeThread({ threadId: thread._id });
     } catch (error) {
       // Revert on error
       setIsLiked(isLiked);

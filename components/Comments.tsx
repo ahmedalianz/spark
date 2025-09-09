@@ -5,12 +5,12 @@ import { View } from "react-native";
 import Thread from "./Threads";
 
 interface CommentsProps {
-  threadId: Id<"messages">;
+  threadId: Id<"threads">;
 }
 
 const Comments = ({ threadId }: CommentsProps) => {
-  const comments = useQuery(api.messages.getThreadComments, {
-    messageId: threadId,
+  const comments = useQuery(api.threads.getThreadComments, {
+    threadId,
   });
 
   return (
@@ -18,7 +18,7 @@ const Comments = ({ threadId }: CommentsProps) => {
       {comments?.map((comment) => (
         <Thread
           key={comment._id}
-          thread={comment as Doc<"messages"> & { creator: Doc<"users"> }}
+          thread={comment as Doc<"threads"> & { creator: Doc<"users"> }}
         />
       ))}
     </View>

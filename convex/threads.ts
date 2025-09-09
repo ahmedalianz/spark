@@ -9,12 +9,12 @@ export const addThread = mutation({
     content: v.string(),
     mediaFiles: v.optional(v.array(v.string())),
     websiteUrl: v.optional(v.string()),
-    threadId: v.optional(v.id("messages")),
+    threadId: v.optional(v.id("threads")),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
 
-    const message = await ctx.db.insert("messages", {
+    const thread = await ctx.db.insert("threads", {
       ...args,
       userId: user._id,
       likeCount: 0,
@@ -37,14 +37,14 @@ export const addThread = mutation({
 
         // await ctx.scheduler.runAfter(500, internal.push.sendPushNotification, {
         //   pushToken,
-        //   messageTitle: "New comment",
-        //   messageBody: args.content,
+        //   threadTitle: "New comment",
+        //   threadBody: args.content,
         //   threadId: args.threadId,
         // });
       }
     }
 
-    return message;
+    return thread;
   },
 });
 
@@ -57,13 +57,13 @@ export const getThreads = query({
     let threads;
     if (args.userId) {
       threads = await ctx.db
-        .query("messages")
+        .query("threads")
         .filter((q) => q.eq(q.field("userId"), args.userId))
         .order("desc")
         .paginate(args.paginationOpts);
     } else {
       threads = await ctx.db
-        .query("messages")
+        .query("threads")
         .filter((q) => q.eq(q.field("threadId"), undefined))
         .order("desc")
         .paginate(args.paginationOpts);
@@ -91,14 +91,14 @@ export const getThreads = query({
 
 export const likeThread = mutation({
   args: {
-    messageId: v.id("messages"),
+    threadId: v.id("threads"),
   },
   handler: async (ctx, args) => {
     await getCurrentUserOrThrow(ctx);
 
-    const message = await ctx.db.get(args.messageId);
+    const message = await ctx.db.get(args.threadId);
 
-    await ctx.db.patch(args.messageId, {
+    await ctx.db.patch(args.threadId, {
       likeCount: (message?.likeCount || 0) + 1,
     });
   },
@@ -106,10 +106,10 @@ export const likeThread = mutation({
 
 export const getThreadById = query({
   args: {
-    messageId: v.id("messages"),
+    threadId: v.id("threads"),
   },
   handler: async (ctx, args) => {
-    const message = await ctx.db.get(args.messageId);
+    const message = await ctx.db.get(args.threadId);
     if (!message) return null;
 
     const creator = await getMessageCreator(ctx, message.userId);
@@ -125,12 +125,12 @@ export const getThreadById = query({
 
 export const getThreadComments = query({
   args: {
-    messageId: v.id("messages"),
+    threadId: v.id("threads"),
   },
   handler: async (ctx, args) => {
     const comments = await ctx.db
-      .query("messages")
-      .filter((q) => q.eq(q.field("threadId"), args.messageId))
+      .query("threads")
+      .filter((q) => q.eq(q.field("threadId"), args.threadId))
       .order("desc")
       .collect();
 
