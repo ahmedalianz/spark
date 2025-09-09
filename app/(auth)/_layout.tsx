@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import { Text, TouchableOpacity } from "react-native";
+import { Platform, Text, TouchableOpacity } from "react-native";
 
 const Layout = () => {
   const router = useRouter();
@@ -14,7 +14,7 @@ const Layout = () => {
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
-        name="(modals)/create"
+        name="(modals)/create-thread"
         options={{
           presentation: "modal",
           title: "New thread",
@@ -33,12 +33,26 @@ const Layout = () => {
         name="(modals)/edit-profile"
         options={{
           presentation: "modal",
-          title: "Edit profile",
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.dismiss()}>
               <Text>Cancel</Text>
             </TouchableOpacity>
           ),
+          headerShown: false,
+          gestureEnabled: true,
+          gestureDirection: "vertical",
+          ...Platform.select({
+            ios: {
+              animationDuration: 200,
+            },
+            android: {
+              animation: "slide_from_bottom",
+              animationDuration: 100,
+              // Android-specific configs:
+              cardOverlayEnabled: true,
+              cardShadowEnabled: true,
+            },
+          }),
         }}
       />
       <Stack.Screen

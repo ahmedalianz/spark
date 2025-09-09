@@ -125,7 +125,7 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
   return (
     <TouchableOpacity
       onPress={() => {
-        router.push("/(auth)/(modal)/create");
+        router.push("/(auth)/(modals)/create-thread");
       }}
       style={
         isPreview && {
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   submitButtonText: {
-    color: "#fff",
+    color: Colors.white,
     fontWeight: "bold",
   },
   mediaContainer: {

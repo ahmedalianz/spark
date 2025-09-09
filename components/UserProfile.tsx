@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -70,7 +71,11 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
               {profile?.first_name} {profile?.last_name}
             </Text>
             <View style={styles.verifiedBadge}>
-              <Ionicons name="checkmark-circle" size={16} color="#667eea" />
+              <Ionicons
+                name="checkmark-circle"
+                size={16}
+                color={Colors.primary}
+              />
             </View>
           </View>
           <Text style={styles.email}>{profile?.email}</Text>
@@ -94,7 +99,7 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
 
         <View style={styles.avatarContainer}>
           <LinearGradient
-            colors={["#667eea", "#764ba2"]}
+            colors={[Colors.primary, Colors.primaryDark]}
             style={styles.avatarGradient}
           >
             <Image
@@ -113,7 +118,7 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
 
         {profile?.websiteUrl && (
           <TouchableOpacity style={styles.websiteContainer}>
-            <Ionicons name="link-outline" size={16} color="#667eea" />
+            <Ionicons name="link-outline" size={16} color={Colors.primary} />
             <Text style={styles.websiteText}>{profile.websiteUrl}</Text>
           </TouchableOpacity>
         )}
@@ -124,7 +129,7 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
         {isSelf ? (
           <View style={styles.buttonRow}>
             <Link
-              href={`/(modal)/edit-profile?biostring=${
+              href={`/(auth)/(modals)/edit-profile?biostring=${
                 profile?.bio ? encodeURIComponent(profile?.bio) : ""
               }&linkstring=${profile?.websiteUrl ? encodeURIComponent(profile?.websiteUrl) : ""}&userId=${
                 profile?._id
@@ -133,19 +138,23 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
             >
               <TouchableOpacity style={styles.primaryButton}>
                 <LinearGradient
-                  colors={["#667eea", "#764ba2"]}
+                  colors={[Colors.primary, Colors.primaryDark]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.buttonGradient}
                 >
-                  <Ionicons name="create-outline" size={18} color="#fff" />
+                  <Ionicons
+                    name="create-outline"
+                    size={18}
+                    color={Colors.white}
+                  />
                   <Text style={styles.primaryButtonText}>Edit Profile</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </Link>
 
             <TouchableOpacity style={styles.secondaryButton}>
-              <Ionicons name="share-outline" size={18} color="#667eea" />
+              <Ionicons name="share-outline" size={18} color={Colors.primary} />
               <Text style={styles.secondaryButtonText}>Share</Text>
             </TouchableOpacity>
           </View>
@@ -153,23 +162,35 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.primaryButton}>
               <LinearGradient
-                colors={["#667eea", "#764ba2"]}
+                colors={[Colors.primary, Colors.primaryDark]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.buttonGradient}
               >
-                <Ionicons name="person-add-outline" size={18} color="#fff" />
+                <Ionicons
+                  name="person-add-outline"
+                  size={18}
+                  color={Colors.white}
+                />
                 <Text style={styles.primaryButtonText}>Follow</Text>
               </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.secondaryButton}>
-              <Ionicons name="chatbubble-outline" size={18} color="#667eea" />
+              <Ionicons
+                name="chatbubble-outline"
+                size={18}
+                color={Colors.primary}
+              />
               <Text style={styles.secondaryButtonText}>Message</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.iconOnlyButton}>
-              <Ionicons name="ellipsis-horizontal" size={20} color="#667eea" />
+              <Ionicons
+                name="ellipsis-horizontal"
+                size={20}
+                color={Colors.primary}
+              />
             </TouchableOpacity>
           </View>
         )}
@@ -202,7 +223,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1a1a1a",
+    color: Colors.black,
     fontFamily: "DMSans_700Bold",
   },
   verifiedBadge: {
@@ -210,7 +231,7 @@ const styles = StyleSheet.create({
   },
   email: {
     fontSize: 15,
-    color: "#666",
+    color: Colors.textTertiary,
     marginBottom: 16,
     fontFamily: "DMSans_400Regular",
   },
@@ -224,19 +245,19 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#1a1a1a",
+    color: Colors.black,
     fontFamily: "DMSans_700Bold",
   },
   statLabel: {
     fontSize: 12,
-    color: "#888",
+    color: Colors.textQuaternary,
     marginTop: 2,
     fontFamily: "DMSans_400Regular",
   },
   statDivider: {
     width: 1,
     height: 24,
-    backgroundColor: "#e0e0e0",
+    backgroundColor: Colors.borderLight,
     marginHorizontal: 20,
   },
   avatarContainer: {
@@ -250,7 +271,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: Colors.borderVeryLight,
   },
 
   bioSection: {
@@ -259,7 +280,7 @@ const styles = StyleSheet.create({
   bio: {
     fontSize: 16,
     lineHeight: 22,
-    color: "#333",
+    color: Colors.textSecondary,
     marginBottom: 12,
     fontFamily: "DMSans_400Regular",
   },
@@ -270,12 +291,12 @@ const styles = StyleSheet.create({
   },
   websiteText: {
     fontSize: 15,
-    color: "#667eea",
+    color: Colors.primary,
     fontFamily: "DMSans_500Medium",
   },
   actionSection: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#f0f0f0",
+    borderTopColor: Colors.borderVeryLight,
     paddingTop: 20,
   },
   buttonRow: {
@@ -298,7 +319,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: Colors.white,
     fontFamily: "DMSans_500Medium",
   },
   secondaryButton: {
@@ -309,24 +330,24 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 25,
-    backgroundColor: "#f8f9ff",
+    backgroundColor: Colors.blueTintLight,
     borderWidth: 1.5,
-    borderColor: "#e6eafe",
+    borderColor: Colors.blueTint,
     gap: 8,
   },
   secondaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#667eea",
+    color: Colors.primary,
     fontFamily: "DMSans_500Medium",
   },
   iconOnlyButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#f8f9ff",
+    backgroundColor: Colors.blueTintLight,
     borderWidth: 1.5,
-    borderColor: "#e6eafe",
+    borderColor: Colors.blueTint,
     alignItems: "center",
     justifyContent: "center",
   },
