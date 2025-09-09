@@ -1,12 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
-
+import { View } from "react-native";
+//useless page just to show on the tabs but the real page is in modals
 const create = () => {
-  return (
-    <View>
-      <Text>create</Text>
-    </View>
-  );
+  return <View />;
 };
 
 export default create;

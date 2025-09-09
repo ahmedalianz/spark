@@ -23,7 +23,7 @@ const Layout = () => {
     <Tabs
       screenOptions={{
         tabBarShowLabel: false,
-        tabBarActiveTintColor: "#000",
+        tabBarActiveTintColor: Colors.primary,
       }}
     >
       <Tabs.Screen

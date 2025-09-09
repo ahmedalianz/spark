@@ -25,7 +25,7 @@ import { usePaginatedQuery } from "convex/react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import ProfileLoader from "./ProfileLoader";
 import Tabs, { tabEnum } from "./Tabs";
-import Thread from "./Threads";
+import Thread from "./Thread";
 import { UserProfile } from "./UserProfile";
 
 type ProfileProps = {
