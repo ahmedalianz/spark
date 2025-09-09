@@ -17,8 +17,6 @@ const Layout = () => {
         name="(modals)/create-thread"
         options={{
           presentation: "modal",
-          title: "",
-          // headerShown: false,
           headerRight: () => (
             <TouchableOpacity>
               <Ionicons

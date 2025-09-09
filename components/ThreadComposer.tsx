@@ -67,27 +67,6 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   const handleSubmit = async () => {
-    if (!threadContent.trim().length && mediaFiles.length === 0) {
-      Animated.sequence([
-        Animated.timing(shakeAnim, {
-          toValue: 10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
-          toValue: -10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
-          toValue: 0,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-      ]).start();
-      return;
-    }
-
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsUploading(true);
 
