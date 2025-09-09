@@ -71,7 +71,7 @@ const Layout = () => {
           tabPress: (e) => {
             e.preventDefault();
             Haptics.selectionAsync();
-            router.push("/(auth)/(modals)/create");
+            router.push("/(auth)/(modals)/create-thread");
           },
         }}
       />
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     color: "blue",
   },
   createIconContainer: {
-    backgroundColor: Colors.itemBackground,
+    backgroundColor: Colors.cardBackground,
     borderRadius: 8,
     padding: 2,
   },
