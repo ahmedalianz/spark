@@ -78,7 +78,6 @@ const Thread = ({ thread }: ThreadProps) => {
                 source={{ uri: creator?.imageUrl }}
                 style={styles.avatar}
               />
-              <View style={styles.statusDot} />
             </View>
             <View style={styles.userDetails}>
               <View style={styles.nameRow}>
@@ -227,17 +226,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: "#f0f0f0",
   },
-  statusDot: {
-    position: "absolute",
-    bottom: -1,
-    right: -1,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: "#4ade80",
-    borderWidth: 2,
-    borderColor: "#fff",
-  },
+
   userDetails: {
     flex: 1,
   },

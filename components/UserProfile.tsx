@@ -1,6 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import formatFollowerCount from "@/utils/formatFollowerCount";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
@@ -50,16 +51,6 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
   if (!profile) {
     return <ProfileLoader />;
   }
-
-  const formatFollowerCount = (count: number) => {
-    if (count >= 1000000) {
-      return `${(count / 1000000).toFixed(1)}M`;
-    }
-    if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K`;
-    }
-    return count.toString();
-  };
 
   return (
     <Animated.View
@@ -111,7 +102,6 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
               style={styles.avatar}
             />
           </LinearGradient>
-          <View style={styles.statusIndicator} />
         </View>
       </View>
 
@@ -262,17 +252,7 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     backgroundColor: "#f0f0f0",
   },
-  statusIndicator: {
-    position: "absolute",
-    bottom: 2,
-    right: 2,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: "#4ade80",
-    borderWidth: 3,
-    borderColor: "#fff",
-  },
+
   bioSection: {
     marginBottom: 24,
   },

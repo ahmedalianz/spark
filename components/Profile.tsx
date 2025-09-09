@@ -89,7 +89,7 @@ export default function Profile({
   }, [signOut]);
 
   const headerOpacity = scrollY.interpolate({
-    inputRange: [100, 400],
+    inputRange: [50, 250],
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
@@ -175,7 +175,7 @@ export default function Profile({
         backgroundColor="#667eea"
         translucent
       />
-      <View style={[styles.container, { paddingTop: top }]}>
+      <View style={styles.container}>
         {/* Animated Header */}
         <Animated.View
           style={[
@@ -330,7 +330,7 @@ export default function Profile({
                 ) : isLoading ? (
                   <ProfileLoader />
                 ) : (
-                  <UserProfile userId={userProfile?._id} />
+                  <UserProfile userId={userProfile?._id} scrollY={scrollY} />
                 )}
               </View>
 
