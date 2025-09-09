@@ -132,7 +132,7 @@ const Thread = ({ thread }: ThreadProps) => {
                 <TouchableOpacity style={styles.mediaWrapper}>
                   <Image source={{ uri: imageUrl }} style={styles.mediaImage} />
                   <LinearGradient
-                    colors={["transparent", "rgba(0,0,0,0.3)"]}
+                    colors={["transparent", Colors.black30]}
                     style={styles.mediaOverlay}
                   />
                 </TouchableOpacity>

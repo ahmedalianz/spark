@@ -71,16 +71,8 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
     setIsUploading(true);
 
     try {
-      let mediaStorageIds: string[] = [];
-
-      if (mediaFiles.length > 0) {
-        for (let i = 0; i < mediaFiles.length; i++) {
-          const file = mediaFiles[i];
-          setUploadProgress(((i + 1) / mediaFiles.length) * 100);
-          const storageId = await uploadMediaFile(file);
-          mediaStorageIds.push(storageId);
-        }
-      }
+      const mediaStorageIds =
+        mediaFiles.length > 0 ? await uploadMediaFiles(mediaFiles) : [];
 
       await addThread({
         threadId,
@@ -88,24 +80,57 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
         mediaFiles: mediaStorageIds,
       });
 
-      resetForm();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      if (onDismiss) {
-        onDismiss();
-      } else {
-        router.dismiss();
-      }
+      resetForm();
+      setTimeout(() => {
+        if (onDismiss) {
+          onDismiss();
+        } else router.dismiss();
+      }, 150);
     } catch (error) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert("Error", "Failed to post thread. Please try again.");
-      console.error("Submit error:", error);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
     }
   };
 
+  const uploadMediaFiles = async (files: MediaFile[]): Promise<string[]> => {
+    const storageIds: string[] = [];
+    let completedCount = 0;
+
+    const uploadPromises = files.map(async (file, index) => {
+      try {
+        const storageId = await uploadMediaFile(file);
+        storageIds[index] = storageId;
+
+        completedCount++;
+        setUploadProgress((completedCount / files.length) * 100);
+
+        return storageId;
+      } catch (error) {
+        console.error(`Failed to upload file ${index}:`, error);
+        // Mark this upload as failed but don't stop others
+        completedCount++;
+        setUploadProgress((completedCount / files.length) * 100);
+        throw error;
+      }
+    });
+
+    try {
+      await Promise.all(uploadPromises);
+      return storageIds.filter(Boolean);
+    } catch (error) {
+      // Some uploads failed, but we might have partial success
+      if (storageIds.some((id) => id)) {
+        // At least one file uploaded successfully
+        console.warn("Partial upload success:", storageIds.filter(Boolean));
+      }
+      throw error;
+    }
+  };
   const resetForm = () => {
     setThreadContent("");
     setMediaFiles([]);
