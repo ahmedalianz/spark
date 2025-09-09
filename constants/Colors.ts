@@ -35,6 +35,8 @@ export const Colors = {
   white20: "rgba(255, 255, 255, 0.2)",
   white30: "rgba(255, 255, 255, 0.3)",
   white10: "rgba(255, 255, 255, 0.1)",
+  // Dark Colors
+  black30: "rgba(0,0,0,0.3)",
 
   // Platform Specific (keep your existing)
   ...Platform.select({
