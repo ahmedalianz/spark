@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import formatCount from "@/utils/formatCount";
@@ -78,14 +79,17 @@ const Thread = ({ thread }: ThreadProps) => {
                 source={{ uri: creator?.imageUrl }}
                 style={styles.avatar}
               />
-              <View style={styles.statusDot} />
             </View>
             <View style={styles.userDetails}>
               <View style={styles.nameRow}>
                 <Text style={styles.username}>
                   {creator?.first_name} {creator?.last_name}
                 </Text>
-                <Ionicons name="checkmark-circle" size={14} color="#667eea" />
+                <Ionicons
+                  name="checkmark-circle"
+                  size={14}
+                  color={Colors.primary}
+                />
                 <Text style={styles.timestamp}>
                   · {formatTimeAgo(thread._creationTime)}
                 </Text>
@@ -98,7 +102,11 @@ const Thread = ({ thread }: ThreadProps) => {
         </Link>
 
         <TouchableOpacity style={styles.moreButton}>
-          <Ionicons name="ellipsis-horizontal" size={20} color="#999" />
+          <Ionicons
+            name="ellipsis-horizontal"
+            size={20}
+            color={Colors.textMuted}
+          />
         </TouchableOpacity>
       </View>
 
@@ -117,7 +125,7 @@ const Thread = ({ thread }: ThreadProps) => {
           >
             {mediaFiles.map((imageUrl, index) => (
               <Link
-                href={`/(auth)/(modal)/image/${encodeURIComponent(imageUrl)}?threadId=${thread._id}&likeCount=${localLikeCount}&commentCount=${commentCount}&retweetCount=${retweetCount}`}
+                href={`/(auth)/(modals)/image/${encodeURIComponent(imageUrl)}?threadId=${thread._id}&likeCount=${localLikeCount}&commentCount=${commentCount}&retweetCount=${retweetCount}`}
                 key={index}
                 asChild
               >
@@ -169,7 +177,7 @@ const Thread = ({ thread }: ThreadProps) => {
             <Ionicons
               name={isLiked ? "heart" : "heart-outline"}
               size={22}
-              color={isLiked ? "#ff3b5c" : "#666"}
+              color={isLiked ? Colors.like : Colors.textTertiary}
             />
             <Text style={[styles.actionText, isLiked && styles.likedText]}>
               {formatCount(localLikeCount)}
@@ -178,18 +186,26 @@ const Thread = ({ thread }: ThreadProps) => {
         </Animated.View>
 
         <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="chatbubble-outline" size={22} color="#666" />
+          <Ionicons
+            name="chatbubble-outline"
+            size={22}
+            color={Colors.textTertiary}
+          />
           <Text style={styles.actionText}>{formatCount(commentCount)}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="repeat-outline" size={24} color="#666" />
+          <Ionicons
+            name="repeat-outline"
+            size={24}
+            color={Colors.textTertiary}
+          />
           <Text style={styles.actionText}>{formatCount(retweetCount)}</Text>
         </TouchableOpacity>
 
         <View style={styles.rightActions}>
           <TouchableOpacity style={styles.shareButton}>
-            <Feather name="send" size={20} color="#666" />
+            <Feather name="send" size={20} color={Colors.textTertiary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -201,7 +217,7 @@ export default Thread;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     paddingVertical: 16,
     borderRadius: 16,
     paddingHorizontal: 20,
@@ -225,19 +241,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: Colors.borderVeryLight,
   },
-  statusDot: {
-    position: "absolute",
-    bottom: -1,
-    right: -1,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: "#4ade80",
-    borderWidth: 2,
-    borderColor: "#fff",
-  },
+
   userDetails: {
     flex: 1,
   },
@@ -249,19 +255,19 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#1a1a1a",
+    color: Colors.black,
     marginRight: 4,
     fontFamily: "DMSans_700Bold",
   },
   timestamp: {
     fontSize: 14,
-    color: "#999",
+    color: Colors.textMuted,
     marginLeft: 4,
     fontFamily: "DMSans_400Regular",
   },
   handle: {
     fontSize: 14,
-    color: "#666",
+    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
   moreButton: {
@@ -274,7 +280,7 @@ const styles = StyleSheet.create({
   contentText: {
     fontSize: 16,
     lineHeight: 22,
-    color: "#1a1a1a",
+    color: Colors.black,
     marginBottom: 12,
     fontFamily: "DMSans_400Regular",
   },
@@ -290,7 +296,7 @@ const styles = StyleSheet.create({
   mediaImage: {
     width: SCREEN_WIDTH * 0.8,
     height: 240,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: Colors.borderVeryLight,
   },
   mediaOverlay: {
     position: "absolute",
@@ -302,7 +308,7 @@ const styles = StyleSheet.create({
   statsBar: {
     borderTopWidth: StyleSheet.hairlineWidth,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: "#f0f0f0",
+    borderColor: Colors.borderVeryLight,
     paddingVertical: 8,
     marginBottom: 8,
   },
@@ -312,7 +318,7 @@ const styles = StyleSheet.create({
   },
   statText: {
     fontSize: 13,
-    color: "#666",
+    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
   actions: {
@@ -334,12 +340,12 @@ const styles = StyleSheet.create({
   actionText: {
     marginLeft: 6,
     fontSize: 13,
-    color: "#666",
+    color: Colors.textTertiary,
     fontWeight: "500",
     fontFamily: "DMSans_500Medium",
   },
   likedText: {
-    color: "#ff3b5c",
+    color: Colors.like,
   },
   rightActions: {
     flexDirection: "row",

@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
 import {
@@ -58,7 +59,7 @@ const Tabs: React.FC<TabsProps> = ({ onTabChange, activeTab = "Threads" }) => {
         ]}
       >
         <LinearGradient
-          colors={["#667eea", "#764ba2"]}
+          colors={[Colors.primary, Colors.primaryDark]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.gradient}
@@ -97,9 +98,9 @@ const Tabs: React.FC<TabsProps> = ({ onTabChange, activeTab = "Threads" }) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: Colors.borderVeryLight,
     position: "relative",
   },
   indicatorContainer: {
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#666",
+    color: Colors.textTertiary,
     fontFamily: "DMSans_500Medium",
   },
   activeTabText: {

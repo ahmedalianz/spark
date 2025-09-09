@@ -17,12 +17,12 @@ import {
   View,
 } from "react-native";
 
+import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@clerk/clerk-expo";
 import { usePaginatedQuery } from "convex/react";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ProfileLoader from "./ProfileLoader";
 import Tabs, { tabEnum } from "./Tabs";
 import Thread from "./Threads";
@@ -37,7 +37,6 @@ export default function Profile({
   userId,
   showBackButton = false,
 }: ProfileProps) {
-  const { top } = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<tabEnum>("Threads");
   const [refreshing, setRefreshing] = useState(false);
   const { userProfile, isLoading } = useUserProfile();
@@ -89,7 +88,7 @@ export default function Profile({
   }, [signOut]);
 
   const headerOpacity = scrollY.interpolate({
-    inputRange: [100, 400],
+    inputRange: [50, 250],
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
@@ -128,7 +127,7 @@ export default function Profile({
     if (status === "LoadingMore") {
       return (
         <View style={styles.loadingFooter}>
-          <ActivityIndicator color="#667eea" size="small" />
+          <ActivityIndicator color={Colors.primary} size="small" />
           <Text style={styles.loadingText}>Loading more...</Text>
         </View>
       );
@@ -141,7 +140,7 @@ export default function Profile({
           onPress={handleLoadMore}
         >
           <Text style={styles.loadMoreText}>Load More</Text>
-          <Ionicons name="chevron-down" size={16} color="#667eea" />
+          <Ionicons name="chevron-down" size={16} color={Colors.primary} />
         </TouchableOpacity>
       );
     }
@@ -170,18 +169,14 @@ export default function Profile({
 
   return (
     <>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="#667eea"
-        translucent
-      />
-      <View style={[styles.container, { paddingTop: top }]}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <View style={styles.container}>
         {/* Animated Header */}
         <Animated.View
           style={[
             styles.animatedHeader,
             { opacity: headerOpacity },
-            Platform.OS === "android" && { backgroundColor: "#667eea" },
+            Platform.OS === "android" && { backgroundColor: Colors.primary },
           ]}
         >
           {Platform.OS === "ios" && (
@@ -200,7 +195,9 @@ export default function Profile({
                 <Ionicons
                   name="chevron-back"
                   size={24}
-                  color={Platform.OS === "android" ? "#fff" : "#1a1a1a"}
+                  color={
+                    Platform.OS === "android" ? Colors.white : Colors.black
+                  }
                 />
               </TouchableOpacity>
             ) : (
@@ -208,7 +205,9 @@ export default function Profile({
                 <MaterialCommunityIcons
                   name="web"
                   size={24}
-                  color={Platform.OS === "android" ? "#fff" : "#1a1a1a"}
+                  color={
+                    Platform.OS === "android" ? Colors.white : Colors.black
+                  }
                 />
               </TouchableOpacity>
             )}
@@ -217,11 +216,12 @@ export default function Profile({
               style={[
                 styles.headerTitle,
                 {
-                  color: Platform.OS === "android" ? "#fff" : "#1a1a1a",
+                  color:
+                    Platform.OS === "android" ? Colors.white : Colors.black,
                 },
               ]}
             >
-              Profile
+              {`${userProfile?.first_name} ${userProfile?.last_name}`}
             </Text>
 
             <View style={styles.headerActions}>
@@ -229,7 +229,9 @@ export default function Profile({
                 <Ionicons
                   name="logo-facebook"
                   size={22}
-                  color={Platform.OS === "android" ? "#fff" : "#1a1a1a"}
+                  color={
+                    Platform.OS === "android" ? Colors.white : Colors.black
+                  }
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -239,7 +241,9 @@ export default function Profile({
                 <Ionicons
                   name="log-out-outline"
                   size={22}
-                  color={Platform.OS === "android" ? "#fff" : "#1a1a1a"}
+                  color={
+                    Platform.OS === "android" ? Colors.white : Colors.black
+                  }
                 />
               </TouchableOpacity>
             </View>
@@ -255,8 +259,8 @@ export default function Profile({
             <RefreshControl
               refreshing={refreshing}
               onRefresh={handleRefresh}
-              tintColor="#667eea"
-              colors={["#667eea"]}
+              tintColor={Colors.primary}
+              colors={[Colors.primary]}
             />
           }
           onScroll={Animated.event(
@@ -274,7 +278,7 @@ export default function Profile({
           ListHeaderComponent={
             <>
               <LinearGradient
-                colors={["#667eea", "#764ba2"]}
+                colors={[Colors.primary, Colors.primaryDark]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.heroGradient}
@@ -286,7 +290,11 @@ export default function Profile({
                       onPress={router.back}
                     >
                       <View style={styles.backButtonBackground}>
-                        <Ionicons name="chevron-back" size={20} color="#fff" />
+                        <Ionicons
+                          name="chevron-back"
+                          size={20}
+                          color={Colors.white}
+                        />
                       </View>
                       <Text style={styles.backText}>Back</Text>
                     </TouchableOpacity>
@@ -296,7 +304,7 @@ export default function Profile({
                         <MaterialCommunityIcons
                           name="web"
                           size={20}
-                          color="#fff"
+                          color={Colors.white}
                         />
                       </View>
                     </TouchableOpacity>
@@ -305,7 +313,11 @@ export default function Profile({
                   <View style={styles.heroActions}>
                     <TouchableOpacity style={styles.iconButton}>
                       <View style={styles.iconButtonBackground}>
-                        <Ionicons name="logo-facebook" size={18} color="#fff" />
+                        <Ionicons
+                          name="logo-facebook"
+                          size={18}
+                          color={Colors.white}
+                        />
                       </View>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -316,7 +328,7 @@ export default function Profile({
                         <Ionicons
                           name="log-out-outline"
                           size={18}
-                          color="#fff"
+                          color={Colors.white}
                         />
                       </View>
                     </TouchableOpacity>
@@ -341,7 +353,7 @@ export default function Profile({
               {/* Loading indicator for first page */}
               {status === "LoadingFirstPage" && (
                 <View style={styles.firstPageLoading}>
-                  <ActivityIndicator color="#667eea" size="large" />
+                  <ActivityIndicator color={Colors.primary} size="large" />
                   <Text style={styles.loadingText}>
                     Loading {activeTab.toLowerCase()}...
                   </Text>
@@ -357,7 +369,7 @@ export default function Profile({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fafafa",
+    backgroundColor: Colors.lightBackground,
     flex: 1,
   },
   animatedHeader: {
@@ -414,13 +426,13 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: Colors.white20,
     justifyContent: "center",
     alignItems: "center",
   },
   backText: {
     fontSize: 16,
-    color: "#fff",
+    color: Colors.white,
     fontWeight: "600",
     fontFamily: "DMSans_500Medium",
   },
@@ -431,12 +443,12 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: Colors.white20,
     justifyContent: "center",
     alignItems: "center",
   },
   profileSection: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginTop: -20,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -451,10 +463,10 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   tabsContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
   },
   threadWrapper: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 16,
     marginVertical: 4,
     borderRadius: 16,
@@ -478,13 +490,13 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#666",
+    color: Colors.textTertiary,
     marginTop: 16,
     fontFamily: "DMSans_500Medium",
   },
   emptyStateSubtext: {
     fontSize: 14,
-    color: "#999",
+    color: Colors.textMuted,
     textAlign: "center",
     marginTop: 8,
     fontFamily: "DMSans_400Regular",
@@ -503,7 +515,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: "#666",
+    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
   loadMoreButton: {
@@ -513,15 +525,15 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginHorizontal: 16,
     marginVertical: 8,
-    backgroundColor: "#f8f9ff",
+    backgroundColor: Colors.blueTintLight,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e6eafe",
+    borderColor: Colors.blueTint,
     gap: 6,
   },
   loadMoreText: {
     fontSize: 14,
-    color: "#667eea",
+    color: Colors.primary,
     fontWeight: "600",
     fontFamily: "DMSans_500Medium",
   },
@@ -531,7 +543,7 @@ const styles = StyleSheet.create({
   },
   endMessageText: {
     fontSize: 14,
-    color: "#999",
+    color: Colors.textMuted,
     fontFamily: "DMSans_400Regular",
   },
 });

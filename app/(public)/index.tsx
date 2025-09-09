@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { useSSO } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -139,7 +140,11 @@ export default function Index() {
           >
             <View style={styles.loginButtonContent}>
               <View style={[styles.iconWrapper, styles.guestIconWrapper]}>
-                <Ionicons name="eye-outline" size={20} color="#666" />
+                <Ionicons
+                  name="eye-outline"
+                  size={20}
+                  color={Colors.textTertiary}
+                />
               </View>
               <View style={styles.textContainer}>
                 <Text style={styles.loginButtonText}>Browse as Guest</Text>
@@ -148,7 +153,11 @@ export default function Index() {
                 </Text>
               </View>
               <View style={styles.chevronContainer}>
-                <Ionicons name="chevron-forward" size={18} color="#666" />
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={Colors.textTertiary}
+                />
               </View>
             </View>
           </TouchableOpacity>
@@ -156,7 +165,11 @@ export default function Index() {
 
         <View style={styles.footerSection}>
           <TouchableOpacity onPress={triggerError} style={styles.switchButton}>
-            <Ionicons name="swap-horizontal-outline" size={16} color="#666" />
+            <Ionicons
+              name="swap-horizontal-outline"
+              size={16}
+              color={Colors.textTertiary}
+            />
             <Text style={styles.switchAccountButtonText}>Switch Account</Text>
           </TouchableOpacity>
 
@@ -176,7 +189,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fafafa",
+    backgroundColor: Colors.lightBackground,
   },
 
   imageContainer: {
@@ -242,7 +255,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "DMSans_400Regular",
     textAlign: "center",
-    color: "#666",
+    color: Colors.textTertiary,
     lineHeight: 22,
     paddingHorizontal: 20,
   },
@@ -253,7 +266,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   loginButton: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderRadius: 16,
@@ -312,7 +325,7 @@ const styles = StyleSheet.create({
   buttonSubtext: {
     fontSize: 12,
     fontFamily: "DMSans_400Regular",
-    color: "#888",
+    color: Colors.textQuaternary,
     lineHeight: 16,
   },
   chevronContainer: {
@@ -338,7 +351,7 @@ const styles = StyleSheet.create({
   switchAccountButtonText: {
     fontSize: 14,
     fontFamily: "DMSans_500Medium",
-    color: "#666",
+    color: Colors.textTertiary,
   },
   divider: {
     width: 40,
@@ -348,7 +361,7 @@ const styles = StyleSheet.create({
   legalText: {
     fontSize: 11,
     fontFamily: "DMSans_400Regular",
-    color: "#999",
+    color: Colors.textMuted,
     textAlign: "center",
     lineHeight: 16,
     paddingHorizontal: 24,

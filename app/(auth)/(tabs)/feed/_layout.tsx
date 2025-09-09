@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 const Layout = () => {
@@ -5,7 +6,7 @@ const Layout = () => {
     <Stack
       screenOptions={{
         contentStyle: {
-          backgroundColor: "#fff",
+          backgroundColor: Colors.white,
         },
       }}
     >

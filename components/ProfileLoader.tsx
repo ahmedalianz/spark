@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: Colors.borderVeryLight,
   },
   loadingContent: {
     flex: 1,
@@ -37,13 +38,13 @@ const styles = StyleSheet.create({
   },
   loadingLine: {
     height: 16,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: Colors.borderVeryLight,
     borderRadius: 8,
     width: "80%",
   },
   loadingBioLine: {
     height: 16,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: Colors.borderVeryLight,
     borderRadius: 8,
     marginTop: 20,
   },
