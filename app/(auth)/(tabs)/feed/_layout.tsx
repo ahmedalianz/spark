@@ -13,7 +13,7 @@ const Layout = () => {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="profile/[id]" options={{ headerShown: false }} />
       <Stack.Screen
-        name="[id]"
+        name="thread/[id]"
         options={{
           title: "Thread",
           headerShadowVisible: false,

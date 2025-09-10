@@ -1,12 +1,12 @@
 import React from "react";
 import { Text, View } from "react-native";
 
-const profile = () => {
+const SingleFeed = () => {
   return (
     <View>
-      <Text>profile</Text>
+      <Text>SingjjjleFeed</Text>
     </View>
   );
 };
 
-export default profile;
+export default SingleFeed;
