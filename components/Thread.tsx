@@ -26,14 +26,8 @@ type ThreadProps = {
 };
 
 const Thread = ({ thread }: ThreadProps) => {
-  const {
-    content,
-    mediaFiles,
-    likeCount,
-    commentCount,
-    retweetCount,
-    creator,
-  } = thread;
+  const { content, mediaFiles, likeCount, commentCount, repostCount, creator } =
+    thread;
 
   const likeThread = useMutation(api.threads.likeThread);
   const [isLiked, setIsLiked] = useState(false);
@@ -70,7 +64,6 @@ const Thread = ({ thread }: ThreadProps) => {
 
   return (
     <View style={styles.container}>
-      {/* Header with Avatar and User Info */}
       <View style={styles.header}>
         <Link href={`/feed/profile/${creator?._id}`} asChild>
           <TouchableOpacity style={styles.userInfo}>
@@ -125,7 +118,7 @@ const Thread = ({ thread }: ThreadProps) => {
           >
             {mediaFiles.map((imageUrl, index) => (
               <Link
-                href={`/(auth)/(modals)/image/${encodeURIComponent(imageUrl)}?threadId=${thread._id}&likeCount=${localLikeCount}&commentCount=${commentCount}&retweetCount=${retweetCount}`}
+                href={`/(auth)/(modals)/image/${encodeURIComponent(imageUrl)}?&likeCount=${localLikeCount}&commentCount=${commentCount}&repostCount=${repostCount}`}
                 key={index}
                 asChild
               >
@@ -143,7 +136,7 @@ const Thread = ({ thread }: ThreadProps) => {
       </View>
 
       {/* Engagement Stats */}
-      {(localLikeCount > 0 || commentCount > 0 || retweetCount > 0) && (
+      {(localLikeCount > 0 || commentCount > 0 || repostCount > 0) && (
         <View style={styles.statsBar}>
           <View style={styles.statsRow}>
             {localLikeCount > 0 && (
@@ -158,9 +151,9 @@ const Thread = ({ thread }: ThreadProps) => {
                 {commentCount === 1 ? "reply" : "replies"}
               </Text>
             )}
-            {retweetCount > 0 && (
+            {repostCount > 0 && (
               <Text style={styles.statText}>
-                {formatCount(retweetCount)} reposts
+                {formatCount(repostCount)} reposts
               </Text>
             )}
           </View>
@@ -200,7 +193,7 @@ const Thread = ({ thread }: ThreadProps) => {
             size={24}
             color={Colors.textTertiary}
           />
-          <Text style={styles.actionText}>{formatCount(retweetCount)}</Text>
+          <Text style={styles.actionText}>{formatCount(repostCount)}</Text>
         </TouchableOpacity>
 
         <View style={styles.rightActions}>

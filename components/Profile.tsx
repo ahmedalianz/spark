@@ -10,7 +10,6 @@ import {
   FlatList,
   Platform,
   RefreshControl,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -158,7 +157,7 @@ export default function Profile({
 
   const renderItem = useCallback(
     ({ item }: { item: any }) => (
-      <Link href={`/feed/${item._id}`} asChild>
+      <Link href={`/feed/thread/${item._id}`} asChild>
         <TouchableOpacity style={styles.threadWrapper}>
           <Thread thread={item as Doc<"threads"> & { creator: Doc<"users"> }} />
         </TouchableOpacity>
@@ -168,202 +167,187 @@ export default function Profile({
   );
 
   return (
-    <>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
-      <View style={styles.container}>
-        {/* Animated Header */}
-        <Animated.View
-          style={[
-            styles.animatedHeader,
-            { opacity: headerOpacity },
-            Platform.OS === "android" && { backgroundColor: Colors.primary },
-          ]}
-        >
-          {Platform.OS === "ios" && (
-            <BlurView
-              intensity={100}
-              tint="prominent"
-              style={StyleSheet.absoluteFillObject}
-            />
+    <View style={styles.container}>
+      {/* Animated Header */}
+      <Animated.View
+        style={[
+          styles.animatedHeader,
+          { opacity: headerOpacity },
+          Platform.OS === "android" && { backgroundColor: Colors.primary },
+        ]}
+      >
+        {Platform.OS === "ios" && (
+          <BlurView
+            intensity={100}
+            tint="prominent"
+            style={StyleSheet.absoluteFillObject}
+          />
+        )}
+        <View style={styles.headerContent}>
+          {showBackButton ? (
+            <TouchableOpacity style={styles.headerButton} onPress={router.back}>
+              <Ionicons
+                name="chevron-back"
+                size={24}
+                color={Platform.OS === "android" ? Colors.white : Colors.black}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.headerButton}>
+              <MaterialCommunityIcons
+                name="web"
+                size={24}
+                color={Platform.OS === "android" ? Colors.white : Colors.black}
+              />
+            </TouchableOpacity>
           )}
-          <View style={styles.headerContent}>
-            {showBackButton ? (
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={router.back}
-              >
-                <Ionicons
-                  name="chevron-back"
-                  size={24}
-                  color={
-                    Platform.OS === "android" ? Colors.white : Colors.black
-                  }
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={styles.headerButton}>
-                <MaterialCommunityIcons
-                  name="web"
-                  size={24}
-                  color={
-                    Platform.OS === "android" ? Colors.white : Colors.black
-                  }
-                />
-              </TouchableOpacity>
-            )}
 
-            <Text
-              style={[
-                styles.headerTitle,
-                {
-                  color:
-                    Platform.OS === "android" ? Colors.white : Colors.black,
-                },
-              ]}
+          <Text
+            style={[
+              styles.headerTitle,
+              {
+                color: Platform.OS === "android" ? Colors.white : Colors.black,
+              },
+            ]}
+          >
+            {`${userProfile?.first_name} ${userProfile?.last_name}`}
+          </Text>
+
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.headerButton}>
+              <Ionicons
+                name="logo-facebook"
+                size={22}
+                color={Platform.OS === "android" ? Colors.white : Colors.black}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={signOutHandler}
             >
-              {`${userProfile?.first_name} ${userProfile?.last_name}`}
-            </Text>
-
-            <View style={styles.headerActions}>
-              <TouchableOpacity style={styles.headerButton}>
-                <Ionicons
-                  name="logo-facebook"
-                  size={22}
-                  color={
-                    Platform.OS === "android" ? Colors.white : Colors.black
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={signOutHandler}
-              >
-                <Ionicons
-                  name="log-out-outline"
-                  size={22}
-                  color={
-                    Platform.OS === "android" ? Colors.white : Colors.black
-                  }
-                />
-              </TouchableOpacity>
-            </View>
+              <Ionicons
+                name="log-out-outline"
+                size={22}
+                color={Platform.OS === "android" ? Colors.white : Colors.black}
+              />
+            </TouchableOpacity>
           </View>
-        </Animated.View>
+        </View>
+      </Animated.View>
 
-        <FlatList
-          data={results}
-          renderItem={renderItem}
-          keyExtractor={(item) => item._id}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={Colors.primary}
-              colors={[Colors.primary]}
-            />
-          }
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: false }
-          )}
-          scrollEventThrottle={16}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            status === "LoadingFirstPage" ? null : renderEmptyComponent
-          }
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          ListFooterComponent={renderFooter}
-          ListHeaderComponent={
-            <>
-              <LinearGradient
-                colors={[Colors.primary, Colors.primaryDark]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.heroGradient}
-              >
-                <View style={styles.heroContent}>
-                  {showBackButton ? (
-                    <TouchableOpacity
-                      style={styles.backButton}
-                      onPress={router.back}
-                    >
-                      <View style={styles.backButtonBackground}>
-                        <Ionicons
-                          name="chevron-back"
-                          size={20}
-                          color={Colors.white}
-                        />
-                      </View>
-                      <Text style={styles.backText}>Back</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity style={styles.iconButton}>
-                      <View style={styles.iconButtonBackground}>
-                        <MaterialCommunityIcons
-                          name="web"
-                          size={20}
-                          color={Colors.white}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                  )}
-
-                  <View style={styles.heroActions}>
-                    <TouchableOpacity style={styles.iconButton}>
-                      <View style={styles.iconButtonBackground}>
-                        <Ionicons
-                          name="logo-facebook"
-                          size={18}
-                          color={Colors.white}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.iconButton}
-                      onPress={signOutHandler}
-                    >
-                      <View style={styles.iconButtonBackground}>
-                        <Ionicons
-                          name="log-out-outline"
-                          size={18}
-                          color={Colors.white}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </LinearGradient>
-
-              <View style={styles.profileSection}>
-                {userId ? (
-                  <UserProfile userId={userId} />
-                ) : isLoading ? (
-                  <ProfileLoader />
+      <FlatList
+        data={results}
+        renderItem={renderItem}
+        keyExtractor={(item) => item._id}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
+          />
+        }
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
+        scrollEventThrottle={16}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListEmptyComponent={
+          status === "LoadingFirstPage" ? null : renderEmptyComponent
+        }
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListFooterComponent={renderFooter}
+        ListHeaderComponent={
+          <>
+            <LinearGradient
+              colors={[Colors.primary, Colors.primaryDark]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              <View style={styles.heroContent}>
+                {showBackButton ? (
+                  <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={router.back}
+                  >
+                    <View style={styles.backButtonBackground}>
+                      <Ionicons
+                        name="chevron-back"
+                        size={20}
+                        color={Colors.white}
+                      />
+                    </View>
+                    <Text style={styles.backText}>Back</Text>
+                  </TouchableOpacity>
                 ) : (
-                  <UserProfile userId={userProfile?._id} />
+                  <TouchableOpacity style={styles.iconButton}>
+                    <View style={styles.iconButtonBackground}>
+                      <MaterialCommunityIcons
+                        name="web"
+                        size={20}
+                        color={Colors.white}
+                      />
+                    </View>
+                  </TouchableOpacity>
                 )}
-              </View>
 
-              <View style={styles.tabsContainer}>
-                <Tabs onTabChange={handleTabChange} activeTab={activeTab} />
-              </View>
-
-              {/* Loading indicator for first page */}
-              {status === "LoadingFirstPage" && (
-                <View style={styles.firstPageLoading}>
-                  <ActivityIndicator color={Colors.primary} size="large" />
-                  <Text style={styles.loadingText}>
-                    Loading {activeTab.toLowerCase()}...
-                  </Text>
+                <View style={styles.heroActions}>
+                  <TouchableOpacity style={styles.iconButton}>
+                    <View style={styles.iconButtonBackground}>
+                      <Ionicons
+                        name="logo-facebook"
+                        size={18}
+                        color={Colors.white}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={signOutHandler}
+                  >
+                    <View style={styles.iconButtonBackground}>
+                      <Ionicons
+                        name="log-out-outline"
+                        size={18}
+                        color={Colors.white}
+                      />
+                    </View>
+                  </TouchableOpacity>
                 </View>
+              </View>
+            </LinearGradient>
+
+            <View style={styles.profileSection}>
+              {userId ? (
+                <UserProfile userId={userId} />
+              ) : isLoading ? (
+                <ProfileLoader />
+              ) : (
+                <UserProfile userId={userProfile?._id} />
               )}
-            </>
-          }
-        />
-      </View>
-    </>
+            </View>
+
+            <View style={styles.tabsContainer}>
+              <Tabs onTabChange={handleTabChange} activeTab={activeTab} />
+            </View>
+
+            {/* Loading indicator for first page */}
+            {status === "LoadingFirstPage" && (
+              <View style={styles.firstPageLoading}>
+                <ActivityIndicator color={Colors.primary} size="large" />
+                <Text style={styles.loadingText}>
+                  Loading {activeTab.toLowerCase()}...
+                </Text>
+              </View>
+            )}
+          </>
+        }
+      />
+    </View>
   );
 }
 

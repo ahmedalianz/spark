@@ -91,15 +91,6 @@ const Layout = () => {
               <Ionicons name="close" size={24} color="white" />
             </TouchableOpacity>
           ),
-          headerRight: () => (
-            <TouchableOpacity>
-              <Ionicons
-                name="ellipsis-horizontal-circle"
-                size={24}
-                color="white"
-              />
-            </TouchableOpacity>
-          ),
         }}
       />
     </Stack>

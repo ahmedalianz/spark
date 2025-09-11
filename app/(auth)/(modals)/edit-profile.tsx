@@ -1,6 +1,5 @@
 import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { Ionicons } from "@expo/vector-icons";
 import * as Sentry from "@sentry/react-native";
 import { useMutation } from "convex/react";
@@ -74,7 +73,6 @@ const EditProfilePage = () => {
 
     try {
       await updateUser({
-        _id: userId as Id<"users">,
         bio: bio || undefined,
         websiteUrl: link || undefined,
       });
@@ -112,7 +110,7 @@ const EditProfilePage = () => {
       });
 
       const { storageId } = await result.json();
-      await updateImage({ storageId, _id: userId as Id<"users"> });
+      await updateImage({ storageId });
     } catch (error) {
       console.error("Image upload failed:", error);
       throw error;

@@ -46,7 +46,6 @@ const MAX_MEDIA_FILES = 10;
 const ThreadComposer: React.FC<ThreadComposerProps> = ({
   isPreview,
   isReply,
-  threadId,
   onDismiss,
   initialContent = "",
 }) => {
@@ -75,7 +74,6 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
         mediaFiles.length > 0 ? await uploadMediaFiles(mediaFiles) : [];
 
       await addThread({
-        threadId,
         content: threadContent,
         mediaFiles: mediaStorageIds,
       });
@@ -187,9 +185,8 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
           result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
             aspect: [4, 3],
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             quality: 0.8,
-            videoMaxDuration: 60,
           });
           break;
 
@@ -205,7 +202,7 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
           }
           result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: false,
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             quality: 0.8,
             allowsMultipleSelection: true,
             selectionLimit: MAX_MEDIA_FILES - mediaFiles.length,
@@ -314,7 +311,7 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
   const { top } = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { paddingTop: top }]}>
+    <View style={[styles.container, { paddingTop: isPreview ? 0 : top }]}>
       <Stack.Screen
         options={{
           headerLeft: () => (
@@ -379,6 +376,12 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        {isPreview && (
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/(modals)/create-thread")}
+            style={styles.previewDisabledContainer}
+          />
+        )}
         <View style={styles.contentCard}>
           <View style={styles.userSection}>
             <Image
@@ -398,7 +401,11 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
           <Animated.View style={[{ transform: [{ translateX: shakeAnim }] }]}>
             <TextInput
               ref={textInputRef}
-              style={[styles.input, isExpanded && styles.inputExpanded]}
+              style={[
+                styles.input,
+                isExpanded && styles.inputExpanded,
+                isPreview && styles.inputPreview,
+              ]}
               placeholder={
                 isReply ? "Reply to this thread..." : "What's happening?"
               }
@@ -412,6 +419,7 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
               autoFocus={!isPreview}
               textAlignVertical="top"
               scrollEnabled={false}
+              editable={!isPreview}
             />
           </Animated.View>
 
@@ -433,65 +441,70 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
               )}
             </ScrollView>
           )}
+          {!isPreview && (
+            <View style={styles.iconRow}>
+              <TouchableOpacity
+                style={[
+                  styles.iconButton,
+                  mediaFiles.length >= MAX_MEDIA_FILES &&
+                    styles.iconButtonDisabled,
+                ]}
+                onPress={() => selectMedia("library")}
+                disabled={mediaFiles.length >= MAX_MEDIA_FILES}
+              >
+                <Ionicons
+                  name="images-outline"
+                  size={22}
+                  color={
+                    mediaFiles.length >= MAX_MEDIA_FILES
+                      ? Colors.textDisabled
+                      : Colors.primary
+                  }
+                />
+              </TouchableOpacity>
 
-          <View style={styles.iconRow}>
-            <TouchableOpacity
-              style={[
-                styles.iconButton,
-                mediaFiles.length >= MAX_MEDIA_FILES &&
-                  styles.iconButtonDisabled,
-              ]}
-              onPress={() => selectMedia("library")}
-              disabled={mediaFiles.length >= MAX_MEDIA_FILES}
-            >
-              <Ionicons
-                name="images-outline"
-                size={22}
-                color={
-                  mediaFiles.length >= MAX_MEDIA_FILES
-                    ? Colors.textDisabled
-                    : Colors.primary
-                }
-              />
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.iconButton,
+                  mediaFiles.length >= MAX_MEDIA_FILES &&
+                    styles.iconButtonDisabled,
+                ]}
+                onPress={() => selectMedia("camera")}
+                disabled={mediaFiles.length >= MAX_MEDIA_FILES}
+              >
+                <Ionicons
+                  name="camera-outline"
+                  size={22}
+                  color={
+                    mediaFiles.length >= MAX_MEDIA_FILES
+                      ? Colors.textDisabled
+                      : Colors.primary
+                  }
+                />
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[
-                styles.iconButton,
-                mediaFiles.length >= MAX_MEDIA_FILES &&
-                  styles.iconButtonDisabled,
-              ]}
-              onPress={() => selectMedia("camera")}
-              disabled={mediaFiles.length >= MAX_MEDIA_FILES}
-            >
-              <Ionicons
-                name="camera-outline"
-                size={22}
-                color={
-                  mediaFiles.length >= MAX_MEDIA_FILES
-                    ? Colors.textDisabled
-                    : Colors.primary
-                }
-              />
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => setShowEmojiPicker(true)}
+              >
+                <Ionicons
+                  name="happy-outline"
+                  size={22}
+                  color={Colors.primary}
+                />
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => setShowEmojiPicker(true)}
-            >
-              <Ionicons name="happy-outline" size={22} color={Colors.primary} />
-            </TouchableOpacity>
+              <View style={styles.spacer} />
 
-            <View style={styles.spacer} />
-
-            <TouchableOpacity onPress={resetForm} style={styles.clearButton}>
-              <Ionicons
-                name="refresh-outline"
-                size={20}
-                color={Colors.textMuted}
-              />
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity onPress={resetForm} style={styles.clearButton}>
+                <Ionicons
+                  name="refresh-outline"
+                  size={20}
+                  color={Colors.textMuted}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -798,6 +811,21 @@ const styles = StyleSheet.create({
   },
   emojiText: {
     fontSize: 24,
+  },
+  inputPreview: {
+    minHeight: 40,
+    marginBottom: 0,
+  },
+
+  previewDisabledContainer: {
+    width: "100%",
+    height: "100%",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    pointerEvents: "box-only",
+    position: "absolute",
   },
 });
 

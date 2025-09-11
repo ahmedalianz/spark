@@ -1,37 +1,71 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-export const User = {
-  email: v.string(),
-  clerkId: v.string(),
-  imageUrl: v.optional(v.string()),
-  first_name: v.optional(v.string()),
-  last_name: v.optional(v.string()),
-  username: v.union(v.string(), v.null()),
-  bio: v.optional(v.string()),
-  location: v.optional(v.string()),
-  websiteUrl: v.optional(v.string()),
-  followersCount: v.number(),
-  followingsCount: v.number(),
-  pushToken: v.optional(v.string()),
-};
-
-export const Thread = {
-  userId: v.id("users"), // Foreign key to users table
-  threadId: v.optional(v.string()),
-  content: v.string(),
-  likeCount: v.number(), // Default value 0
-  commentCount: v.number(), // Default value 0
-  retweetCount: v.number(), // Default value 0
-  mediaFiles: v.optional(v.array(v.string())), // Array of media file URLs
-  websiteUrl: v.optional(v.string()), // Optional website URL
-};
-
 export default defineSchema({
-  users: defineTable(User)
+  users: defineTable({
+    email: v.string(),
+    clerkId: v.string(),
+    imageUrl: v.optional(v.string()),
+    first_name: v.optional(v.string()),
+    last_name: v.optional(v.string()),
+    username: v.string(),
+    bio: v.optional(v.string()),
+    websiteUrl: v.optional(v.string()),
+    followersCount: v.number(),
+    followingsCount: v.number(),
+    pushToken: v.optional(v.string()),
+    isVerified: v.optional(v.boolean()),
+    createdAt: v.number(),
+  })
     .index("byClerkId", ["clerkId"])
+    .index("byUsername", ["username"])
     .searchIndex("searchUsers", {
       searchField: "username",
     }),
-  threads: defineTable(Thread),
+
+  threads: defineTable({
+    userId: v.id("users"),
+    parentThreadId: v.optional(v.id("threads")), // For replies/threads
+    content: v.string(),
+    mediaFiles: v.optional(v.array(v.string())),
+    likeCount: v.number(),
+    commentCount: v.number(),
+    repostCount: v.number(),
+    isEdited: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("byUserId", ["userId"])
+    .index("byParentThread", ["parentThreadId"])
+    .index("byCreatedAt", ["createdAt"]),
+
+  // Separate table for likes to track individual user likes
+  likes: defineTable({
+    userId: v.id("users"),
+    threadId: v.id("threads"),
+    createdAt: v.number(),
+  })
+    .index("byThreadId", ["threadId"])
+    .index("byUserId", ["userId"])
+    .index("byUserAndThread", ["userId", "threadId"]),
+
+  // Separate table for reposts (retweets)
+  reposts: defineTable({
+    userId: v.id("users"),
+    threadId: v.id("threads"),
+    createdAt: v.number(),
+  })
+    .index("byThreadId", ["threadId"])
+    .index("byUserId", ["userId"])
+    .index("byUserAndThread", ["userId", "threadId"]),
+
+  // Follow relationships
+  follows: defineTable({
+    followerId: v.id("users"),
+    followingId: v.id("users"),
+    createdAt: v.number(),
+  })
+    .index("byFollower", ["followerId"])
+    .index("byFollowing", ["followingId"])
+    .index("byFollowerAndFollowing", ["followerId", "followingId"]),
 });
