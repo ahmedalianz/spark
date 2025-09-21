@@ -1,6 +1,5 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { Ionicons } from "@expo/vector-icons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
@@ -29,13 +28,9 @@ import { UserProfile } from "./UserProfile";
 
 type ProfileProps = {
   userId?: Id<"users">;
-  showBackButton?: boolean;
 };
 
-export default function Profile({
-  userId,
-  showBackButton = false,
-}: ProfileProps) {
+export default function Profile({ userId }: ProfileProps) {
   const [activeTab, setActiveTab] = useState<tabEnum>("Threads");
   const [refreshing, setRefreshing] = useState(false);
   const { userProfile, isLoading } = useUserProfile();
@@ -45,8 +40,13 @@ export default function Profile({
 
   // Different queries based on active tab
   const threadsQuery = usePaginatedQuery(
-    api.threads.getThreads,
-    { userId: userId || userProfile?._id },
+    api.posts.getUserPosts,
+    { userId: userId || userProfile?._id, type: "posts" },
+    { initialNumItems: 10 }
+  );
+  const repostsQuery = usePaginatedQuery(
+    api.posts.getUserPosts,
+    { userId: userProfile?._id as Id<"users">, type: "reposts" },
     { initialNumItems: 10 }
   );
 
@@ -55,10 +55,8 @@ export default function Profile({
     switch (activeTab) {
       case "Threads":
         return threadsQuery;
-      case "Replies":
-      // return repliesQuery;
       case "Reposts":
-      // return repostsQuery;
+        return repostsQuery;
       default:
         return threadsQuery;
     }
@@ -99,15 +97,10 @@ export default function Profile({
         title: "No threads yet",
         subtitle: "Share your first thought with the world",
       },
-      Replies: {
+      Reposts: {
         icon: "chatbubble-outline",
         title: "No replies yet",
         subtitle: "Join the conversation by replying to others",
-      },
-      Reposts: {
-        icon: "repeat-outline",
-        title: "No reposts yet",
-        subtitle: "Share interesting content with your followers",
       },
     };
 
@@ -115,7 +108,11 @@ export default function Profile({
 
     return (
       <View style={styles.emptyState}>
-        <Ionicons name={message.icon as any} size={48} color="#c0c0c0" />
+        <Ionicons
+          name={message.icon as any}
+          size={48}
+          color={Colors.borderDisabled}
+        />
         <Text style={styles.emptyStateText}>{message.title}</Text>
         <Text style={styles.emptyStateSubtext}>{message.subtitle}</Text>
       </View>
@@ -159,7 +156,7 @@ export default function Profile({
     ({ item }: { item: any }) => (
       <Link href={`/feed/thread/${item._id}`} asChild>
         <TouchableOpacity style={styles.threadWrapper}>
-          <Thread thread={item as Doc<"threads"> & { creator: Doc<"users"> }} />
+          <Thread thread={item as Doc<"posts"> & { creator: Doc<"users"> }} />
         </TouchableOpacity>
       </Link>
     ),
@@ -184,23 +181,13 @@ export default function Profile({
           />
         )}
         <View style={styles.headerContent}>
-          {showBackButton ? (
-            <TouchableOpacity style={styles.headerButton} onPress={router.back}>
-              <Ionicons
-                name="chevron-back"
-                size={24}
-                color={Platform.OS === "android" ? Colors.white : Colors.black}
-              />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={styles.headerButton}>
-              <MaterialCommunityIcons
-                name="web"
-                size={24}
-                color={Platform.OS === "android" ? Colors.white : Colors.black}
-              />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity style={styles.headerButton} onPress={router.back}>
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={Platform.OS === "android" ? Colors.white : Colors.black}
+            />
+          </TouchableOpacity>
 
           <Text
             style={[
@@ -214,13 +201,6 @@ export default function Profile({
           </Text>
 
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.headerButton}>
-              <Ionicons
-                name="logo-facebook"
-                size={22}
-                color={Platform.OS === "android" ? Colors.white : Colors.black}
-              />
-            </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerButton}
               onPress={signOutHandler}
@@ -269,55 +249,32 @@ export default function Profile({
               style={styles.heroGradient}
             >
               <View style={styles.heroContent}>
-                {showBackButton ? (
-                  <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={router.back}
-                  >
-                    <View style={styles.backButtonBackground}>
-                      <Ionicons
-                        name="chevron-back"
-                        size={20}
-                        color={Colors.white}
-                      />
-                    </View>
-                    <Text style={styles.backText}>Back</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity style={styles.iconButton}>
-                    <View style={styles.iconButtonBackground}>
-                      <MaterialCommunityIcons
-                        name="web"
-                        size={20}
-                        color={Colors.white}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={router.back}
+                >
+                  <View style={styles.backButtonBackground}>
+                    <Ionicons
+                      name="chevron-back"
+                      size={20}
+                      color={Colors.white}
+                    />
+                  </View>
+                  <Text style={styles.backText}>Back</Text>
+                </TouchableOpacity>
 
-                <View style={styles.heroActions}>
-                  <TouchableOpacity style={styles.iconButton}>
-                    <View style={styles.iconButtonBackground}>
-                      <Ionicons
-                        name="logo-facebook"
-                        size={18}
-                        color={Colors.white}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.iconButton}
-                    onPress={signOutHandler}
-                  >
-                    <View style={styles.iconButtonBackground}>
-                      <Ionicons
-                        name="log-out-outline"
-                        size={18}
-                        color={Colors.white}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                </View>
+                <TouchableOpacity
+                  style={styles.iconButton}
+                  onPress={signOutHandler}
+                >
+                  <View style={styles.iconButtonBackground}>
+                    <Ionicons
+                      name="log-out-outline"
+                      size={18}
+                      color={Colors.white}
+                    />
+                  </View>
+                </TouchableOpacity>
               </View>
             </LinearGradient>
 
@@ -395,11 +352,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-  },
-  heroActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
   },
   backButton: {
     flexDirection: "row",

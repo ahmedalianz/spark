@@ -62,6 +62,8 @@ export const createUser = internalMutation({
       followersCount: args.followersCount || 0,
       followingsCount: args.followingsCount || 0,
       isVerified: args.isVerified || false,
+      lastActiveAt: now,
+      postsCount: 0,
     });
   },
 });

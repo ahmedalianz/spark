@@ -5,8 +5,9 @@ import formatCount from "@/utils/formatCount";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useMutation } from "convex/react";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   Animated,
@@ -22,24 +23,25 @@ import {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 type ThreadProps = {
-  thread: Doc<"threads"> & { creator: Doc<"users"> };
+  thread: Doc<"posts"> & { author: Doc<"users">; userHasLiked: boolean };
 };
 
 const Thread = ({ thread }: ThreadProps) => {
-  const { content, mediaFiles, likeCount, commentCount, repostCount, creator } =
+  const { content, mediaFiles, likeCount, commentCount, author, userHasLiked } =
     thread;
 
-  const likeThread = useMutation(api.threads.likeThread);
-  const [isLiked, setIsLiked] = useState(false);
+  const router = useRouter();
+
   const [localLikeCount, setLocalLikeCount] = useState(likeCount);
+  const [isLiked, setIsLiked] = useState(!!userHasLiked);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
+  const likePost = useMutation(api.posts.likePost);
+
   const handleLike = async () => {
-    // Optimistic UI update
     setIsLiked(!isLiked);
     setLocalLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
 
-    // Animate button press
     Animated.sequence([
       Animated.timing(scaleAnim, {
         toValue: 1.2,
@@ -53,43 +55,38 @@ const Thread = ({ thread }: ThreadProps) => {
       }),
     ]).start();
 
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
     try {
-      await likeThread({ threadId: thread._id });
+      await likePost({ postId: thread._id });
     } catch (error) {
-      // Revert on error
       setIsLiked(isLiked);
       setLocalLikeCount(likeCount);
     }
   };
 
+  const handleComment = () => {
+    router.push(`/(auth)/(modals)/thread-comments/${thread._id as string}`);
+    Haptics.selectionAsync();
+  };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Link href={`/feed/profile/${creator?._id}`} asChild>
+        <Link href={`/(auth)/feed-profile/${author?._id}`} asChild>
           <TouchableOpacity style={styles.userInfo}>
             <View style={styles.avatarContainer}>
-              <Image
-                source={{ uri: creator?.imageUrl }}
-                style={styles.avatar}
-              />
+              <Image source={{ uri: author?.imageUrl }} style={styles.avatar} />
             </View>
             <View style={styles.userDetails}>
               <View style={styles.nameRow}>
                 <Text style={styles.username}>
-                  {creator?.first_name} {creator?.last_name}
+                  {author?.first_name} {author?.last_name}
                 </Text>
-                <Ionicons
-                  name="checkmark-circle"
-                  size={14}
-                  color={Colors.primary}
-                />
                 <Text style={styles.timestamp}>
                   · {formatTimeAgo(thread._creationTime)}
                 </Text>
               </View>
-              <Text style={styles.handle}>
-                @{creator?.email?.split("@")[0]}
-              </Text>
+              <Text style={styles.handle}>@{author?.email?.split("@")[0]}</Text>
             </View>
           </TouchableOpacity>
         </Link>
@@ -118,7 +115,7 @@ const Thread = ({ thread }: ThreadProps) => {
           >
             {mediaFiles.map((imageUrl, index) => (
               <Link
-                href={`/(auth)/(modals)/image/${encodeURIComponent(imageUrl)}?&likeCount=${localLikeCount}&commentCount=${commentCount}&repostCount=${repostCount}`}
+                href={`/(auth)/(modals)/image/${encodeURIComponent(imageUrl)}?&likeCount=${localLikeCount}&commentCount=${commentCount}`}
                 key={index}
                 asChild
               >
@@ -136,7 +133,7 @@ const Thread = ({ thread }: ThreadProps) => {
       </View>
 
       {/* Engagement Stats */}
-      {(localLikeCount > 0 || commentCount > 0 || repostCount > 0) && (
+      {(localLikeCount > 0 || commentCount > 0) && (
         <View style={styles.statsBar}>
           <View style={styles.statsRow}>
             {localLikeCount > 0 && (
@@ -146,15 +143,12 @@ const Thread = ({ thread }: ThreadProps) => {
               </Text>
             )}
             {commentCount > 0 && (
-              <Text style={styles.statText}>
-                {formatCount(commentCount)}{" "}
-                {commentCount === 1 ? "reply" : "replies"}
-              </Text>
-            )}
-            {repostCount > 0 && (
-              <Text style={styles.statText}>
-                {formatCount(repostCount)} reposts
-              </Text>
+              <TouchableOpacity onPress={handleComment}>
+                <Text style={styles.statTextClickable}>
+                  {formatCount(commentCount)}{" "}
+                  {commentCount === 1 ? "comment" : "comments"}
+                </Text>
+              </TouchableOpacity>
             )}
           </View>
         </View>
@@ -178,22 +172,13 @@ const Thread = ({ thread }: ThreadProps) => {
           </TouchableOpacity>
         </Animated.View>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={handleComment}>
           <Ionicons
             name="chatbubble-outline"
             size={22}
             color={Colors.textTertiary}
           />
           <Text style={styles.actionText}>{formatCount(commentCount)}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons
-            name="repeat-outline"
-            size={24}
-            color={Colors.textTertiary}
-          />
-          <Text style={styles.actionText}>{formatCount(repostCount)}</Text>
         </TouchableOpacity>
 
         <View style={styles.rightActions}>
@@ -236,7 +221,6 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: Colors.borderVeryLight,
   },
-
   userDetails: {
     flex: 1,
   },
@@ -314,6 +298,11 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
+  statTextClickable: {
+    fontSize: 13,
+    color: Colors.primary,
+    fontFamily: "DMSans_500Medium",
+  },
   actions: {
     flexDirection: "row",
     alignItems: "center",
@@ -328,7 +317,7 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   likedButton: {
-    backgroundColor: "#fff0f3",
+    backgroundColor: Colors.border2,
   },
   actionText: {
     marginLeft: 6,
@@ -346,10 +335,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   shareButton: {
-    padding: 8,
-    borderRadius: 16,
-  },
-  bookmarkButton: {
     padding: 8,
     borderRadius: 16,
   },

@@ -1,4 +1,5 @@
-const formatTimeAgo = (timestamp: number) => {
+const formatTimeAgo = (timestamp: number | undefined) => {
+  if (!timestamp) return "now";
   const now = Date.now();
   const diff = now - timestamp;
   const minutes = Math.floor(diff / 60000);

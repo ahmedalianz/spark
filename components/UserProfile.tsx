@@ -70,13 +70,6 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
             <Text style={styles.name}>
               {profile?.first_name} {profile?.last_name}
             </Text>
-            <View style={styles.verifiedBadge}>
-              <Ionicons
-                name="checkmark-circle"
-                size={16}
-                color={Colors.primary}
-              />
-            </View>
           </View>
           <Text style={styles.email}>{profile?.email}</Text>
 
@@ -225,9 +218,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: Colors.black,
     fontFamily: "DMSans_700Bold",
-  },
-  verifiedBadge: {
-    marginLeft: 6,
   },
   email: {
     fontSize: 15,

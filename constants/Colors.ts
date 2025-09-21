@@ -4,7 +4,7 @@ export const Colors = {
   // Primary Colors
   primary: "#667eea",
   primaryDark: "#764ba2",
-
+  primaryLight: "#a8b4ff",
   // Neutral Colors
   white: "#fff",
   black: "#1a1a1a",
@@ -23,6 +23,8 @@ export const Colors = {
   border: "#acacac",
   borderLight: "#e0e0e0",
   borderVeryLight: "#f0f0f0",
+  borderDisabled: "#c0c0c0",
+  border2: "#fff0f3",
 
   // Semantic Colors
   like: "#ff3b5c",

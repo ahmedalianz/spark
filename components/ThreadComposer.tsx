@@ -28,7 +28,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 type ThreadComposerProps = {
   isPreview?: boolean;
   isReply?: boolean;
-  threadId?: Id<"threads">;
+  threadId?: Id<"posts">;
   onDismiss?: () => void;
   initialContent?: string;
 };
@@ -58,9 +58,9 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
   const [textSelection, setTextSelection] = useState({ start: 0, end: 0 });
 
   const { userProfile } = useUserProfile();
-  const addThread = useMutation(api.threads.addThread);
+  const createPost = useMutation(api.posts.createPost);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
-  const generateUploadUrl = useMutation(api.threads.generateUploadUrl);
+  const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
 
   const textInputRef = useRef<TextInput>(null);
   const shakeAnim = useRef(new Animated.Value(0)).current;
@@ -73,7 +73,7 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
       const mediaStorageIds =
         mediaFiles.length > 0 ? await uploadMediaFiles(mediaFiles) : [];
 
-      await addThread({
+      await createPost({
         content: threadContent,
         mediaFiles: mediaStorageIds,
       });
@@ -393,7 +393,7 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
                 {userProfile?.first_name} {userProfile?.last_name}
               </Text>
               <Text style={styles.username}>
-                @{userProfile?.username || "username"}
+                @{userProfile?.email?.split("@")[0]}
               </Text>
             </View>
           </View>

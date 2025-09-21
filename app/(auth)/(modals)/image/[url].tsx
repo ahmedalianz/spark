@@ -6,18 +6,16 @@ import { StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Page = () => {
-  const { url, likeCount, commentCount, repostCount } = useLocalSearchParams<{
+  const { url, likeCount, commentCount } = useLocalSearchParams<{
     url: string;
     likeCount: string;
     commentCount: string;
-    repostCount: string;
   }>();
 
   const decodedUrl = decodeURIComponent(url || "");
 
   const likeCountNum = parseInt(likeCount || "0", 10);
   const commentCountNum = parseInt(commentCount || "0", 10);
-  const repostCountNum = parseInt(repostCount || "0", 10);
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -41,10 +39,6 @@ const Page = () => {
           <View style={styles.statItem}>
             <Ionicons name="chatbubble-outline" size={16} color="white" />
             <Text style={styles.statText}>{commentCountNum}</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Ionicons name="repeat-outline" size={16} color="white" />
-            <Text style={styles.statText}>{repostCountNum}</Text>
           </View>
         </View>
       </View>

@@ -33,12 +33,16 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-type FeedFilter = "all" | "following" | "trending" | "recent";
+type FeedFilter = "all" | "following";
 
 const Page = () => {
-  const { results, status, loadMore } = usePaginatedQuery(
-    api.threads.getThreads,
-    {},
+  const {
+    results: feedPosts,
+    status,
+    loadMore,
+  } = usePaginatedQuery(
+    api.posts.getFeedPosts,
+    { filter: "all" }, // filter can be following, all
     { initialNumItems: 10 }
   );
 
@@ -138,14 +142,24 @@ const Page = () => {
     ],
   }));
 
-  const renderThread = ({ item }: { item: Doc<"threads"> }) => (
+  const renderThread = ({ item }: { item: Doc<"posts"> }) => (
     <Animated.View
       entering={Platform.OS === "ios" ? undefined : undefined}
       style={styles.threadContainer}
     >
-      <Link href={`/feed/thread/${item._id}`} asChild>
+      <Link
+        href={`/(auth)/(modals)/thread-comments/${item._id as string}`}
+        asChild
+      >
         <TouchableOpacity activeOpacity={0.95}>
-          <Thread thread={item as Doc<"threads"> & { creator: Doc<"users"> }} />
+          <Thread
+            thread={
+              item as Doc<"posts"> & {
+                author: Doc<"users">;
+                userHasLiked: boolean;
+              }
+            }
+          />
         </TouchableOpacity>
       </Link>
     </Animated.View>
@@ -257,7 +271,7 @@ const Page = () => {
           showsVerticalScrollIndicator={false}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
-          data={results}
+          data={feedPosts}
           renderItem={renderThread}
           keyExtractor={(item) => item._id}
           onEndReached={onLoadMore}
