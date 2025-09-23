@@ -21,9 +21,9 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@clerk/clerk-expo";
 import { usePaginatedQuery } from "convex/react";
 import { useCallback, useMemo, useRef, useState } from "react";
+import Post from "./Post";
 import ProfileLoader from "./ProfileLoader";
 import Tabs, { tabEnum } from "./Tabs";
-import Thread from "./Thread";
 import { UserProfile } from "./UserProfile";
 
 type ProfileProps = {
@@ -31,7 +31,7 @@ type ProfileProps = {
 };
 
 export default function Profile({ userId }: ProfileProps) {
-  const [activeTab, setActiveTab] = useState<tabEnum>("Threads");
+  const [activeTab, setActiveTab] = useState<tabEnum>("Posts");
   const [refreshing, setRefreshing] = useState(false);
   const { userProfile, isLoading } = useUserProfile();
   const router = useRouter();
@@ -39,9 +39,9 @@ export default function Profile({ userId }: ProfileProps) {
   const scrollY = useRef(new Animated.Value(0)).current;
 
   // Different queries based on active tab
-  const threadsQuery = usePaginatedQuery(
+  const postsQuery = usePaginatedQuery(
     api.posts.getUserPosts,
-    { userId: userId || userProfile?._id, type: "posts" },
+    { userId: userId || (userProfile?._id as Id<"users">), type: "posts" },
     { initialNumItems: 10 }
   );
   const repostsQuery = usePaginatedQuery(
@@ -53,14 +53,14 @@ export default function Profile({ userId }: ProfileProps) {
   // Get the current active query based on tab
   const currentQuery = useMemo(() => {
     switch (activeTab) {
-      case "Threads":
-        return threadsQuery;
+      case "Posts":
+        return postsQuery;
       case "Reposts":
         return repostsQuery;
       default:
-        return threadsQuery;
+        return postsQuery;
     }
-  }, [activeTab, threadsQuery]);
+  }, [activeTab, postsQuery]);
 
   const { results, status, loadMore } = currentQuery;
 
@@ -92,9 +92,9 @@ export default function Profile({ userId }: ProfileProps) {
 
   const renderEmptyComponent = useCallback(() => {
     const emptyMessages = {
-      Threads: {
+      Posts: {
         icon: "create-outline",
-        title: "No threads yet",
+        title: "No posts yet",
         subtitle: "Share your first thought with the world",
       },
       Reposts: {
@@ -154,9 +154,9 @@ export default function Profile({ userId }: ProfileProps) {
 
   const renderItem = useCallback(
     ({ item }: { item: any }) => (
-      <Link href={`/feed/thread/${item._id}`} asChild>
-        <TouchableOpacity style={styles.threadWrapper}>
-          <Thread thread={item as Doc<"posts"> & { creator: Doc<"users"> }} />
+      <Link href={`/feed/post/${item._id}`} asChild>
+        <TouchableOpacity style={styles.postWrapper}>
+          <Post post={item as Doc<"posts"> & { creator: Doc<"users"> }} />
         </TouchableOpacity>
       </Link>
     ),
@@ -310,7 +310,7 @@ export default function Profile({ userId }: ProfileProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.lightBackground,
+    backgroundColor: Colors.backgroundLight,
     flex: 1,
   },
   animatedHeader: {
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.white20,
+    backgroundColor: Colors.transparentWhite20,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.white20,
+    backgroundColor: Colors.transparentWhite20,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
   tabsContainer: {
     backgroundColor: Colors.white,
   },
-  threadWrapper: {
+  postWrapper: {
     backgroundColor: Colors.white,
     marginHorizontal: 16,
     marginVertical: 4,
@@ -461,10 +461,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginHorizontal: 16,
     marginVertical: 8,
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.blueTint,
+    borderColor: Colors.tintBlue,
     gap: 6,
   },
   loadMoreText: {

@@ -1,16 +1,13 @@
 import { Colors } from "@/constants/Colors";
 import emojis from "@/constants/emojis";
-import { api } from "@/convex/_generated/api";
+import useCreatePost from "@/controllers/useCreatePost";
 import { Id } from "@/convex/_generated/dataModel";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Ionicons } from "@expo/vector-icons";
-import { useMutation } from "convex/react";
-import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { Stack, useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import {
-  Alert,
   Animated,
   Dimensions,
   FlatList,
@@ -25,10 +22,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-type ThreadComposerProps = {
+type CreatePostProps = {
   isPreview?: boolean;
   isReply?: boolean;
-  threadId?: Id<"posts">;
+  postId?: Id<"posts">;
   onDismiss?: () => void;
   initialContent?: string;
 };
@@ -43,226 +40,35 @@ type MediaFile = ImagePicker.ImagePickerAsset & {
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAX_MEDIA_FILES = 10;
 
-const ThreadComposer: React.FC<ThreadComposerProps> = ({
+const CreatePost: React.FC<CreatePostProps> = ({
   isPreview,
   isReply,
   onDismiss,
   initialContent = "",
 }) => {
   const router = useRouter();
-  const [threadContent, setThreadContent] = useState(initialContent);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [textSelection, setTextSelection] = useState({ start: 0, end: 0 });
-
+  const { top } = useSafeAreaInsets();
   const { userProfile } = useUserProfile();
-  const createPost = useMutation(api.posts.createPost);
-  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
-  const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
-
   const textInputRef = useRef<TextInput>(null);
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
-  const handleSubmit = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setIsUploading(true);
-
-    try {
-      const mediaStorageIds =
-        mediaFiles.length > 0 ? await uploadMediaFiles(mediaFiles) : [];
-
-      await createPost({
-        content: threadContent,
-        mediaFiles: mediaStorageIds,
-      });
-
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      resetForm();
-      setTimeout(() => {
-        if (onDismiss) {
-          onDismiss();
-        } else router.dismiss();
-      }, 150);
-    } catch (error) {
-      Alert.alert("Error", "Failed to post thread. Please try again.");
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
-    }
-  };
-
-  const uploadMediaFiles = async (files: MediaFile[]): Promise<string[]> => {
-    const storageIds: string[] = [];
-    let completedCount = 0;
-
-    const uploadPromises = files.map(async (file, index) => {
-      try {
-        const storageId = await uploadMediaFile(file);
-        storageIds[index] = storageId;
-
-        completedCount++;
-        setUploadProgress((completedCount / files.length) * 100);
-
-        return storageId;
-      } catch (error) {
-        console.error(`Failed to upload file ${index}:`, error);
-        // Mark this upload as failed but don't stop others
-        completedCount++;
-        setUploadProgress((completedCount / files.length) * 100);
-        throw error;
-      }
-    });
-
-    try {
-      await Promise.all(uploadPromises);
-      return storageIds.filter(Boolean);
-    } catch (error) {
-      // Some uploads failed, but we might have partial success
-      if (storageIds.some((id) => id)) {
-        // At least one file uploaded successfully
-        console.warn("Partial upload success:", storageIds.filter(Boolean));
-      }
-      throw error;
-    }
-  };
-  const resetForm = () => {
-    setThreadContent("");
-    setMediaFiles([]);
-  };
-
-  const handleCancel = () => {
-    const hasContent = threadContent.trim().length || mediaFiles.length > 0;
-
-    if (hasContent) {
-      Alert.alert("Discard thread?", "Your changes will be lost.", [
-        {
-          text: "Discard",
-          onPress: () => {
-            resetForm();
-            if (onDismiss) onDismiss();
-            else router.dismiss();
-          },
-          style: "destructive",
-        },
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-      ]);
-    } else {
-      if (onDismiss) onDismiss();
-      else router.dismiss();
-    }
-  };
-
-  const selectMedia = async (type: "camera" | "library") => {
-    if (mediaFiles.length >= MAX_MEDIA_FILES) {
-      Alert.alert(
-        "Media Limit",
-        `You can only add up to ${MAX_MEDIA_FILES} files.`
-      );
-      return;
-    }
-
-    try {
-      let result: any;
-
-      switch (type) {
-        case "camera":
-          const cameraPermission =
-            await ImagePicker.requestCameraPermissionsAsync();
-          if (!cameraPermission.granted) {
-            Alert.alert(
-              "Permission needed",
-              "Please allow camera access to take photos."
-            );
-            return;
-          }
-          result = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,
-            aspect: [4, 3],
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 0.8,
-          });
-          break;
-
-        case "library":
-          const libraryPermission =
-            await ImagePicker.requestMediaLibraryPermissionsAsync();
-          if (!libraryPermission.granted) {
-            Alert.alert(
-              "Permission needed",
-              "Please allow photo library access."
-            );
-            return;
-          }
-          result = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: false,
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 0.8,
-            allowsMultipleSelection: true,
-            selectionLimit: MAX_MEDIA_FILES - mediaFiles.length,
-          });
-          break;
-      }
-
-      if (!result.canceled && result.assets) {
-        const newFiles: MediaFile[] = result.assets.map((asset: any) => ({
-          ...asset,
-          id: Date.now() + Math.random().toString(),
-          type: asset.type?.startsWith("image/") ? "image" : "video",
-          isUploading: false,
-          uploadProgress: 0,
-        }));
-
-        setMediaFiles([...mediaFiles, ...newFiles]);
-        Haptics.selectionAsync();
-      }
-    } catch (error) {
-      console.error("Media selection error:", error);
-      Alert.alert("Error", "Failed to select media. Please try again.");
-    }
-  };
-
-  const removeMedia = (id: string) => {
-    setMediaFiles(mediaFiles.filter((file) => file.id !== id));
-    Haptics.selectionAsync();
-  };
-
-  const uploadMediaFile = async (file: MediaFile): Promise<string> => {
-    const postUrl = await generateUploadUrl();
-    const response = await fetch(file.uri);
-    const blob = await response.blob();
-
-    const uploadResult = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": file.mimeType || "application/octet-stream" },
-      body: blob,
-    });
-
-    const { storageId } = await uploadResult.json();
-    return storageId;
-  };
-
-  const addEmoji = (emoji: string) => {
-    const newContent =
-      threadContent.slice(0, textSelection.start) +
-      emoji +
-      threadContent.slice(textSelection.end);
-    setThreadContent(newContent);
-    Haptics.selectionAsync();
-  };
-
-  const handleContentChange = (text: string) => {
-    setThreadContent(text);
-    if (!isExpanded && text.length > 50) {
-      setIsExpanded(true);
-    }
-  };
+  const {
+    postContent,
+    mediaFiles,
+    isUploading,
+    uploadProgress,
+    isExpanded,
+    showEmojiPicker,
+    resetForm,
+    setShowEmojiPicker,
+    setTextSelection,
+    handleCancel,
+    selectMedia,
+    removeMedia,
+    addEmoji,
+    handleContentChange,
+    handleSubmit,
+  } = useCreatePost({ onDismiss, initialContent });
 
   const renderMediaPreview = (file: MediaFile) => {
     return (
@@ -308,8 +114,6 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
     </TouchableOpacity>
   );
 
-  const { top } = useSafeAreaInsets();
-
   return (
     <View style={[styles.container, { paddingTop: isPreview ? 0 : top }]}>
       <Stack.Screen
@@ -326,20 +130,19 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
             <TouchableOpacity
               style={[
                 styles.submitButton,
-                !threadContent.trim() &&
+                !postContent.trim() &&
                   mediaFiles.length === 0 &&
                   styles.submitButtonDisabled,
               ]}
               onPress={handleSubmit}
               disabled={
-                (!threadContent.trim() && mediaFiles.length === 0) ||
-                isUploading
+                (!postContent.trim() && mediaFiles.length === 0) || isUploading
               }
             >
               <Text
                 style={[
                   styles.submitButtonText,
-                  !threadContent.trim() &&
+                  !postContent.trim() &&
                     mediaFiles.length === 0 &&
                     styles.submitButtonTextDisabled,
                 ]}
@@ -378,7 +181,7 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
       >
         {isPreview && (
           <TouchableOpacity
-            onPress={() => router.push("/(auth)/(modals)/create-thread")}
+            onPress={() => router.push("/(auth)/(modals)/create-post")}
             style={styles.previewDisabledContainer}
           />
         )}
@@ -407,10 +210,10 @@ const ThreadComposer: React.FC<ThreadComposerProps> = ({
                 isPreview && styles.inputPreview,
               ]}
               placeholder={
-                isReply ? "Reply to this thread..." : "What's happening?"
+                isReply ? "Reply to this post..." : "What's happening?"
               }
               placeholderTextColor={Colors.textMuted}
-              value={threadContent}
+              value={postContent}
               onChangeText={handleContentChange}
               onSelectionChange={(e) =>
                 setTextSelection(e.nativeEvent.selection)
@@ -547,11 +350,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   uploadingHeader: {
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.blueTint,
+    borderBottomColor: Colors.tintBlue,
   },
   uploadingText: {
     color: Colors.primary,
@@ -617,7 +420,7 @@ const styles = StyleSheet.create({
     minHeight: 100,
     marginBottom: 20,
     fontWeight: "400",
-    backgroundColor: Colors.lightBackground,
+    backgroundColor: Colors.backgroundLight,
     borderRadius: 12,
     padding: 16,
     textAlignVertical: "top",
@@ -630,13 +433,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderVeryLight,
+    borderTopColor: Colors.borderLighter,
   },
   iconButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -651,7 +454,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.lightBackground,
+    backgroundColor: Colors.backgroundLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -714,7 +517,7 @@ const styles = StyleSheet.create({
   uploadProgress: {
     width: "80%",
     height: 4,
-    backgroundColor: Colors.white30,
+    backgroundColor: Colors.transparentWhite30,
     borderRadius: 2,
   },
   uploadProgressBar: {
@@ -731,7 +534,7 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
   },
   submitButton: {
     backgroundColor: Colors.primary,
@@ -805,7 +608,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 12,
-    backgroundColor: Colors.lightBackground,
+    backgroundColor: Colors.backgroundLight,
     margin: 4,
     maxWidth: "16.66%",
   },
@@ -829,4 +632,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ThreadComposer;
+export default CreatePost;

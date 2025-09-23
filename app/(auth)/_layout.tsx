@@ -31,7 +31,7 @@ const Layout = () => {
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
-        name="(modals)/create-thread"
+        name="(modals)/create-post"
         options={{
           headerRight: () => (
             <TouchableOpacity>
@@ -58,7 +58,7 @@ const Layout = () => {
         }}
       />
       <Stack.Screen
-        name="(modals)/thread-comments/[threadId]"
+        name="(modals)/post-comments/[postId]"
         options={{
           headerShown: false,
           ...commonProps,

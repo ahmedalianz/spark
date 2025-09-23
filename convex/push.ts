@@ -8,9 +8,9 @@ export const sendPushNotification = internalAction({
     pushToken: v.string(),
     messageTitle: v.string(),
     messageBody: v.string(),
-    threadId: v.optional(v.id("threads")),
+    postId: v.optional(v.id("posts")),
   },
-  handler: async ({}, { pushToken, messageTitle, messageBody, threadId }) => {
+  handler: async ({}, { pushToken, messageTitle, messageBody, postId }) => {
     console.log("SEND PUSH NOTIFICATION");
 
     const res = await fetch("https://exp.host/--/api/v2/push/send", {
@@ -25,7 +25,7 @@ export const sendPushNotification = internalAction({
         body: messageBody,
         title: messageTitle,
         data: {
-          threadId,
+          postId,
         },
       }),
     }).then((res) => res.json());

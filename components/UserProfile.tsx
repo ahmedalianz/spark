@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.borderVeryLight,
+    backgroundColor: Colors.borderLighter,
   },
 
   bioSection: {
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   },
   actionSection: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.borderVeryLight,
+    borderTopColor: Colors.borderLighter,
     paddingTop: 20,
   },
   buttonRow: {
@@ -320,9 +320,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 25,
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
     borderWidth: 1.5,
-    borderColor: Colors.blueTint,
+    borderColor: Colors.tintBlue,
     gap: 8,
   },
   secondaryButtonText: {
@@ -335,9 +335,9 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
     borderWidth: 1.5,
-    borderColor: Colors.blueTint,
+    borderColor: Colors.tintBlue,
     alignItems: "center",
     justifyContent: "center",
   },

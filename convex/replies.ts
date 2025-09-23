@@ -5,10 +5,11 @@ import { mutation, query, QueryCtx } from "./_generated/server";
 import { getCurrentUser, getCurrentUserOrThrow } from "./users";
 import { extractMentions, getUserWithImage } from "./utils";
 
-export const addComment = mutation({
+export const addReply = mutation({
   args: {
     postId: v.id("posts"),
     content: v.string(),
+    parentCommentId: v.id("comments"),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
@@ -16,43 +17,29 @@ export const addComment = mutation({
 
     const mentions = extractMentions(args.content);
 
-    const commentId = await ctx.db.insert("comments", {
+    const commentId = await ctx.db.insert("replies", {
       authorId: user._id,
       postId: args.postId,
+      parentCommentId: args.parentCommentId,
       content: args.content,
       likeCount: 0,
-      replyCount: 0,
       mentions,
       createdAt: now,
     });
 
-    // Update post comment count
-    const post = await ctx.db.get(args.postId);
-    if (post) {
-      await ctx.db.patch(args.postId, {
-        commentCount: post.commentCount + 1,
+    // Update parent comment reply count if this is a reply
+    const parentComment = await ctx.db.get(args.parentCommentId);
+    if (parentComment) {
+      await ctx.db.patch(args.parentCommentId, {
+        replyCount: parentComment.replyCount + 1,
       });
-
-      // Send notification to post author
-      if (post.authorId !== user._id) {
-        await ctx.db.insert("notifications", {
-          userId: post.authorId,
-          actorId: user._id,
-          type: "comment",
-          postId: args.postId,
-          commentId,
-          message: `${user.first_name} commented on your post`,
-          isRead: false,
-          createdAt: now,
-        });
-      }
     }
 
     return commentId;
   },
 });
 
-export const getComments = query({
+export const getReplies = query({
   args: {
     postId: v.id("posts"),
     paginationOpts: paginationOptsValidator,
@@ -61,22 +48,22 @@ export const getComments = query({
     const currentUser = await getCurrentUser(ctx);
 
     let query = ctx.db
-      .query("comments")
+      .query("replies")
       .withIndex("byPost", (q) => q.eq("postId", args.postId));
 
-    const comments = await query.order("asc").paginate(args.paginationOpts);
+    const replies = await query.order("asc").paginate(args.paginationOpts);
 
-    const commentsWithDetails = await Promise.all(
-      comments.page.map(async (comment) => {
+    const repliesWithDetails = await Promise.all(
+      replies.page.map(async (reply) => {
         const [author, userLike] = await Promise.all([
-          getUserWithImage(ctx, comment.authorId),
+          getUserWithImage(ctx, reply.authorId),
           currentUser
-            ? getUserCommentLikeStatus(ctx, currentUser._id, comment._id)
+            ? getUserReliesLikeStatus(ctx, currentUser._id, reply._id)
             : false,
         ]);
 
         return {
-          ...comment,
+          ...replies,
           author,
           userHasLiked: userLike,
         };
@@ -84,15 +71,14 @@ export const getComments = query({
     );
 
     return {
-      ...comments,
-      page: commentsWithDetails,
+      ...replies,
+      page: repliesWithDetails,
     };
   },
 });
-
-export const likeComment = mutation({
+export const likeReply = mutation({
   args: {
-    commentId: v.id("comments"),
+    replyId: v.id("replies"),
     unlike: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
@@ -101,20 +87,20 @@ export const likeComment = mutation({
 
     const existingLike = await ctx.db
       .query("likes")
-      .withIndex("byUserAndComment", (q) =>
-        q.eq("userId", user._id).eq("commentId", args.commentId)
+      .withIndex("byUserAndReply", (q) =>
+        q.eq("userId", user._id).eq("replyId", args.replyId)
       )
       .unique();
 
-    const comment = await ctx.db.get(args.commentId);
-    if (!comment) throw new Error("Comment not found");
+    const reply = await ctx.db.get(args.replyId);
+    if (!reply) throw new Error("Reply not found");
 
     if (args.unlike || existingLike) {
       // Unlike
       if (existingLike) {
         await ctx.db.delete(existingLike._id);
-        await ctx.db.patch(args.commentId, {
-          likeCount: Math.max(0, comment.likeCount - 1),
+        await ctx.db.patch(args.replyId, {
+          likeCount: Math.max(0, reply.likeCount - 1),
         });
       }
       return { liked: false };
@@ -122,29 +108,28 @@ export const likeComment = mutation({
       // Like
       await ctx.db.insert("likes", {
         userId: user._id,
-        commentId: args.commentId,
-        type: "comment",
+        replyId: args.replyId,
+        type: "reply",
         createdAt: now,
       });
 
-      await ctx.db.patch(args.commentId, {
-        likeCount: comment.likeCount + 1,
+      await ctx.db.patch(args.replyId, {
+        likeCount: reply.likeCount + 1,
       });
 
       return { liked: true };
     }
   },
 });
-
-async function getUserCommentLikeStatus(
+async function getUserReliesLikeStatus(
   ctx: QueryCtx,
   userId: Id<"users">,
-  commentId: Id<"comments">
+  replyId: Id<"replies">
 ) {
   const like = await ctx.db
     .query("likes")
-    .withIndex("byUserAndComment", (q) =>
-      q.eq("userId", userId).eq("commentId", commentId)
+    .withIndex("byUserAndReply", (q) =>
+      q.eq("userId", userId).eq("replyId", replyId)
     )
     .unique();
   return !!like;

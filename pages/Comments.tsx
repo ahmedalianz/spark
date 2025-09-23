@@ -21,13 +21,12 @@ import {
   View,
 } from "react-native";
 import Animated, {
-  FadeInUp,
-  Layout,
   SlideInRight,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Comment from "../components/Comment";
 
 type CommentWithAuthor = Doc<"comments"> & {
   author: Doc<"users">;
@@ -35,26 +34,22 @@ type CommentWithAuthor = Doc<"comments"> & {
 };
 
 interface CommentsProps {
-  threadId: Id<"posts">;
+  postId: Id<"posts">;
 }
 
-const Comments = ({ threadId }: CommentsProps) => {
+const Comments = ({ postId }: CommentsProps) => {
+  const inputScale = useSharedValue(1);
+  const { top } = useSafeAreaInsets();
   const commentInputRef = useRef<TextInput>(null);
   const flatListRef = useRef<FlatList<CommentWithAuthor>>(null);
   const addComment = useMutation(api.comments.addComment);
-  const likeComment = useMutation(api.comments.likeComment);
+  const addReply = useMutation(api.replies.addReply);
 
   const [commentText, setCommentText] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [replyingTo, setReplyingTo] = useState<Id<"comments">>();
-  const [expandedComments, setExpandedComments] = useState<Set<string>>(
-    new Set()
-  );
 
-  const inputScale = useSharedValue(1);
-  const { top, bottom } = useSafeAreaInsets();
-
-  const post = useQuery(api.posts.getPostById, { postId: threadId });
+  const post = useQuery(api.posts.getPostById, { postId: postId });
 
   const {
     results: comments,
@@ -62,68 +57,9 @@ const Comments = ({ threadId }: CommentsProps) => {
     loadMore,
   } = usePaginatedQuery(
     api.comments.getComments,
-    { postId: threadId },
+    { postId: postId },
     { initialNumItems: 15 }
   );
-  console.log("🚀 ~ Comments ~ comments:", comments);
-
-  const submitComment = async () => {
-    if (!commentText.trim()) return;
-
-    setIsSubmittingComment(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    try {
-      await addComment({
-        postId: threadId,
-        content: commentText.trim(),
-        parentCommentId: replyingTo,
-      });
-
-      setCommentText("");
-      setReplyingTo(undefined);
-      commentInputRef.current?.blur();
-
-      // Scroll to bottom after posting
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch (error) {
-      console.error("Failed to add comment:", error);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    } finally {
-      setIsSubmittingComment(false);
-    }
-  };
-
-  const handleCommentLike = async (commentId: Id<"comments">) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    try {
-      await likeComment({ commentId });
-    } catch (error) {
-      console.error("Failed to like comment:", error);
-    }
-  };
-
-  const handleReply = (commentId: Id<"comments">, authorName: string) => {
-    setReplyingTo(commentId);
-    setCommentText(`@${authorName} `);
-    commentInputRef.current?.focus();
-    Haptics.selectionAsync();
-  };
-
-  const toggleCommentExpansion = (commentId: string) => {
-    const newExpanded = new Set(expandedComments);
-    if (newExpanded.has(commentId)) {
-      newExpanded.delete(commentId);
-    } else {
-      newExpanded.add(commentId);
-    }
-    setExpandedComments(newExpanded);
-    Haptics.selectionAsync();
-  };
 
   const handleLoadMore = useCallback(async () => {
     if (status === "CanLoadMore") {
@@ -134,105 +70,55 @@ const Comments = ({ threadId }: CommentsProps) => {
   const animatedInputStyle = useAnimatedStyle(() => ({
     transform: [{ scale: inputScale.value }],
   }));
+  const submitComment = async () => {
+    if (!commentText.trim()) return;
+    const isComment = !replyingTo;
+    console.log({ isComment });
+    setIsSubmittingComment(true);
 
+    try {
+      if (isComment) {
+        await addComment({
+          postId: postId,
+          content: commentText.trim(),
+        });
+
+        setCommentText("");
+      } else {
+        await addReply({
+          postId: postId,
+          content: commentText.trim(),
+          parentCommentId: replyingTo,
+        });
+        setReplyingTo(undefined);
+      }
+      commentInputRef.current?.blur();
+
+      // Scroll to bottom after posting
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
   const renderComment: ListRenderItem<CommentWithAuthor> = ({
     item: comment,
     index,
   }) => {
-    const isExpanded = expandedComments.has(comment._id);
-    const isLongComment = comment.content.length > 120;
-    const displayContent =
-      isLongComment && !isExpanded
-        ? comment.content.slice(0, 120) + "..."
-        : comment.content;
-
     return (
-      <Animated.View
-        entering={FadeInUp.delay(index * 20).springify()}
-        layout={Layout.springify()}
-        style={[
-          styles.commentCard,
-          comment.parentCommentId && styles.replyCard,
-        ]}
-      >
-        {/* Compact Header */}
-        <View style={styles.commentHeader}>
-          <Image
-            source={{
-              uri:
-                comment.author?.imageUrl ||
-                `https://ui-avatars.com/api/?name=${comment.author?.first_name}+${comment.author?.last_name}&background=random`,
-            }}
-            style={styles.commentAvatar}
-          />
-
-          <View style={styles.commentHeaderContent}>
-            <View style={styles.commentUserRow}>
-              <Text style={styles.commentUsername} numberOfLines={1}>
-                {comment.author?.first_name} {comment.author?.last_name}
-              </Text>
-              {comment.author?.isVerified && (
-                <Ionicons
-                  name="checkmark-circle"
-                  size={12}
-                  color={Colors.primary}
-                />
-              )}
-              <Text style={styles.commentTime}>
-                · {formatTimeAgo(comment._creationTime)}
-              </Text>
-            </View>
-
-            <Text style={styles.commentText}>{displayContent}</Text>
-          </View>
-        </View>
-
-        {/* Compact Footer */}
-        <View style={styles.commentFooter}>
-          <TouchableOpacity
-            style={styles.commentAction}
-            onPress={() => handleCommentLike(comment._id)}
-          >
-            <Ionicons
-              name={comment.userHasLiked ? "heart" : "heart-outline"}
-              size={14}
-              color={comment.userHasLiked ? Colors.like : Colors.textMuted}
-            />
-            <Text
-              style={[
-                styles.commentActionText,
-                comment.userHasLiked && styles.commentActionTextLiked,
-              ]}
-            >
-              {formatCount(comment.likeCount)}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.commentAction}
-            onPress={() =>
-              handleReply(comment._id, comment.author?.first_name || "User")
-            }
-          >
-            <Ionicons
-              name="arrow-undo-outline"
-              size={14}
-              color={Colors.textMuted}
-            />
-            <Text style={styles.commentActionText}>Reply</Text>
-          </TouchableOpacity>
-
-          {isLongComment && (
-            <TouchableOpacity
-              onPress={() => toggleCommentExpansion(comment._id)}
-            >
-              <Text style={styles.readMoreText}>
-                {isExpanded ? "Show less" : "Read more"}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </Animated.View>
+      <Comment
+        {...{
+          setCommentText,
+          setReplyingTo,
+          comment,
+          commentInputRef,
+          index,
+        }}
+      />
     );
   };
 
@@ -277,10 +163,12 @@ const Comments = ({ threadId }: CommentsProps) => {
 
       <View style={styles.postStats}>
         <Text style={styles.postStat}>
-          {formatCount(post?.likeCount || 0)} likes
+          {formatCount(post?.likeCount || 0)}{" "}
+          {(post?.likeCount || 0) > 1 ? "likes" : "like"}
         </Text>
         <Text style={styles.postStat}>
-          {formatCount(post?.commentCount || 0)} comments
+          {formatCount(post?.commentCount || 0)}{" "}
+          {(post?.commentCount || 0) > 1 ? "comments" : "comment"}
         </Text>
       </View>
     </View>
@@ -318,7 +206,7 @@ const Comments = ({ threadId }: CommentsProps) => {
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 85 : 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
       >
         <FlatList
           ref={flatListRef}
@@ -337,7 +225,7 @@ const Comments = ({ threadId }: CommentsProps) => {
           windowSize={10}
         />
 
-        <View style={[styles.inputContainer, { paddingBottom: bottom + 8 }]}>
+        <View style={styles.inputContainer}>
           {replyingTo && (
             <Animated.View
               entering={SlideInRight}
@@ -410,7 +298,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
 
-  // Post Card - More Compact
+  // Post Card
   postCard: {
     backgroundColor: Colors.white,
     marginHorizontal: 12,
@@ -469,94 +357,14 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderVeryLight,
+    borderTopColor: Colors.borderLighter,
   },
   postStat: {
     fontSize: 13,
     color: Colors.textTertiary,
     fontWeight: "500",
   },
-
-  // Comment Card - Ultra Compact
-  commentCard: {
-    backgroundColor: Colors.white,
-    marginHorizontal: 12,
-    marginBottom: 6,
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: Colors.borderVeryLight,
-  },
-  replyCard: {
-    marginLeft: 36,
-    backgroundColor: Colors.lightBackground,
-    borderLeftWidth: 2,
-    borderLeftColor: Colors.primaryLight,
-  },
   replayingContainer: { flexDirection: "row", alignItems: "center" },
-  commentHeader: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 8,
-    gap: 10,
-  },
-  commentAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-  },
-  commentHeaderContent: {
-    flex: 1,
-    gap: 4,
-  },
-  commentUserRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    flexWrap: "wrap",
-  },
-  commentUsername: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: Colors.textSecondary,
-    maxWidth: "60%",
-  },
-  commentTime: {
-    fontSize: 12,
-    color: Colors.textMuted,
-  },
-  commentText: {
-    fontSize: 14,
-    lineHeight: 18,
-    color: Colors.textSecondary,
-  },
-  commentFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    marginTop: 4,
-  },
-  commentAction: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 6,
-  },
-  commentActionText: {
-    fontSize: 12,
-    color: Colors.textMuted,
-    fontWeight: "500",
-  },
-  commentActionTextLiked: {
-    color: Colors.like,
-  },
-  readMoreText: {
-    fontSize: 12,
-    color: Colors.primary,
-    fontWeight: "500",
-  },
 
   // Input Styles
   inputContainer: {
@@ -570,7 +378,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 6,
@@ -600,7 +408,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     maxHeight: 80,
     color: Colors.textSecondary,
-    backgroundColor: Colors.lightBackground,
+    backgroundColor: Colors.backgroundLight,
   },
   sendButton: {
     width: 36,

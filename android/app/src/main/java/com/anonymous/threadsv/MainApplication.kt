@@ -1,4 +1,4 @@
-package com.anonymous.threadsv
+package com.anonymous.spark
 
 import android.app.Application
 import android.content.res.Configuration

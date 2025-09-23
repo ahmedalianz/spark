@@ -1,12 +1,12 @@
 import React from "react";
 import { Text, View } from "react-native";
 
-const favourite = () => {
+const index = () => {
   return (
     <View>
-      <Text>favourite</Text>
+      <Text>Network</Text>
     </View>
   );
 };
 
-export default favourite;
+export default index;

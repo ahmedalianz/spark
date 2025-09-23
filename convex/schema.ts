@@ -62,10 +62,24 @@ export default defineSchema({
   comments: defineTable({
     authorId: v.id("users"),
     postId: v.id("posts"),
-    parentCommentId: v.optional(v.id("comments")), // For nested comments
     content: v.string(),
     likeCount: v.number(),
     replyCount: v.number(), // Added for nested replies
+    mentions: v.optional(v.array(v.id("users"))), // Added mentions in comments
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("byPost", ["postId"])
+    .index("byAuthor", ["authorId"])
+    .index("byPostAndCreated", ["postId", "createdAt"])
+    .index("byAuthorAndPost", ["authorId", "postId"]),
+
+  replies: defineTable({
+    authorId: v.id("users"),
+    postId: v.id("posts"),
+    parentCommentId: v.id("comments"),
+    content: v.string(),
+    likeCount: v.number(),
     mentions: v.optional(v.array(v.id("users"))), // Added mentions in comments
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
@@ -80,7 +94,8 @@ export default defineSchema({
     userId: v.id("users"),
     postId: v.optional(v.id("posts")),
     commentId: v.optional(v.id("comments")),
-    type: v.union(v.literal("post"), v.literal("comment")), // Added type distinction
+    replyId: v.optional(v.id("replies")),
+    type: v.union(v.literal("post"), v.literal("comment"), v.literal("reply")),
     createdAt: v.number(),
   })
     .index("byUser", ["userId"])
@@ -89,6 +104,7 @@ export default defineSchema({
     .index("byType", ["type"])
     .index("byUserAndPost", ["userId", "postId"])
     .index("byUserAndComment", ["userId", "commentId"])
+    .index("byUserAndReply", ["userId", "replyId"])
     .index("byUserAndType", ["userId", "type"]),
 
   reposts: defineTable({

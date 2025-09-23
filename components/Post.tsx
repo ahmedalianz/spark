@@ -8,7 +8,7 @@ import { useMutation } from "convex/react";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { memo, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -22,13 +22,13 @@ import {
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-type ThreadProps = {
-  thread: Doc<"posts"> & { author: Doc<"users">; userHasLiked: boolean };
+type PostProps = {
+  post: Doc<"posts"> & { author: Doc<"users">; userHasLiked: boolean };
 };
 
-const Thread = ({ thread }: ThreadProps) => {
+const Post = ({ post }: PostProps) => {
   const { content, mediaFiles, likeCount, commentCount, author, userHasLiked } =
-    thread;
+    post;
 
   const router = useRouter();
 
@@ -58,7 +58,7 @@ const Thread = ({ thread }: ThreadProps) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     try {
-      await likePost({ postId: thread._id });
+      await likePost({ postId: post._id });
     } catch (error) {
       setIsLiked(isLiked);
       setLocalLikeCount(likeCount);
@@ -66,7 +66,7 @@ const Thread = ({ thread }: ThreadProps) => {
   };
 
   const handleComment = () => {
-    router.push(`/(auth)/(modals)/thread-comments/${thread._id as string}`);
+    router.push(`/(auth)/(modals)/post-comments/${post._id as string}`);
     Haptics.selectionAsync();
   };
   return (
@@ -83,7 +83,7 @@ const Thread = ({ thread }: ThreadProps) => {
                   {author?.first_name} {author?.last_name}
                 </Text>
                 <Text style={styles.timestamp}>
-                  · {formatTimeAgo(thread._creationTime)}
+                  · {formatTimeAgo(post._creationTime)}
                 </Text>
               </View>
               <Text style={styles.handle}>@{author?.email?.split("@")[0]}</Text>
@@ -100,7 +100,7 @@ const Thread = ({ thread }: ThreadProps) => {
         </TouchableOpacity>
       </View>
 
-      {/* Thread Content */}
+      {/* Post Content */}
       <View style={styles.content}>
         <Text style={styles.contentText}>{content}</Text>
 
@@ -122,7 +122,7 @@ const Thread = ({ thread }: ThreadProps) => {
                 <TouchableOpacity style={styles.mediaWrapper}>
                   <Image source={{ uri: imageUrl }} style={styles.mediaImage} />
                   <LinearGradient
-                    colors={["transparent", Colors.black30]}
+                    colors={["transparent", Colors.blackPure]}
                     style={styles.mediaOverlay}
                   />
                 </TouchableOpacity>
@@ -164,7 +164,7 @@ const Thread = ({ thread }: ThreadProps) => {
             <Ionicons
               name={isLiked ? "heart" : "heart-outline"}
               size={22}
-              color={isLiked ? Colors.like : Colors.textTertiary}
+              color={isLiked ? Colors.accentLike : Colors.textTertiary}
             />
             <Text style={[styles.actionText, isLiked && styles.likedText]}>
               {formatCount(localLikeCount)}
@@ -191,7 +191,7 @@ const Thread = ({ thread }: ThreadProps) => {
   );
 };
 
-export default Thread;
+export default memo(Post);
 
 const styles = StyleSheet.create({
   container: {
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.borderVeryLight,
+    backgroundColor: Colors.borderLighter,
   },
   userDetails: {
     flex: 1,
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   mediaImage: {
     width: SCREEN_WIDTH * 0.8,
     height: 240,
-    backgroundColor: Colors.borderVeryLight,
+    backgroundColor: Colors.borderLighter,
   },
   mediaOverlay: {
     position: "absolute",
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   statsBar: {
     borderTopWidth: StyleSheet.hairlineWidth,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.borderVeryLight,
+    borderColor: Colors.borderLighter,
     paddingVertical: 8,
     marginBottom: 8,
   },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   likedButton: {
-    backgroundColor: Colors.border2,
+    backgroundColor: Colors.borderSecondary,
   },
   actionText: {
     marginLeft: 6,
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     fontFamily: "DMSans_500Medium",
   },
   likedText: {
-    color: Colors.like,
+    color: Colors.accentLike,
   },
   rightActions: {
     flexDirection: "row",

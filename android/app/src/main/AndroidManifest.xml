@@ -30,7 +30,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="threadsv" android:host="expo-development-client" />
+        <data android:scheme="spark" android:host="expo-development-client" />
       </intent-filter>
       
       <!-- Your SSO callback deep link (keep this too) -->
@@ -38,7 +38,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="threadsv" android:host="sso-callback" />
+        <data android:scheme="spark" android:host="sso-callback" />
       </intent-filter>
     </activity>
   </application>

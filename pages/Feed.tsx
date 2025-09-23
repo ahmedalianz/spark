@@ -1,5 +1,4 @@
-import Thread from "@/components/Thread";
-import ThreadComposer from "@/components/ThreadComposer";
+import Post from "@/components/Post";
 import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
@@ -32,10 +31,10 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import CreatePost from "./CreatePost";
 type FeedFilter = "all" | "following";
 
-const Page = () => {
+const Feed = () => {
   const {
     results: feedPosts,
     status,
@@ -142,18 +141,18 @@ const Page = () => {
     ],
   }));
 
-  const renderThread = ({ item }: { item: Doc<"posts"> }) => (
+  const renderPost = ({ item }: { item: Doc<"posts"> }) => (
     <Animated.View
       entering={Platform.OS === "ios" ? undefined : undefined}
-      style={styles.threadContainer}
+      style={styles.postContainer}
     >
       <Link
-        href={`/(auth)/(modals)/thread-comments/${item._id as string}`}
+        href={`/(auth)/(modals)/post-comments/[postId]?postId=${item._id}`}
         asChild
       >
         <TouchableOpacity activeOpacity={0.95}>
-          <Thread
-            thread={
+          <Post
+            post={
               item as Doc<"posts"> & {
                 author: Doc<"users">;
                 userHasLiked: boolean;
@@ -171,7 +170,7 @@ const Page = () => {
       <View style={styles.topBar}>
         <Animated.View style={pullRefreshStyle}>
           <Image
-            source={require("@/assets/images/threads-logo-black.png")}
+            source={require("@/assets/images/logo.png")}
             style={styles.logo}
           />
         </Animated.View>
@@ -212,7 +211,7 @@ const Page = () => {
             <TextInput
               ref={searchInputRef}
               style={styles.searchInput}
-              placeholder="Search threads, users, topics..."
+              placeholder="Search posts, users, topics..."
               placeholderTextColor={Colors.textMuted}
               value={searchQuery}
               onChangeText={handleSearch}
@@ -232,7 +231,7 @@ const Page = () => {
         </Animated.View>
       )}
 
-      <ThreadComposer isPreview />
+      <CreatePost isPreview />
     </Animated.View>
   );
 
@@ -242,7 +241,7 @@ const Page = () => {
     return (
       <View style={styles.footerLoader}>
         <ActivityIndicator size="small" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading more threads...</Text>
+        <Text style={styles.loadingText}>Loading more posts...</Text>
       </View>
     );
   };
@@ -250,15 +249,15 @@ const Page = () => {
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Ionicons name="chatbubbles-outline" size={64} color={Colors.textMuted} />
-      <Text style={styles.emptyStateTitle}>No threads yet</Text>
+      <Text style={styles.emptyStateTitle}>No posts yet</Text>
       <Text style={styles.emptyStateSubtitle}>
         Be the first to start a conversation!
       </Text>
       <TouchableOpacity
         style={styles.emptyStateButton}
-        onPress={() => router.push("/(auth)/(modals)/create-thread")}
+        onPress={() => router.push("/(auth)/(modals)/create-post")}
       >
-        <Text style={styles.emptyStateButtonText}>Create Thread</Text>
+        <Text style={styles.emptyStateButtonText}>Create Post</Text>
       </TouchableOpacity>
     </View>
   );
@@ -272,7 +271,7 @@ const Page = () => {
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           data={feedPosts}
-          renderItem={renderThread}
+          renderItem={renderPost}
           keyExtractor={(item) => item._id}
           onEndReached={onLoadMore}
           onEndReachedThreshold={0.3}
@@ -337,7 +336,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.lightBackground,
+    backgroundColor: Colors.backgroundLight,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
@@ -349,7 +348,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.like,
+    backgroundColor: Colors.accentLike,
   },
   searchContainer: {
     paddingHorizontal: 20,
@@ -358,7 +357,7 @@ const styles = StyleSheet.create({
   searchInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.lightBackground,
+    backgroundColor: Colors.backgroundLight,
     borderRadius: 25,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -373,7 +372,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
-  threadContainer: {
+  postContainer: {
     backgroundColor: Colors.white,
     marginHorizontal: 16,
     marginBottom: 2,
@@ -438,4 +437,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Page;
+export default Feed;

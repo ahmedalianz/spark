@@ -46,9 +46,9 @@ const Layout = () => {
         }}
       />
       <Tabs.Screen
-        name="search"
+        name="network"
         options={{
-          title: "Search",
+          title: "Network",
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "search" : "search-outline"}
@@ -71,14 +71,14 @@ const Layout = () => {
           tabPress: (e) => {
             e.preventDefault();
             Haptics.selectionAsync();
-            router.push("/(auth)/(modals)/create-thread");
+            router.push("/(auth)/(modals)/create-post");
           },
         }}
       />
       <Tabs.Screen
-        name="favorites"
+        name="notifications"
         options={{
-          title: "Favorites",
+          title: "Notifications",
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "heart" : "heart-outline"}
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     color: "blue",
   },
   createIconContainer: {
-    backgroundColor: Colors.cardBackground,
+    backgroundColor: Colors.backgroundCard,
     borderRadius: 8,
     padding: 2,
   },

@@ -52,8 +52,8 @@ export const usePush = () => {
     const responseListener =
       Notifications.addNotificationResponseReceivedListener((response) => {
         console.log("🚀 ~ usePush ~ response:", response);
-        const threadId = response.notification.request.content.data.threadId;
-        router.push(`/(auth)/(tabs)/feed/thread/${threadId}`);
+        const postId = response.notification.request.content.data.postId;
+        router.push(`/(auth)/(tabs)/feed/post/${postId}`);
       });
 
     return () => {

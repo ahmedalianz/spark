@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.borderVeryLight,
+    backgroundColor: Colors.borderLighter,
   },
   loadingContent: {
     flex: 1,
@@ -38,13 +38,13 @@ const styles = StyleSheet.create({
   },
   loadingLine: {
     height: 16,
-    backgroundColor: Colors.borderVeryLight,
+    backgroundColor: Colors.borderLighter,
     borderRadius: 8,
     width: "80%",
   },
   loadingBioLine: {
     height: 16,
-    backgroundColor: Colors.borderVeryLight,
+    backgroundColor: Colors.borderLighter,
     borderRadius: 8,
     marginTop: 20,
   },

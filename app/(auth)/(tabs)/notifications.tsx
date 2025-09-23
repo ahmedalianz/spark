@@ -1,12 +1,12 @@
 import React from "react";
 import { Text, View } from "react-native";
 
-const index = () => {
+const notifications = () => {
   return (
     <View>
-      <Text>search</Text>
+      <Text>notifications</Text>
     </View>
   );
 };
 
-export default index;
+export default notifications;
