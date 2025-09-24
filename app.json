@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "threadsv",
-    "slug": "threadsv",
+    "name": "spark",
+    "slug": "spark",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "threadsv",
+    "icon": "./assets/images/logo.png",
+    "scheme": "spark",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -13,26 +13,30 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#667eea"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.threadsv"
+      "package": "com.anonymous.spark"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#023c69"
+    },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "image": "./assets/images/splash.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#023c69"
         }
       ],
       "expo-font",
@@ -48,6 +52,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ca0a3a33-b9bb-423a-b462-59bc850a3023"
+      }
+    },
+    "owner": "ahmedalianz"
   }
 }

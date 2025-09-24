@@ -70,13 +70,6 @@ export const UserProfile = ({ userId }: UserProfileProps) => {
             <Text style={styles.name}>
               {profile?.first_name} {profile?.last_name}
             </Text>
-            <View style={styles.verifiedBadge}>
-              <Ionicons
-                name="checkmark-circle"
-                size={16}
-                color={Colors.primary}
-              />
-            </View>
           </View>
           <Text style={styles.email}>{profile?.email}</Text>
 
@@ -226,9 +219,6 @@ const styles = StyleSheet.create({
     color: Colors.black,
     fontFamily: "DMSans_700Bold",
   },
-  verifiedBadge: {
-    marginLeft: 6,
-  },
   email: {
     fontSize: 15,
     color: Colors.textTertiary,
@@ -271,7 +261,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.borderVeryLight,
+    backgroundColor: Colors.borderLighter,
   },
 
   bioSection: {
@@ -296,7 +286,7 @@ const styles = StyleSheet.create({
   },
   actionSection: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.borderVeryLight,
+    borderTopColor: Colors.borderLighter,
     paddingTop: 20,
   },
   buttonRow: {
@@ -330,9 +320,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 25,
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
     borderWidth: 1.5,
-    borderColor: Colors.blueTint,
+    borderColor: Colors.tintBlue,
     gap: 8,
   },
   secondaryButtonText: {
@@ -345,9 +335,9 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
     borderWidth: 1.5,
-    borderColor: Colors.blueTint,
+    borderColor: Colors.tintBlue,
     alignItems: "center",
     justifyContent: "center",
   },

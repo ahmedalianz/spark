@@ -1,6 +1,5 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { Ionicons } from "@expo/vector-icons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
@@ -10,7 +9,6 @@ import {
   FlatList,
   Platform,
   RefreshControl,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -23,21 +21,17 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@clerk/clerk-expo";
 import { usePaginatedQuery } from "convex/react";
 import { useCallback, useMemo, useRef, useState } from "react";
+import Post from "./Post";
 import ProfileLoader from "./ProfileLoader";
 import Tabs, { tabEnum } from "./Tabs";
-import Thread from "./Threads";
 import { UserProfile } from "./UserProfile";
 
 type ProfileProps = {
   userId?: Id<"users">;
-  showBackButton?: boolean;
 };
 
-export default function Profile({
-  userId,
-  showBackButton = false,
-}: ProfileProps) {
-  const [activeTab, setActiveTab] = useState<tabEnum>("Threads");
+export default function Profile({ userId }: ProfileProps) {
+  const [activeTab, setActiveTab] = useState<tabEnum>("Posts");
   const [refreshing, setRefreshing] = useState(false);
   const { userProfile, isLoading } = useUserProfile();
   const router = useRouter();
@@ -45,25 +39,28 @@ export default function Profile({
   const scrollY = useRef(new Animated.Value(0)).current;
 
   // Different queries based on active tab
-  const threadsQuery = usePaginatedQuery(
-    api.threads.getThreads,
-    { userId: userId || userProfile?._id },
+  const postsQuery = usePaginatedQuery(
+    api.posts.getUserPosts,
+    { userId: userId || (userProfile?._id as Id<"users">), type: "posts" },
+    { initialNumItems: 10 }
+  );
+  const repostsQuery = usePaginatedQuery(
+    api.posts.getUserPosts,
+    { userId: userProfile?._id as Id<"users">, type: "reposts" },
     { initialNumItems: 10 }
   );
 
   // Get the current active query based on tab
   const currentQuery = useMemo(() => {
     switch (activeTab) {
-      case "Threads":
-        return threadsQuery;
-      case "Replies":
-      // return repliesQuery;
+      case "Posts":
+        return postsQuery;
       case "Reposts":
-      // return repostsQuery;
+        return repostsQuery;
       default:
-        return threadsQuery;
+        return postsQuery;
     }
-  }, [activeTab, threadsQuery]);
+  }, [activeTab, postsQuery]);
 
   const { results, status, loadMore } = currentQuery;
 
@@ -95,20 +92,15 @@ export default function Profile({
 
   const renderEmptyComponent = useCallback(() => {
     const emptyMessages = {
-      Threads: {
+      Posts: {
         icon: "create-outline",
-        title: "No threads yet",
+        title: "No posts yet",
         subtitle: "Share your first thought with the world",
       },
-      Replies: {
+      Reposts: {
         icon: "chatbubble-outline",
         title: "No replies yet",
         subtitle: "Join the conversation by replying to others",
-      },
-      Reposts: {
-        icon: "repeat-outline",
-        title: "No reposts yet",
-        subtitle: "Share interesting content with your followers",
       },
     };
 
@@ -116,7 +108,11 @@ export default function Profile({
 
     return (
       <View style={styles.emptyState}>
-        <Ionicons name={message.icon as any} size={48} color="#c0c0c0" />
+        <Ionicons
+          name={message.icon as any}
+          size={48}
+          color={Colors.borderDisabled}
+        />
         <Text style={styles.emptyStateText}>{message.title}</Text>
         <Text style={styles.emptyStateSubtext}>{message.subtitle}</Text>
       </View>
@@ -158,9 +154,9 @@ export default function Profile({
 
   const renderItem = useCallback(
     ({ item }: { item: any }) => (
-      <Link href={`/feed/${item._id}`} asChild>
-        <TouchableOpacity style={styles.threadWrapper}>
-          <Thread thread={item as Doc<"threads"> & { creator: Doc<"users"> }} />
+      <Link href={`/feed/post/${item._id}`} asChild>
+        <TouchableOpacity style={styles.postWrapper}>
+          <Post post={item as Doc<"posts"> & { creator: Doc<"users"> }} />
         </TouchableOpacity>
       </Link>
     ),
@@ -168,208 +164,153 @@ export default function Profile({
   );
 
   return (
-    <>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
-      <View style={styles.container}>
-        {/* Animated Header */}
-        <Animated.View
-          style={[
-            styles.animatedHeader,
-            { opacity: headerOpacity },
-            Platform.OS === "android" && { backgroundColor: Colors.primary },
-          ]}
-        >
-          {Platform.OS === "ios" && (
-            <BlurView
-              intensity={100}
-              tint="prominent"
-              style={StyleSheet.absoluteFillObject}
+    <View style={styles.container}>
+      {/* Animated Header */}
+      <Animated.View
+        style={[
+          styles.animatedHeader,
+          { opacity: headerOpacity },
+          Platform.OS === "android" && { backgroundColor: Colors.primary },
+        ]}
+      >
+        {Platform.OS === "ios" && (
+          <BlurView
+            intensity={100}
+            tint="prominent"
+            style={StyleSheet.absoluteFillObject}
+          />
+        )}
+        <View style={styles.headerContent}>
+          <TouchableOpacity style={styles.headerButton} onPress={router.back}>
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={Platform.OS === "android" ? Colors.white : Colors.black}
             />
-          )}
-          <View style={styles.headerContent}>
-            {showBackButton ? (
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={router.back}
-              >
-                <Ionicons
-                  name="chevron-back"
-                  size={24}
-                  color={
-                    Platform.OS === "android" ? Colors.white : Colors.black
-                  }
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={styles.headerButton}>
-                <MaterialCommunityIcons
-                  name="web"
-                  size={24}
-                  color={
-                    Platform.OS === "android" ? Colors.white : Colors.black
-                  }
-                />
-              </TouchableOpacity>
-            )}
+          </TouchableOpacity>
 
-            <Text
-              style={[
-                styles.headerTitle,
-                {
-                  color:
-                    Platform.OS === "android" ? Colors.white : Colors.black,
-                },
-              ]}
+          <Text
+            style={[
+              styles.headerTitle,
+              {
+                color: Platform.OS === "android" ? Colors.white : Colors.black,
+              },
+            ]}
+          >
+            {`${userProfile?.first_name} ${userProfile?.last_name}`}
+          </Text>
+
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={signOutHandler}
             >
-              {`${userProfile?.first_name} ${userProfile?.last_name}`}
-            </Text>
-
-            <View style={styles.headerActions}>
-              <TouchableOpacity style={styles.headerButton}>
-                <Ionicons
-                  name="logo-facebook"
-                  size={22}
-                  color={
-                    Platform.OS === "android" ? Colors.white : Colors.black
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={signOutHandler}
-              >
-                <Ionicons
-                  name="log-out-outline"
-                  size={22}
-                  color={
-                    Platform.OS === "android" ? Colors.white : Colors.black
-                  }
-                />
-              </TouchableOpacity>
-            </View>
+              <Ionicons
+                name="log-out-outline"
+                size={22}
+                color={Platform.OS === "android" ? Colors.white : Colors.black}
+              />
+            </TouchableOpacity>
           </View>
-        </Animated.View>
+        </View>
+      </Animated.View>
 
-        <FlatList
-          data={results}
-          renderItem={renderItem}
-          keyExtractor={(item) => item._id}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={Colors.primary}
-              colors={[Colors.primary]}
-            />
-          }
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: false }
-          )}
-          scrollEventThrottle={16}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            status === "LoadingFirstPage" ? null : renderEmptyComponent
-          }
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          ListFooterComponent={renderFooter}
-          ListHeaderComponent={
-            <>
-              <LinearGradient
-                colors={[Colors.primary, Colors.primaryDark]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.heroGradient}
-              >
-                <View style={styles.heroContent}>
-                  {showBackButton ? (
-                    <TouchableOpacity
-                      style={styles.backButton}
-                      onPress={router.back}
-                    >
-                      <View style={styles.backButtonBackground}>
-                        <Ionicons
-                          name="chevron-back"
-                          size={20}
-                          color={Colors.white}
-                        />
-                      </View>
-                      <Text style={styles.backText}>Back</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity style={styles.iconButton}>
-                      <View style={styles.iconButtonBackground}>
-                        <MaterialCommunityIcons
-                          name="web"
-                          size={20}
-                          color={Colors.white}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                  )}
-
-                  <View style={styles.heroActions}>
-                    <TouchableOpacity style={styles.iconButton}>
-                      <View style={styles.iconButtonBackground}>
-                        <Ionicons
-                          name="logo-facebook"
-                          size={18}
-                          color={Colors.white}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.iconButton}
-                      onPress={signOutHandler}
-                    >
-                      <View style={styles.iconButtonBackground}>
-                        <Ionicons
-                          name="log-out-outline"
-                          size={18}
-                          color={Colors.white}
-                        />
-                      </View>
-                    </TouchableOpacity>
+      <FlatList
+        data={results}
+        renderItem={renderItem}
+        keyExtractor={(item) => item._id}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
+          />
+        }
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
+        scrollEventThrottle={16}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListEmptyComponent={
+          status === "LoadingFirstPage" ? null : renderEmptyComponent
+        }
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListFooterComponent={renderFooter}
+        ListHeaderComponent={
+          <>
+            <LinearGradient
+              colors={[Colors.primary, Colors.primaryDark]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              <View style={styles.heroContent}>
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={router.back}
+                >
+                  <View style={styles.backButtonBackground}>
+                    <Ionicons
+                      name="chevron-back"
+                      size={20}
+                      color={Colors.white}
+                    />
                   </View>
-                </View>
-              </LinearGradient>
+                  <Text style={styles.backText}>Back</Text>
+                </TouchableOpacity>
 
-              <View style={styles.profileSection}>
-                {userId ? (
-                  <UserProfile userId={userId} />
-                ) : isLoading ? (
-                  <ProfileLoader />
-                ) : (
-                  <UserProfile userId={userProfile?._id} />
-                )}
+                <TouchableOpacity
+                  style={styles.iconButton}
+                  onPress={signOutHandler}
+                >
+                  <View style={styles.iconButtonBackground}>
+                    <Ionicons
+                      name="log-out-outline"
+                      size={18}
+                      color={Colors.white}
+                    />
+                  </View>
+                </TouchableOpacity>
               </View>
+            </LinearGradient>
 
-              <View style={styles.tabsContainer}>
-                <Tabs onTabChange={handleTabChange} activeTab={activeTab} />
-              </View>
-
-              {/* Loading indicator for first page */}
-              {status === "LoadingFirstPage" && (
-                <View style={styles.firstPageLoading}>
-                  <ActivityIndicator color={Colors.primary} size="large" />
-                  <Text style={styles.loadingText}>
-                    Loading {activeTab.toLowerCase()}...
-                  </Text>
-                </View>
+            <View style={styles.profileSection}>
+              {userId ? (
+                <UserProfile userId={userId} />
+              ) : isLoading ? (
+                <ProfileLoader />
+              ) : (
+                <UserProfile userId={userProfile?._id} />
               )}
-            </>
-          }
-        />
-      </View>
-    </>
+            </View>
+
+            <View style={styles.tabsContainer}>
+              <Tabs onTabChange={handleTabChange} activeTab={activeTab} />
+            </View>
+
+            {/* Loading indicator for first page */}
+            {status === "LoadingFirstPage" && (
+              <View style={styles.firstPageLoading}>
+                <ActivityIndicator color={Colors.primary} size="large" />
+                <Text style={styles.loadingText}>
+                  Loading {activeTab.toLowerCase()}...
+                </Text>
+              </View>
+            )}
+          </>
+        }
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.lightBackground,
+    backgroundColor: Colors.backgroundLight,
     flex: 1,
   },
   animatedHeader: {
@@ -412,11 +353,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
   },
-  heroActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
   backButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -426,7 +362,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.white20,
+    backgroundColor: Colors.transparentWhite20,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -443,7 +379,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.white20,
+    backgroundColor: Colors.transparentWhite20,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -465,7 +401,7 @@ const styles = StyleSheet.create({
   tabsContainer: {
     backgroundColor: Colors.white,
   },
-  threadWrapper: {
+  postWrapper: {
     backgroundColor: Colors.white,
     marginHorizontal: 16,
     marginVertical: 4,
@@ -525,10 +461,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginHorizontal: 16,
     marginVertical: 8,
-    backgroundColor: Colors.blueTintLight,
+    backgroundColor: Colors.tintBlueLight,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.blueTint,
+    borderColor: Colors.tintBlue,
     gap: 6,
   },
   loadMoreText: {

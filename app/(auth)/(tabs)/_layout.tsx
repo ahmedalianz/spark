@@ -5,7 +5,7 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { Colors } from "@/constants/Colors";
-// import { usePush } from '@/hooks/usePush';
+import { usePush } from "@/hooks/usePush";
 import * as Haptics from "expo-haptics";
 
 const CreateTabIcon = ({ color, size }: { color: string; size: number }) => (
@@ -17,13 +17,13 @@ const CreateTabIcon = ({ color, size }: { color: string; size: number }) => (
 const Layout = () => {
   const { signOut } = useAuth();
   const router = useRouter();
-  // usePush();
+  usePush();
 
   return (
     <Tabs
       screenOptions={{
         tabBarShowLabel: false,
-        tabBarActiveTintColor: "#000",
+        tabBarActiveTintColor: Colors.primary,
       }}
     >
       <Tabs.Screen
@@ -46,9 +46,9 @@ const Layout = () => {
         }}
       />
       <Tabs.Screen
-        name="search"
+        name="network"
         options={{
-          title: "Search",
+          title: "Network",
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "search" : "search-outline"}
@@ -71,14 +71,14 @@ const Layout = () => {
           tabPress: (e) => {
             e.preventDefault();
             Haptics.selectionAsync();
-            router.push("/(auth)/(modals)/create-thread");
+            router.push("/(auth)/(modals)/create-post");
           },
         }}
       />
       <Tabs.Screen
-        name="favorites"
+        name="notifications"
         options={{
-          title: "Favorites",
+          title: "Notifications",
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "heart" : "heart-outline"}
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     color: "blue",
   },
   createIconContainer: {
-    backgroundColor: Colors.cardBackground,
+    backgroundColor: Colors.backgroundCard,
     borderRadius: 8,
     padding: 2,
   },

@@ -114,7 +114,7 @@ const RootLayoutNav = () => {
   const inAuthGroup = segments[0] === "(auth)";
 
   if (isSignedIn && !inAuthGroup) {
-    return <Redirect href="/(auth)/(tabs)/feed/index" />;
+    return <Redirect href="/(auth)/(tabs)/feed" />;
   }
 
   if (!isSignedIn && inAuthGroup) {

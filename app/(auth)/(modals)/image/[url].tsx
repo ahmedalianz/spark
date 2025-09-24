@@ -1,12 +1,15 @@
-import React from "react";
-import { Text, View } from "react-native";
+import ImageViewer from "@/components/ImageViewer";
+import { useLocalSearchParams } from "expo-router";
+export type ImageViewerProps = {
+  url: string;
+  likeCount: string;
+  commentCount: string;
+};
+const Page = () => {
+  const { url, likeCount, commentCount } =
+    useLocalSearchParams<ImageViewerProps>();
 
-const Layout = () => {
-  return (
-    <View>
-      <Text>url#1</Text>
-    </View>
-  );
+  return <ImageViewer {...{ url, likeCount, commentCount }} />;
 };
 
-export default Layout;
+export default Page;

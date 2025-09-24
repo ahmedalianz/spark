@@ -11,15 +11,14 @@ import {
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-export type tabEnum = "Threads" | "Replies" | "Reposts";
-
+export type tabEnum = "Posts" | "Reposts";
 interface TabsProps {
   onTabChange: (tab: tabEnum) => void;
   activeTab?: tabEnum;
 }
 
-const Tabs: React.FC<TabsProps> = ({ onTabChange, activeTab = "Threads" }) => {
-  const tabs: tabEnum[] = ["Threads", "Replies", "Reposts"];
+const Tabs: React.FC<TabsProps> = ({ onTabChange, activeTab = "Posts" }) => {
+  const tabs: tabEnum[] = ["Posts", "Reposts"];
   const tabWidth = SCREEN_WIDTH / tabs.length;
   const translateX = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(1)).current;
@@ -100,7 +99,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: Colors.white,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.borderVeryLight,
+    borderBottomColor: Colors.borderLighter,
     position: "relative",
   },
   indicatorContainer: {

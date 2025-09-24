@@ -4,15 +4,19 @@ export const Colors = {
   // Primary Colors
   primary: "#667eea",
   primaryDark: "#764ba2",
+  primaryLight: "#a8b4ff",
 
   // Neutral Colors
   white: "#fff",
   black: "#1a1a1a",
+  blackDark: "#111",
+  blackPure: "#000",
   background: "#FDF8FF",
-  lightBackground: "#fafafa",
-  cardBackground: "#f5f5f5",
+  backgroundLight: "#fafafa",
+  backgroundCard: "#f5f5f5",
 
   // Text Colors
+  textPrimary: "#1a1a1a",
   textSecondary: "#333",
   textTertiary: "#666",
   textQuaternary: "#888",
@@ -22,23 +26,34 @@ export const Colors = {
   // Border & Divider Colors
   border: "#acacac",
   borderLight: "#e0e0e0",
-  borderVeryLight: "#f0f0f0",
+  borderLighter: "#f0f0f0",
+  borderDisabled: "#c0c0c0",
+  borderSecondary: "#fff0f3",
+  borderTertiary: "#f1f3f4",
+  borderBackground: "#e1e5e9",
 
   // Semantic Colors
-  like: "#ff3b5c",
+  accentLike: "#ff3b5c",
+  iconContainer: "#f8f9fa",
+  iconBackground: "#e9ecef",
 
   // Special Colors
-  blueTint: "#e6eafe",
-  blueTintLight: "#f8f9ff",
+  tintBlue: "#e6eafe",
+  tintBlueLight: "#f8f9ff",
 
   // Transparent Colors
-  white20: "rgba(255, 255, 255, 0.2)",
-  white30: "rgba(255, 255, 255, 0.3)",
-  white10: "rgba(255, 255, 255, 0.1)",
-  // Dark Colors
-  black30: "rgba(0,0,0,0.3)",
+  transparentWhite10: "rgba(255, 255, 255, 0.1)",
+  transparentWhite20: "rgba(255, 255, 255, 0.2)",
+  transparentWhite30: "rgba(255, 255, 255, 0.3)",
+  transparentWhite90: "rgba(255, 255, 255, 0.9)",
 
-  // Platform Specific (keep your existing)
+  transparentBlack04: "rgba(0,0,0,0.04)",
+  transparentBlack08: "rgba(0,0,0,0.08)",
+  transparentBlack15: "rgba(0,0,0,0.15)",
+  transparentBlack30: "rgba(0,0,0,0.3)",
+  transparentBlack70: "rgba(0, 0, 0, 0.7)",
+
+  // Platform Specific
   ...Platform.select({
     ios: {
       submit: PlatformColor("systemBlueColor"),
