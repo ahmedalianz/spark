@@ -1,3 +1,4 @@
+import FloatingParticle from "@/components/FloatingParticle";
 import { Colors } from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
@@ -11,7 +12,7 @@ import {
   View,
 } from "react-native";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 interface AnimatedSplashProps {
   onFinish: () => void;
@@ -40,7 +41,7 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
         useNativeDriver: true,
       }).start();
 
-      // Fourth: Fade in text after logo animation starts
+      // Third: Fade in text after logo animation starts
       setTimeout(() => {
         Animated.timing(textFadeAnim, {
           toValue: 1,
@@ -116,52 +117,6 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
   );
 };
 
-// Floating particle component
-const FloatingParticle: React.FC<{ delay: number }> = ({ delay }) => {
-  const translateY = useRef(new Animated.Value(0)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const animate = () => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(opacity, {
-            toValue: 0.8,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(translateY, {
-            toValue: -100,
-            duration: 3000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacity, {
-            toValue: 0,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    };
-
-    setTimeout(animate, delay);
-  }, [delay]);
-
-  return (
-    <Animated.View
-      style={[
-        styles.particle,
-        {
-          opacity,
-          transform: [{ translateY }],
-          left: Math.random() * width,
-          top: height * 0.7 + Math.random() * 100,
-        },
-      ]}
-    />
-  );
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -195,7 +150,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     alignItems: "center",
-    marginBottom: 60,
+    marginBottom: 20,
   },
   appName: {
     fontSize: 32,
@@ -234,13 +189,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
-  },
-  particle: {
-    position: "absolute",
-    width: 4,
-    height: 4,
-    backgroundColor: Colors.white,
-    borderRadius: 2,
   },
 });
 
