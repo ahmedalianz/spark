@@ -4,7 +4,7 @@
     "slug": "spark",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/logo_empty.png",
     "scheme": "spark",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -24,21 +24,8 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#023c69"
-    },
     "plugins": [
       "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#023c69"
-        }
-      ],
       "expo-font",
       "expo-secure-store",
       [

@@ -1,3 +1,4 @@
+import AnimatedSplash from "@/pages/AnimatedSplash";
 import {
   ClerkLoaded,
   ClerkProvider,
@@ -15,7 +16,7 @@ import {
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { Redirect, Slot, SplashScreen, useSegments } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
 
 // Sentry.init({
@@ -59,7 +60,7 @@ export default function RootLayout() {
     DMSans_500Medium,
     DMSans_700Bold,
   });
-
+  const [showSplash, setShowSplash] = useState(true);
   const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
     unsavedChangesWarning: false,
   });
@@ -74,10 +75,9 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return null;
+  if (!fontsLoaded || showSplash) {
+    return <AnimatedSplash onFinish={() => setShowSplash(false)} />;
   }
-
   return (
     <ClerkProvider
       tokenCache={tokenCache}

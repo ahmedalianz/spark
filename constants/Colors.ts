@@ -45,6 +45,7 @@ export const Colors = {
   transparentWhite10: "rgba(255, 255, 255, 0.1)",
   transparentWhite20: "rgba(255, 255, 255, 0.2)",
   transparentWhite30: "rgba(255, 255, 255, 0.3)",
+  transparentWhite80: "rgba(255, 255, 255, 0.8)",
   transparentWhite90: "rgba(255, 255, 255, 0.9)",
 
   transparentBlack04: "rgba(0,0,0,0.04)",
