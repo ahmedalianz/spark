@@ -1,5 +1,5 @@
-import { ImageViewerProps } from "@/app/(auth)/(modals)/image/[url]";
 import { Colors } from "@/constants/Colors";
+import { ImageViewerProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { ImageZoom } from "@likashefqet/react-native-image-zoom";
 import { StyleSheet, Text, View } from "react-native";

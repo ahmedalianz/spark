@@ -17,23 +17,20 @@ import {
 
 import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserInfo } from "@/hooks/useUserInfo";
+import { tabEnum } from "@/types";
 import { useAuth } from "@clerk/clerk-expo";
 import { usePaginatedQuery } from "convex/react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import Post from "./Post";
 import ProfileLoader from "./ProfileLoader";
-import Tabs, { tabEnum } from "./Tabs";
+import Tabs from "./Tabs";
 import { UserProfile } from "./UserProfile";
 
-type ProfileProps = {
-  userId?: Id<"users">;
-};
-
-export default function Profile({ userId }: ProfileProps) {
+export default function Profile({ userId }: { userId?: Id<"users"> }) {
   const [activeTab, setActiveTab] = useState<tabEnum>("Posts");
   const [refreshing, setRefreshing] = useState(false);
-  const { userProfile, isLoading } = useUserProfile();
+  const { userInfo, isLoading } = useUserInfo();
   const router = useRouter();
   const { signOut } = useAuth();
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -41,12 +38,12 @@ export default function Profile({ userId }: ProfileProps) {
   // Different queries based on active tab
   const postsQuery = usePaginatedQuery(
     api.posts.getUserPosts,
-    { userId: userId || (userProfile?._id as Id<"users">), type: "posts" },
+    { userId: userId || (userInfo?._id as Id<"users">), type: "posts" },
     { initialNumItems: 10 }
   );
   const repostsQuery = usePaginatedQuery(
     api.posts.getUserPosts,
-    { userId: userProfile?._id as Id<"users">, type: "reposts" },
+    { userId: userInfo?._id as Id<"users">, type: "reposts" },
     { initialNumItems: 10 }
   );
 
@@ -154,9 +151,16 @@ export default function Profile({ userId }: ProfileProps) {
 
   const renderItem = useCallback(
     ({ item }: { item: any }) => (
-      <Link href={`/feed/post/${item._id}`} asChild>
+      <Link href={`/(auth)/(modals)/post/${item._id}`} asChild>
         <TouchableOpacity style={styles.postWrapper}>
-          <Post post={item as Doc<"posts"> & { creator: Doc<"users"> }} />
+          <Post
+            post={
+              item as Doc<"posts"> & {
+                author: Doc<"users">;
+                userHasLiked: boolean;
+              }
+            }
+          />
         </TouchableOpacity>
       </Link>
     ),
@@ -197,7 +201,7 @@ export default function Profile({ userId }: ProfileProps) {
               },
             ]}
           >
-            {`${userProfile?.first_name} ${userProfile?.last_name}`}
+            {`${userInfo?.first_name} ${userInfo?.last_name}`}
           </Text>
 
           <View style={styles.headerActions}>
@@ -279,12 +283,12 @@ export default function Profile({ userId }: ProfileProps) {
             </LinearGradient>
 
             <View style={styles.profileSection}>
-              {userId ? (
-                <UserProfile userId={userId} />
-              ) : isLoading ? (
+              {isLoading ? (
                 <ProfileLoader />
+              ) : userId ? (
+                <UserProfile userId={userId} />
               ) : (
-                <UserProfile userId={userProfile?._id} />
+                userInfo?._id && <UserProfile userId={userInfo?._id} />
               )}
             </View>
 

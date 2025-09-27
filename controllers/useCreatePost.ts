@@ -1,22 +1,11 @@
 import { api } from "@/convex/_generated/api";
+import { CreatePostControllerProps, MediaFile } from "@/types";
 import { useMutation } from "convex/react";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert } from "react-native";
-
-type CreatePostControllerProps = {
-  onDismiss?: () => void;
-  initialContent?: string;
-};
-
-type MediaFile = ImagePicker.ImagePickerAsset & {
-  id: string;
-  type: "image" | "video";
-  isUploading?: boolean;
-  uploadProgress?: number;
-};
 
 const MAX_MEDIA_FILES = 10;
 
@@ -28,7 +17,6 @@ const useCreatePost = ({
 
   const [postContent, setPostContent] = useState(initialContent);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [textSelection, setTextSelection] = useState({ start: 0, end: 0 });
@@ -220,15 +208,6 @@ const useCreatePost = ({
     return storageId;
   };
 
-  const addEmoji = (emoji: string) => {
-    const newContent =
-      postContent.slice(0, textSelection.start) +
-      emoji +
-      postContent.slice(textSelection.end);
-    setPostContent(newContent);
-    Haptics.selectionAsync();
-  };
-
   const handleContentChange = (text: string) => {
     setPostContent(text);
     if (!isExpanded && text.length > 50) {
@@ -246,13 +225,10 @@ const useCreatePost = ({
     selectMedia,
     removeMedia,
     uploadMediaFile,
-    addEmoji,
     handleContentChange,
     handleSubmit,
     setTextSelection,
     resetForm,
-    showEmojiPicker,
-    setShowEmojiPicker,
   };
 };
 

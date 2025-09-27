@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
-import { Doc } from "@/convex/_generated/dataModel";
+import { PostWithAuthorDetails } from "@/types";
 import formatCount from "@/utils/formatCount";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import { Feather, Ionicons } from "@expo/vector-icons";
@@ -23,7 +23,7 @@ import {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 type PostProps = {
-  post: Doc<"posts"> & { author: Doc<"users">; userHasLiked: boolean };
+  post: PostWithAuthorDetails;
 };
 
 const Post = ({ post }: PostProps) => {
@@ -66,13 +66,13 @@ const Post = ({ post }: PostProps) => {
   };
 
   const handleComment = () => {
-    router.push(`/(auth)/(modals)/post-comments/${post._id as string}`);
+    router.push(`/(auth)/(modals)/post/${post._id as string}`);
     Haptics.selectionAsync();
   };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Link href={`/(auth)/feed-profile/${author?._id}`} asChild>
+        <Link href={`/(auth)/(modals)/feed-profile/${author?._id}`} asChild>
           <TouchableOpacity style={styles.userInfo}>
             <View style={styles.avatarContainer}>
               <Image source={{ uri: author?.imageUrl }} style={styles.avatar} />

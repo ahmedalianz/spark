@@ -4,6 +4,7 @@ import { Tabs, useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import NotificationTabIcon from "@/components/Notification";
 import { Colors } from "@/constants/Colors";
 import { usePush } from "@/hooks/usePush";
 import * as Haptics from "expo-haptics";
@@ -29,7 +30,6 @@ const Layout = () => {
       <Tabs.Screen
         name="feed"
         options={{
-          title: "Home",
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
@@ -46,12 +46,11 @@ const Layout = () => {
         }}
       />
       <Tabs.Screen
-        name="network"
+        name="followers"
         options={{
-          title: "Network",
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
-              name={focused ? "search" : "search-outline"}
+              name={focused ? "people" : "people-outline"}
               size={size}
               color={color}
             />
@@ -62,7 +61,6 @@ const Layout = () => {
       <Tabs.Screen
         name="create"
         options={{
-          title: "Create",
           tabBarIcon: ({ color, size }) => (
             <CreateTabIcon color={color} size={size} />
           ),
@@ -78,20 +76,15 @@ const Layout = () => {
       <Tabs.Screen
         name="notifications"
         options={{
-          title: "Notifications",
+          headerShown: false,
           tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? "heart" : "heart-outline"}
-              size={size}
-              color={color}
-            />
+            <NotificationTabIcon color={color} size={size} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
           headerShown: false,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons

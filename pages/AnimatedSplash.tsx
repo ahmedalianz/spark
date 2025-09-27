@@ -61,10 +61,10 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#023c69" />
+      <StatusBar barStyle="light-content" backgroundColor="#3a94d8ff" />
 
       <LinearGradient
-        colors={["#023c69", "#1e3a8a", "#3b82f6"]}
+        colors={["#3a94d8ff", "#b8c6edff", "#042561ff"]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -81,7 +81,7 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
           >
             <View style={styles.logoShadow}>
               <Image
-                source={require("@/assets/images/splash.webp")}
+                source={require("@/assets/images/logo.webp")}
                 style={styles.logo}
                 resizeMode="contain"
               />
@@ -92,7 +92,6 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
           <Animated.View
             style={[styles.textContainer, { opacity: textFadeAnim }]}
           >
-            <Text style={styles.appName}>Spark</Text>
             <Text style={styles.tagline}>Connect • Share • Inspire</Text>
           </Animated.View>
 
@@ -107,7 +106,7 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
 
           {/* Floating particles */}
           <View style={styles.particlesContainer}>
-            {Array.from({ length: 6 }).map((_, index) => (
+            {Array.from({ length: 8 }).map((_, index) => (
               <FloatingParticle key={index} delay={index * 200} />
             ))}
           </View>
@@ -144,8 +143,8 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   logo: {
-    width: 200,
-    height: 200,
+    width: 250,
+    height: 250,
     transform: [{ translateY: 60 }],
   },
   textContainer: {
@@ -164,7 +163,7 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontSize: 16,
-    color: Colors.transparentWhite80,
+    color: Colors.white,
     textAlign: "center",
     letterSpacing: 1,
   },

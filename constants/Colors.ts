@@ -36,7 +36,9 @@ export const Colors = {
   accentLike: "#ff3b5c",
   iconContainer: "#f8f9fa",
   iconBackground: "#e9ecef",
-
+  success: "#10B981",
+  warning: "#F59E0B",
+  info: "#3B82F6",
   // Special Colors
   tintBlue: "#e6eafe",
   tintBlueLight: "#f8f9ff",
@@ -52,6 +54,7 @@ export const Colors = {
   transparentBlack08: "rgba(0,0,0,0.08)",
   transparentBlack15: "rgba(0,0,0,0.15)",
   transparentBlack30: "rgba(0,0,0,0.3)",
+  transparentBlack50: "rgba(0,0,0,0.5)",
   transparentBlack70: "rgba(0, 0, 0, 0.7)",
 
   // Platform Specific

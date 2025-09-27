@@ -5,10 +5,10 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { Ionicons } from "@expo/vector-icons";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useIsFocused } from "@react-navigation/native";
-import { usePaginatedQuery } from "convex/react";
+import { usePaginatedQuery, useQuery } from "convex/react";
 import * as Haptics from "expo-haptics";
 import { Link, useRouter } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -24,6 +24,8 @@ import {
 } from "react-native";
 import Animated, {
   Extrapolate,
+  FadeInDown,
+  FadeOutUp,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -32,24 +34,17 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CreatePost from "./CreatePost";
+
 type FeedFilter = "all" | "following";
 
 const Feed = () => {
-  const {
-    results: feedPosts,
-    status,
-    loadMore,
-  } = usePaginatedQuery(
-    api.posts.getFeedPosts,
-    { filter: "all" }, // filter can be following, all
-    { initialNumItems: 10 }
-  );
-
-  const [refreshing, setRefreshing] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<FeedFilter>("all");
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [searchResults, setSearchResults] = useState<Doc<"posts">[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const { top } = useSafeAreaInsets();
   const router = useRouter();
@@ -58,14 +53,33 @@ const Feed = () => {
   const tabBarHeight = useBottomTabBarHeight();
   const isFocused = useIsFocused();
   const searchInputRef = useRef<TextInput>(null);
-
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const unreadCount =
+    useQuery(api.notifications.getUnreadNotificationCount) || 0;
   const isRefreshingValue = useSharedValue(0);
+
+  // Main feed posts query
+  const {
+    results: feedPosts,
+    status,
+    loadMore,
+  } = usePaginatedQuery(
+    api.posts.getFeedPosts,
+    { filter: currentFilter },
+    { initialNumItems: 10 }
+  );
+
+  //TODO: Search query - only runs when searching
+  const searchQueryResult = usePaginatedQuery(
+    api.posts.searchPosts,
+    searchQuery.length > 0 ? { query: searchQuery.trim() } : "skip",
+    { initialNumItems: 20 }
+  );
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       if (isFocused) {
         scrollOffset.value = event.contentOffset.y;
-
         headerOpacity.value = interpolate(
           scrollOffset.value,
           [0, 100],
@@ -76,6 +90,33 @@ const Feed = () => {
     },
   });
 
+  // Handle search with debouncing
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (query.trim().length > 0) {
+      setIsSearching(true);
+      searchTimeoutRef.current = setTimeout(() => {
+        setIsSearching(false);
+      }, 1000);
+    } else {
+      setIsSearching(false);
+      setSearchResults([]);
+    }
+  }, []);
+
+  // Update search results when query completes
+  useEffect(() => {
+    if (searchQueryResult.results) {
+      setSearchResults(searchQueryResult.results);
+      setIsSearching(false);
+    }
+  }, [searchQueryResult.results]);
+
   const onLoadMore = useCallback(async () => {
     if (status === "LoadingMore" || loadingMore) return;
 
@@ -83,13 +124,17 @@ const Feed = () => {
     Haptics.selectionAsync();
 
     try {
-      await loadMore(5);
+      if (searchQuery.length > 0) {
+        await searchQueryResult.loadMore(10);
+      } else {
+        await loadMore(5);
+      }
     } catch (error) {
       console.error("Load more error:", error);
     } finally {
       setLoadingMore(false);
     }
-  }, [loadMore, status, loadingMore]);
+  }, [loadMore, searchQueryResult.loadMore, status, loadingMore, searchQuery]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -97,7 +142,6 @@ const Feed = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
-      // Simulate refresh - in real app, this would refetch data
       await new Promise((resolve) => setTimeout(resolve, 1500));
     } catch (error) {
       Alert.alert("Error", "Failed to refresh feed");
@@ -107,11 +151,34 @@ const Feed = () => {
     }
   }, []);
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    // TODO: Implement search functionality
-    console.log(`Searching for: ${query}`);
+  const handleFilterChange = (filter: FeedFilter) => {
+    if (filter === currentFilter) return;
+
+    setCurrentFilter(filter);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Clear search when changing filters
+    if (searchQuery) {
+      setSearchQuery("");
+      setShowSearch(false);
+    }
   };
+
+  const toggleSearch = () => {
+    setShowSearch(!showSearch);
+    if (!showSearch) {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    } else {
+      setSearchQuery("");
+      setSearchResults([]);
+    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  // Determine which data to display
+  const displayPosts = searchQuery.length > 0 ? searchResults : feedPosts;
+  const displayStatus =
+    searchQuery.length > 0 ? searchQueryResult.status : status;
 
   // Animated styles
   const headerAnimatedStyle = useAnimatedStyle(() => ({
@@ -146,10 +213,7 @@ const Feed = () => {
       entering={Platform.OS === "ios" ? undefined : undefined}
       style={styles.postContainer}
     >
-      <Link
-        href={`/(auth)/(modals)/post-comments/[postId]?postId=${item._id}`}
-        asChild
-      >
+      <Link href={`/(auth)/(modals)/post/${item._id}`} asChild>
         <TouchableOpacity activeOpacity={0.95}>
           <Post
             post={
@@ -164,9 +228,51 @@ const Feed = () => {
     </Animated.View>
   );
 
+  const renderFilterTabs = () => (
+    <View style={styles.filterContainer}>
+      <TouchableOpacity
+        style={[
+          styles.filterTab,
+          currentFilter === "all" && styles.activeFilterTab,
+        ]}
+        onPress={() => handleFilterChange("all")}
+      >
+        <Text
+          style={[
+            styles.filterTabText,
+            currentFilter === "all" && styles.activeFilterTabText,
+          ]}
+        >
+          For You
+        </Text>
+        {currentFilter === "all" && <View style={styles.filterTabIndicator} />}
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[
+          styles.filterTab,
+          currentFilter === "following" && styles.activeFilterTab,
+        ]}
+        onPress={() => handleFilterChange("following")}
+      >
+        <Text
+          style={[
+            styles.filterTabText,
+            currentFilter === "following" && styles.activeFilterTabText,
+          ]}
+        >
+          Following
+        </Text>
+        {currentFilter === "following" && (
+          <View style={styles.filterTabIndicator} />
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+
   const renderHeader = () => (
     <Animated.View style={[styles.headerContainer, headerAnimatedStyle]}>
-      {/* Logo and Search */}
+      {/* Logo and Actions */}
       <View style={styles.topBar}>
         <Animated.View style={pullRefreshStyle}>
           <Image
@@ -177,35 +283,40 @@ const Feed = () => {
 
         <View style={styles.headerActions}>
           <TouchableOpacity
-            style={styles.headerButton}
-            onPress={() => setShowSearch(!showSearch)}
+            style={[
+              styles.headerButton,
+              showSearch && styles.headerButtonActive,
+            ]}
+            onPress={toggleSearch}
           >
             <Ionicons
               name={showSearch ? "close" : "search-outline"}
               size={24}
-              color={Colors.textSecondary}
+              color={showSearch ? Colors.primary : Colors.textSecondary}
             />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={() => {
-              /* TODO: Implement notifications */
-            }}
+            onPress={() => router.push("/(auth)/(tabs)/notifications")}
           >
             <Ionicons
               name="notifications-outline"
               size={24}
               color={Colors.textSecondary}
             />
-            <View style={styles.notificationBadge} />
+            {unreadCount > 0 && <View style={styles.notificationBadge} />}
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Search Bar */}
       {showSearch && (
-        <Animated.View style={styles.searchContainer}>
+        <Animated.View
+          entering={FadeInDown.duration(300)}
+          exiting={FadeOutUp.duration(200)}
+          style={styles.searchContainer}
+        >
           <View style={styles.searchInputContainer}>
             <Ionicons name="search" size={20} color={Colors.textMuted} />
             <TextInput
@@ -215,23 +326,42 @@ const Feed = () => {
               placeholderTextColor={Colors.textMuted}
               value={searchQuery}
               onChangeText={handleSearch}
-              autoFocus
               returnKeyType="search"
+              autoCorrect={false}
+              autoCapitalize="none"
             />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery("")}>
-                <Ionicons
-                  name="close-circle"
-                  size={20}
-                  color={Colors.textMuted}
-                />
-              </TouchableOpacity>
+            {(searchQuery.length > 0 || isSearching) && (
+              <View style={styles.searchActions}>
+                {isSearching ? (
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                ) : (
+                  <TouchableOpacity onPress={() => handleSearch("")}>
+                    <Ionicons
+                      name="close-circle"
+                      size={20}
+                      color={Colors.textMuted}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
             )}
           </View>
+
+          {searchQuery.length > 0 && (
+            <View style={styles.searchStats}>
+              <Text style={styles.searchStatsText}>
+                {searchResults.length} results for "{searchQuery}"
+              </Text>
+            </View>
+          )}
         </Animated.View>
       )}
 
-      <CreatePost isPreview />
+      {/* Filter Tabs - only show when not searching */}
+      {!showSearch && renderFilterTabs()}
+
+      {/* Create Post Preview - only show when not searching */}
+      {!showSearch && <CreatePost isPreview />}
     </Animated.View>
   );
 
@@ -241,26 +371,61 @@ const Feed = () => {
     return (
       <View style={styles.footerLoader}>
         <ActivityIndicator size="small" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading more posts...</Text>
+        <Text style={styles.loadingText}>
+          {searchQuery.length > 0 ? "Searching..." : "Loading more posts..."}
+        </Text>
       </View>
     );
   };
 
-  const renderEmptyState = () => (
-    <View style={styles.emptyState}>
-      <Ionicons name="chatbubbles-outline" size={64} color={Colors.textMuted} />
-      <Text style={styles.emptyStateTitle}>No posts yet</Text>
-      <Text style={styles.emptyStateSubtitle}>
-        Be the first to start a conversation!
-      </Text>
-      <TouchableOpacity
-        style={styles.emptyStateButton}
-        onPress={() => router.push("/(auth)/(modals)/create-post")}
-      >
-        <Text style={styles.emptyStateButtonText}>Create Post</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  const renderEmptyState = () => {
+    if (displayStatus === "LoadingFirstPage") return null;
+
+    // Different empty states for search vs feed
+    if (searchQuery.length > 0) {
+      return (
+        <View style={styles.emptyState}>
+          <Ionicons name="search-outline" size={64} color={Colors.textMuted} />
+          <Text style={styles.emptyStateTitle}>No results found</Text>
+          <Text style={styles.emptyStateSubtitle}>
+            Try searching for different keywords or check your spelling
+          </Text>
+          <TouchableOpacity
+            style={styles.emptyStateButton}
+            onPress={() => handleSearch("")}
+          >
+            <Text style={styles.emptyStateButtonText}>Clear Search</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyState}>
+        <Ionicons
+          name="chatbubbles-outline"
+          size={64}
+          color={Colors.textMuted}
+        />
+        <Text style={styles.emptyStateTitle}>
+          {currentFilter === "following"
+            ? "No posts from following"
+            : "No posts yet"}
+        </Text>
+        <Text style={styles.emptyStateSubtitle}>
+          {currentFilter === "following"
+            ? "Follow some users to see their posts here"
+            : "Be the first to start a conversation!"}
+        </Text>
+        <TouchableOpacity
+          style={styles.emptyStateButton}
+          onPress={() => router.push("/(auth)/(modals)/create-post")}
+        >
+          <Text style={styles.emptyStateButtonText}>Create Post</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <>
@@ -270,16 +435,14 @@ const Feed = () => {
           showsVerticalScrollIndicator={false}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
-          data={feedPosts}
+          data={displayPosts}
           renderItem={renderPost}
           keyExtractor={(item) => item._id}
           onEndReached={onLoadMore}
           onEndReachedThreshold={0.3}
           ListHeaderComponent={renderHeader}
           ListFooterComponent={renderFooter}
-          ListEmptyComponent={
-            status === "LoadingFirstPage" ? null : renderEmptyState
-          }
+          ListEmptyComponent={renderEmptyState}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           contentContainerStyle={[
             styles.scrollContent,
@@ -297,10 +460,12 @@ const Feed = () => {
         />
 
         {/* Loading State */}
-        {status === "LoadingFirstPage" && (
+        {displayStatus === "LoadingFirstPage" && (
           <View style={styles.loadingOverlay}>
             <ActivityIndicator size="large" color={Colors.primary} />
-            <Text style={styles.loadingText}>Loading your feed...</Text>
+            <Text style={styles.loadingText}>
+              {searchQuery.length > 0 ? "Searching..." : "Loading your feed..."}
+            </Text>
           </View>
         )}
       </View>
@@ -325,8 +490,8 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
   },
   headerActions: {
     flexDirection: "row",
@@ -340,6 +505,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
+  },
+  headerButtonActive: {
+    backgroundColor: Colors.tintBlueLight,
   },
   notificationBadge: {
     position: "absolute",
@@ -367,6 +535,54 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: Colors.textSecondary,
+  },
+  searchActions: {
+    width: 20,
+    height: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchStats: {
+    paddingTop: 8,
+    paddingHorizontal: 4,
+  },
+  searchStatsText: {
+    fontSize: 12,
+    color: Colors.textMuted,
+    fontWeight: "500",
+  },
+
+  // Filter Tabs
+  filterContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    gap: 24,
+  },
+  filterTab: {
+    position: "relative",
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  activeFilterTab: {
+    // No additional background needed
+  },
+  filterTabText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Colors.textMuted,
+  },
+  activeFilterTabText: {
+    color: Colors.textSecondary,
+  },
+  filterTabIndicator: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: Colors.primary,
+    borderRadius: 1,
   },
 
   scrollContent: {
@@ -416,6 +632,7 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginTop: 16,
     marginBottom: 8,
+    textAlign: "center",
   },
   emptyStateSubtitle: {
     fontSize: 16,

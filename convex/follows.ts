@@ -65,7 +65,13 @@ export const followUser = mutation({
         isRead: false,
         createdAt: now,
       });
-
+      if (targetUser.pushToken) {
+        // await ctx.scheduler.runAfter(500, internal.push.sendPushNotification, {
+        //   pushToken: targetUser.pushToken,
+        //   title: "New follower",
+        //   body: `${currentUser.first_name} started following you`,
+        // });
+      }
       return { followed: true };
     }
   },
@@ -73,18 +79,13 @@ export const followUser = mutation({
 
 export const getFollowers = query({
   args: {
-    userId: v.id("users"),
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
-    const currentUser = await getCurrentUser(ctx);
-    const targetUser = await ctx.db.get(args.userId);
-
-    if (!targetUser) throw new Error("User not found");
+    const currentUser = await getCurrentUserOrThrow(ctx);
 
     const follows = await ctx.db
       .query("follows")
-      .withIndex("byFollowing", (q) => q.eq("followingId", args.userId))
       .order("desc")
       .paginate(args.paginationOpts);
 
@@ -114,18 +115,13 @@ export const getFollowers = query({
 
 export const getFollowing = query({
   args: {
-    userId: v.id("users"),
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
-    const currentUser = await getCurrentUser(ctx);
-    const targetUser = await ctx.db.get(args.userId);
-
-    if (!targetUser) throw new Error("User not found");
+    const currentUser = await getCurrentUserOrThrow(ctx);
 
     const follows = await ctx.db
       .query("follows")
-      .withIndex("byFollower", (q) => q.eq("followerId", args.userId))
       .order("desc")
       .paginate(args.paginationOpts);
 
@@ -188,7 +184,26 @@ export const checkFollowStatus = query({
     };
   },
 });
+export const getFollowCounts = query({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const user = await ctx.db.get(args.userId);
+      if (!user) {
+        return { followersCount: 0, followingsCount: 0 };
+      }
 
+      return {
+        followersCount: user.followersCount || 0,
+        followingsCount: user.followingsCount || 0,
+      };
+    } catch (error) {
+      return { followersCount: 0, followingsCount: 0 };
+    }
+  },
+});
 // Helper functions
 
 async function isUserFollowedBy(

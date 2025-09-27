@@ -1,11 +1,8 @@
 import EditProfile from "@/pages/EditProfile";
+import { EditProfileProps } from "@/types";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
-export type EditProfileProps = {
-  biostring: string;
-  linkstring: string;
-  imageUrl: string;
-};
+
 const EditProfilePage = () => {
   const { biostring, linkstring, imageUrl } =
     useLocalSearchParams<EditProfileProps>();

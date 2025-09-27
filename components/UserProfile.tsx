@@ -1,7 +1,7 @@
 import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserInfo } from "@/hooks/useUserInfo";
 import formatFollowerCount from "@/utils/formatFollowerCount";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "convex/react";
@@ -18,16 +18,12 @@ import {
 } from "react-native";
 import ProfileLoader from "./ProfileLoader";
 
-type UserProfileProps = {
-  userId?: string;
-};
-
-export const UserProfile = ({ userId }: UserProfileProps) => {
+export const UserProfile = ({ userId }: { userId: Id<"users"> }) => {
   const profile = useQuery(api.users.getUserById, {
-    userId: userId as Id<"users">,
+    userId,
   });
-  const { userProfile } = useUserProfile();
-  const isSelf = userProfile?._id === userId;
+  const { userInfo } = useUserInfo();
+  const isSelf = userInfo?._id === userId;
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;

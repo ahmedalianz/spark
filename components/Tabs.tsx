@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import { tabEnum, TabsProps } from "@/types";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
 import {
@@ -10,12 +11,6 @@ import {
 } from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-
-export type tabEnum = "Posts" | "Reposts";
-interface TabsProps {
-  onTabChange: (tab: tabEnum) => void;
-  activeTab?: tabEnum;
-}
 
 const Tabs: React.FC<TabsProps> = ({ onTabChange, activeTab = "Posts" }) => {
   const tabs: tabEnum[] = ["Posts", "Reposts"];

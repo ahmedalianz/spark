@@ -1,10 +1,7 @@
 import ImageViewer from "@/components/ImageViewer";
+import { ImageViewerProps } from "@/types";
 import { useLocalSearchParams } from "expo-router";
-export type ImageViewerProps = {
-  url: string;
-  likeCount: string;
-  commentCount: string;
-};
+
 const Page = () => {
   const { url, likeCount, commentCount } =
     useLocalSearchParams<ImageViewerProps>();

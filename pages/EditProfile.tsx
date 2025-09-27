@@ -48,7 +48,6 @@ const EditProfile = ({ biostring, linkstring, imageUrl }: EditProfileProps) => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      {/* Custom Header */}
       <LinearGradient
         colors={[Colors.primary, Colors.primaryDark]}
         start={{ x: 0, y: 0 }}

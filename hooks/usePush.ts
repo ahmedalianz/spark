@@ -1,5 +1,5 @@
 import { api } from "@/convex/_generated/api";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserInfo } from "@/hooks/useUserInfo";
 import { useMutation } from "convex/react";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
@@ -26,12 +26,12 @@ export const usePush = () => {
   >(undefined);
   const router = useRouter();
   const updateUser = useMutation(api.users.updateUser);
-  const { userProfile } = useUserProfile();
+  const { userInfo } = useUserInfo();
 
   useEffect(() => {
     registerForPushNotificationsAsync()
       .then((token) => {
-        if (token && userProfile?._id) {
+        if (token && userInfo?._id) {
           setExpoPushToken(token);
           updateUser({ pushToken: token });
         }
@@ -53,7 +53,7 @@ export const usePush = () => {
       Notifications.addNotificationResponseReceivedListener((response) => {
         console.log("🚀 ~ usePush ~ response:", response);
         const postId = response.notification.request.content.data.postId;
-        router.push(`/(auth)/(tabs)/feed/post/${postId}`);
+        router.push(`/(auth)/(modals)/post/${postId}`);
       });
 
     return () => {

@@ -16,7 +16,6 @@ export default defineSchema({
     followingsCount: v.number(),
     postsCount: v.number(), // Added
     pushToken: v.optional(v.string()),
-    isVerified: v.optional(v.boolean()),
     lastActiveAt: v.optional(v.number()), // Added for activity tracking
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
@@ -27,7 +26,6 @@ export default defineSchema({
     .index("byLastActive", ["lastActiveAt"])
     .searchIndex("searchUsers", {
       searchField: "username",
-      filterFields: ["isVerified"],
     }),
 
   posts: defineTable({
@@ -79,7 +77,6 @@ export default defineSchema({
     postId: v.id("posts"),
     parentCommentId: v.id("comments"),
     content: v.string(),
-    likeCount: v.number(),
     mentions: v.optional(v.array(v.id("users"))), // Added mentions in comments
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
@@ -128,18 +125,21 @@ export default defineSchema({
     .index("byFollowing", ["followingId"])
     .index("byFollowerAndFollowing", ["followerId", "followingId"]),
   notifications: defineTable({
-    // Added notifications system
     userId: v.id("users"),
-    actorId: v.optional(v.id("users")), // Who performed the action
+    actorId: v.optional(v.id("users")),
     type: v.union(
       v.literal("like"),
       v.literal("comment"),
       v.literal("follow"),
       v.literal("mention"),
+      v.literal("reply"),
+      v.literal("system"),
       v.literal("repost")
     ),
     postId: v.optional(v.id("posts")),
     commentId: v.optional(v.id("comments")),
+    replyId: v.optional(v.id("replies")),
+    actionUrl: v.optional(v.string()),
     message: v.string(),
     isRead: v.boolean(),
     createdAt: v.number(),

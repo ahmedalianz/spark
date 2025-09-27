@@ -1,13 +1,13 @@
 import { Id } from "@/convex/_generated/dataModel";
-import Comments from "@/pages/Comments";
+import Post from "@/pages/Post";
 import { useLocalSearchParams } from "expo-router";
 
-const PostCommentsModal = () => {
+const PostModal = () => {
   const { postId } = useLocalSearchParams<{
     postId: string;
   }>();
 
-  return <Comments postId={postId as Id<"posts">} />;
+  return <Post postId={postId as Id<"posts">} />;
 };
 
-export default PostCommentsModal;
+export default PostModal;

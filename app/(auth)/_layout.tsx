@@ -58,7 +58,7 @@ const Layout = () => {
         }}
       />
       <Stack.Screen
-        name="(modals)/post-comments/[postId]"
+        name="(modals)/post/[postId]"
         options={{
           headerShown: false,
           ...commonProps,
@@ -78,18 +78,7 @@ const Layout = () => {
           ...commonProps,
         }}
       />
-      <Stack.Screen
-        name="(modals)/reply/[id]"
-        options={{
-          presentation: "modal",
-          title: "Reply",
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.dismiss()}>
-              <Text>Cancel</Text>
-            </TouchableOpacity>
-          ),
-        }}
-      />
+
       <Stack.Screen
         name="(modals)/image/[url]"
         options={{

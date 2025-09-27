@@ -2,10 +2,7 @@ import { Colors } from "@/constants/Colors";
 import { Doc } from "@/convex/_generated/dataModel";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-type ProfileSearchResultProps = {
-  user: Doc<"users">;
-};
-const ProfileSearchResult = ({ user }: ProfileSearchResultProps) => {
+const ProfileSearchResult = ({ user }: { user: Doc<"users"> }) => {
   return (
     <View style={styles.container}>
       <Image source={{ uri: user?.imageUrl }} style={styles.image} />
