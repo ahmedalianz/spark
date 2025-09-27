@@ -75,3 +75,22 @@ export type TabsProps = {
   onTabChange: (tab: tabEnum) => void;
   activeTab?: tabEnum;
 };
+export type CreatePostInputProps = {
+  postContent: string;
+  handleContentChange: (text: string) => void;
+  isExpanded: boolean;
+  isPreview?: boolean;
+  setTextSelection: (selection: { start: number; end: number }) => void;
+};
+export type MediaFilesProps = {
+  mediaFiles: MediaFile[];
+  removeMedia: (id: string) => void;
+  selectMedia: (type: "camera" | "library") => void;
+  MAX_MEDIA_FILES: number;
+};
+export type CreatePostActionsProps = {
+  mediaFiles: MediaFile[];
+  selectMedia: (type: "camera" | "library") => void;
+  resetForm: () => void;
+  MAX_MEDIA_FILES: number;
+};
