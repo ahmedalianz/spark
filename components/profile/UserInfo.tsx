@@ -1,10 +1,6 @@
 import { Colors } from "@/constants/Colors";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { useUserInfo } from "@/hooks/useUserInfo";
-import formatFollowerCount from "@/utils/formatFollowerCount";
+import { Doc } from "@/convex/_generated/dataModel";
 import { Ionicons } from "@expo/vector-icons";
-import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import { useEffect, useRef } from "react";
@@ -16,20 +12,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import ProfileLoader from "./ProfileLoader";
+import ProfileLoader from "./ProfileSkeleton";
 
-export const UserProfile = ({ userId }: { userId: Id<"users"> }) => {
-  const profile = useQuery(api.users.getUserById, {
-    userId,
-  });
-  const { userInfo } = useUserInfo();
-  const isSelf = userInfo?._id === userId;
-
+const UserInfo = ({
+  isViewingOtherUser,
+  userInfo,
+}: {
+  userInfo: Doc<"users">;
+  isViewingOtherUser: boolean;
+}) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
   useEffect(() => {
-    if (profile) {
+    if (userInfo) {
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -43,9 +39,9 @@ export const UserProfile = ({ userId }: { userId: Id<"users"> }) => {
         }),
       ]).start();
     }
-  }, [profile]);
+  }, [userInfo]);
 
-  if (!profile) {
+  if (!userInfo) {
     return <ProfileLoader />;
   }
 
@@ -64,26 +60,10 @@ export const UserProfile = ({ userId }: { userId: Id<"users"> }) => {
         <View style={styles.profileInfo}>
           <View style={styles.nameContainer}>
             <Text style={styles.name}>
-              {profile?.first_name} {profile?.last_name}
+              {userInfo?.first_name} {userInfo?.last_name}
             </Text>
           </View>
-          <Text style={styles.email}>{profile?.email}</Text>
-
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>
-                {formatFollowerCount(profile?.followersCount || 0)}
-              </Text>
-              <Text style={styles.statLabel}>followers</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>
-                {formatFollowerCount(profile?.followingsCount || 0)}
-              </Text>
-              <Text style={styles.statLabel}>following</Text>
-            </View>
-          </View>
+          <Text style={styles.email}>{userInfo?.email}</Text>
         </View>
 
         <View style={styles.avatarContainer}>
@@ -92,7 +72,7 @@ export const UserProfile = ({ userId }: { userId: Id<"users"> }) => {
             style={styles.avatarGradient}
           >
             <Image
-              source={{ uri: profile?.imageUrl as string }}
+              source={{ uri: userInfo?.imageUrl as string }}
               style={styles.avatar}
             />
           </LinearGradient>
@@ -102,52 +82,20 @@ export const UserProfile = ({ userId }: { userId: Id<"users"> }) => {
       {/* Bio Section */}
       <View style={styles.bioSection}>
         <Text style={styles.bio}>
-          {profile?.bio || "✨ No bio yet - the mystery adds to the charm"}
+          {userInfo?.bio || "✨ No bio yet - the mystery adds to the charm"}
         </Text>
 
-        {profile?.websiteUrl && (
+        {userInfo?.websiteUrl && (
           <TouchableOpacity style={styles.websiteContainer}>
             <Ionicons name="link-outline" size={16} color={Colors.primary} />
-            <Text style={styles.websiteText}>{profile.websiteUrl}</Text>
+            <Text style={styles.websiteText}>{userInfo.websiteUrl}</Text>
           </TouchableOpacity>
         )}
       </View>
 
       {/* Action Buttons */}
       <View style={styles.actionSection}>
-        {isSelf ? (
-          <View style={styles.buttonRow}>
-            <Link
-              href={`/(auth)/(modals)/edit-profile?biostring=${
-                profile?.bio ? encodeURIComponent(profile?.bio) : ""
-              }&linkstring=${profile?.websiteUrl ? encodeURIComponent(profile?.websiteUrl) : ""}&userId=${
-                profile?._id
-              }&imageUrl=${profile?.imageUrl ? encodeURIComponent(profile?.imageUrl) : ""}`}
-              asChild
-            >
-              <TouchableOpacity style={styles.primaryButton}>
-                <LinearGradient
-                  colors={[Colors.primary, Colors.primaryDark]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.buttonGradient}
-                >
-                  <Ionicons
-                    name="create-outline"
-                    size={18}
-                    color={Colors.white}
-                  />
-                  <Text style={styles.primaryButtonText}>Edit Profile</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Link>
-
-            <TouchableOpacity style={styles.secondaryButton}>
-              <Ionicons name="share-outline" size={18} color={Colors.primary} />
-              <Text style={styles.secondaryButtonText}>Share</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
+        {isViewingOtherUser ? (
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.primaryButton}>
               <LinearGradient
@@ -180,6 +128,38 @@ export const UserProfile = ({ userId }: { userId: Id<"users"> }) => {
                 size={20}
                 color={Colors.primary}
               />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.buttonRow}>
+            <Link
+              href={`/(auth)/(modals)/edit-profile?biostring=${
+                userInfo?.bio ? encodeURIComponent(userInfo?.bio) : ""
+              }&linkstring=${userInfo?.websiteUrl ? encodeURIComponent(userInfo?.websiteUrl) : ""}&userId=${
+                userInfo?._id
+              }&imageUrl=${userInfo?.imageUrl ? encodeURIComponent(userInfo?.imageUrl) : ""}`}
+              asChild
+            >
+              <TouchableOpacity style={styles.primaryButton}>
+                <LinearGradient
+                  colors={[Colors.primary, Colors.primaryDark]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.buttonGradient}
+                >
+                  <Ionicons
+                    name="create-outline"
+                    size={18}
+                    color={Colors.white}
+                  />
+                  <Text style={styles.primaryButtonText}>Edit Profile</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Link>
+
+            <TouchableOpacity style={styles.secondaryButton}>
+              <Ionicons name="share-outline" size={18} color={Colors.primary} />
+              <Text style={styles.secondaryButtonText}>Share</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -220,31 +200,6 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
     marginBottom: 16,
     fontFamily: "DMSans_400Regular",
-  },
-  statsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  statItem: {
-    alignItems: "center",
-  },
-  statNumber: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: Colors.black,
-    fontFamily: "DMSans_700Bold",
-  },
-  statLabel: {
-    fontSize: 12,
-    color: Colors.textQuaternary,
-    marginTop: 2,
-    fontFamily: "DMSans_400Regular",
-  },
-  statDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: Colors.borderLight,
-    marginHorizontal: 20,
   },
   avatarContainer: {
     position: "relative",
@@ -338,3 +293,4 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+export default UserInfo;

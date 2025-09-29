@@ -4,6 +4,7 @@ export const Colors = {
   // Primary Colors
   primary: "#667eea",
   primaryDark: "#764ba2",
+  primaryDarker: "#1a365d",
   primaryLight: "#a8b4ff",
 
   // Neutral Colors
@@ -39,6 +40,9 @@ export const Colors = {
   success: "#10B981",
   warning: "#F59E0B",
   info: "#3B82F6",
+  error: "#EF4444",
+  online: "#00C851",
+  danger: "#ff3b5c",
   // Special Colors
   tintBlue: "#e6eafe",
   tintBlueLight: "#f8f9ff",
@@ -47,6 +51,7 @@ export const Colors = {
   transparentWhite10: "rgba(255, 255, 255, 0.1)",
   transparentWhite20: "rgba(255, 255, 255, 0.2)",
   transparentWhite30: "rgba(255, 255, 255, 0.3)",
+  transparentWhite70: "rgba(255, 255, 255, 0.7)",
   transparentWhite80: "rgba(255, 255, 255, 0.8)",
   transparentWhite90: "rgba(255, 255, 255, 0.9)",
 

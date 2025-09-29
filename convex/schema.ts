@@ -14,9 +14,9 @@ export default defineSchema({
     websiteUrl: v.optional(v.string()),
     followersCount: v.number(),
     followingsCount: v.number(),
-    postsCount: v.number(), // Added
+    postsCount: v.number(),
     pushToken: v.optional(v.string()),
-    lastActiveAt: v.optional(v.number()), // Added for activity tracking
+    lastActiveAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
   })
@@ -32,7 +32,12 @@ export default defineSchema({
     authorId: v.id("users"),
     content: v.string(),
     mediaFiles: v.optional(v.array(v.string())),
-    type: v.union(v.literal("post"), v.literal("repost"), v.literal("quote")), // Added post types
+    type: v.union(
+      v.literal("post"),
+      v.literal("repost"),
+      v.literal("tagged"),
+      v.literal("quote")
+    ),
     originalPostId: v.optional(v.id("posts")), // For reposts/quotes
     likeCount: v.number(),
     repostCount: v.number(), // Added

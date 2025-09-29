@@ -118,26 +118,95 @@ export const getUserPosts = query({
     userId: v.id("users"),
     paginationOpts: paginationOptsValidator,
     type: v.optional(
-      v.union(v.literal("posts"), v.literal("reposts"), v.literal("all"))
+      v.union(
+        v.literal("posts"),
+        v.literal("reposts"),
+        v.literal("tagged"),
+        v.literal("all")
+      )
     ),
   },
   handler: async (ctx, args) => {
-    const currentUser = await getCurrentUser(ctx);
-    const targetUser = await ctx.db.get(args.userId);
+    const currentUser = await getCurrentUserOrThrow(ctx);
 
-    if (!targetUser) throw new Error("User not found");
-
-    let query = ctx.db
-      .query("posts")
-      .withIndex("byAuthor", (q) => q.eq("authorId", args.userId));
+    let posts;
 
     if (args.type === "posts") {
-      query = query.filter((q) => q.eq(q.field("type"), "post"));
-    } else if (args.type === "reposts") {
-      query = query.filter((q) => q.eq(q.field("type"), "repost"));
-    }
+      // Get original posts only
+      const query = ctx.db
+        .query("posts")
+        .withIndex("byAuthorAndType", (q) =>
+          q.eq("authorId", args.userId).eq("type", "post")
+        );
 
-    const posts = await query.order("desc").paginate(args.paginationOpts);
+      posts = await query.order("desc").paginate(args.paginationOpts);
+    } else if (args.type === "reposts") {
+      // Get reposts from the reposts table
+      const repostQuery = ctx.db
+        .query("reposts")
+        .withIndex("byUser", (q) => q.eq("userId", args.userId));
+
+      const reposts = await repostQuery
+        .order("desc")
+        .paginate(args.paginationOpts);
+
+      // Get the original posts for each repost
+      const repostDetails = await Promise.all(
+        reposts.page.map(async (repost) => {
+          const originalPost = await ctx.db.get(repost.postId);
+          if (!originalPost) return null;
+
+          // Add repost metadata
+          return {
+            ...originalPost,
+            repostId: repost._id,
+            repostComment: repost.comment,
+            repostDate: repost.createdAt,
+            isRepost: true,
+          };
+        })
+      );
+
+      const validReposts = repostDetails.filter((post) => post !== null);
+
+      posts = {
+        ...reposts,
+        page: validReposts,
+      };
+    } else if (args.type === "tagged") {
+      // Get posts where user is mentioned
+      const query = ctx.db
+        .query("posts")
+        .withIndex("byVisibility", (q) => q.eq("visibility", "public"));
+
+      const allPosts = await query.collect();
+      const taggedPosts = allPosts.filter((post) =>
+        post.mentions?.includes(args.userId)
+      );
+
+      // Sort by creation date and paginate manually
+      taggedPosts.sort((a, b) => b.createdAt - a.createdAt);
+
+      const startIndex = args.paginationOpts.cursor
+        ? parseInt(args.paginationOpts.cursor)
+        : 0;
+      const endIndex = startIndex + args.paginationOpts.numItems;
+      const paginatedTagged = taggedPosts.slice(startIndex, endIndex);
+
+      posts = {
+        page: paginatedTagged,
+        isDone: endIndex >= taggedPosts.length,
+        continueCursor:
+          endIndex < taggedPosts.length ? endIndex.toString() : null,
+      };
+    } else {
+      // Get all posts (original + reposts + tagged)
+      const query = ctx.db
+        .query("posts")
+        .withIndex("byAuthor", (q) => q.eq("authorId", args.userId));
+
+      posts = await query.order("desc").paginate(args.paginationOpts);
+    }
 
     const postsWithDetails = await Promise.all(
       posts.page.map(
@@ -283,7 +352,3 @@ async function getUserRepostStatus(
     .unique();
   return !!repost;
 }
-export const generateUploadUrl = mutation(async (ctx) => {
-  await getCurrentUserOrThrow(ctx);
-  return await ctx.storage.generateUploadUrl();
-});

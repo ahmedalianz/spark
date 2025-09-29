@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { Platform, Text, TouchableOpacity } from "react-native";
@@ -25,7 +26,7 @@ const Layout = () => {
   return (
     <Stack
       screenOptions={{
-        contentStyle: { backgroundColor: "white" },
+        contentStyle: { backgroundColor: Colors.white },
         headerShadowVisible: false,
       }}
     >
@@ -38,7 +39,7 @@ const Layout = () => {
               <Ionicons
                 name="ellipsis-horizontal-circle"
                 size={24}
-                color="#000"
+                color={Colors.blackPure}
               />
             </TouchableOpacity>
           ),
@@ -68,7 +69,7 @@ const Layout = () => {
         name="(modals)/feed-profile/[id]"
         options={{
           title: "",
-          headerStyle: { backgroundColor: "black" },
+          headerStyle: { backgroundColor: Colors.blackPure },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.dismiss()}>
               <Ionicons name="close" size={24} color="white" />
@@ -84,7 +85,7 @@ const Layout = () => {
         options={{
           presentation: "fullScreenModal",
           title: "",
-          headerStyle: { backgroundColor: "black" },
+          headerStyle: { backgroundColor: Colors.blackPure },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.dismiss()}>
               <Ionicons name="close" size={24} color="white" />

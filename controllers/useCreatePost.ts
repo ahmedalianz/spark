@@ -23,7 +23,7 @@ const useCreatePost = ({
 
   const createPost = useMutation(api.posts.createPost);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
-  const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
+  const generateUploadUrl = useMutation(api.users.generateUploadUrl);
 
   const handleSubmit = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

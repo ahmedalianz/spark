@@ -23,7 +23,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
 }) => {
   const router = useRouter();
   const { top } = useSafeAreaInsets();
-  const { userInfo } = useUserInfo();
+  const { userInfo } = useUserInfo({});
 
   const {
     postContent,

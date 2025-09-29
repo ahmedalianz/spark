@@ -9,22 +9,10 @@ import {
 } from "./_generated/server";
 
 export const getUserById = query({
-  args: { userId: v.id("users") },
+  args: { userId: v.optional(v.id("users")) },
   handler: async (ctx, args) => {
+    if (!args.userId) return null;
     return await getUserWithImage(ctx, { userId: args.userId });
-  },
-});
-
-export const getUserByUsername = query({
-  args: { username: v.string() },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("byUsername", (q) => q.eq("username", args.username))
-      .unique();
-
-    if (!user) return null;
-    return await getUserWithImage(ctx, { userId: user._id });
   },
 });
 
@@ -94,8 +82,7 @@ export const searchUsers = query({
         (user) =>
           user.first_name?.toLowerCase().includes(searchTerm) ||
           user.last_name?.toLowerCase().includes(searchTerm) ||
-          user.username?.toLowerCase().includes(searchTerm) ||
-          user.email?.toLowerCase().includes(searchTerm)
+          user.username?.toLowerCase().includes(searchTerm)
       );
 
       return {
@@ -110,6 +97,62 @@ export const searchUsers = query({
   },
 });
 
+// users.ts - Get mutual followers function
+export const getMutualFollowers = query({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+    if (currentUser._id === args.userId) {
+      return [];
+    }
+
+    // Get who the viewer follows
+    const viewerFollowing = await ctx.db
+      .query("follows")
+      .withIndex("byFollower", (q) => q.eq("followerId", currentUser._id))
+      .collect();
+
+    // Get who follows the target user
+    const targetFollowers = await ctx.db
+      .query("follows")
+      .withIndex("byFollowing", (q) => q.eq("followingId", args.userId))
+      .collect();
+
+    // Find mutual connections
+    const mutualIds = viewerFollowing
+      .map((f) => f.followingId)
+      .filter((id) => targetFollowers.some((tf) => tf.followerId === id));
+
+    // Get user details for mutual followers
+    const mutualUsers = await Promise.all(
+      mutualIds.slice(0, 5).map(async (id) => {
+        const user = await ctx.db.get(id);
+        return user
+          ? {
+              _id: user._id,
+              first_name: user.first_name,
+              last_name: user.last_name,
+              username: user.username,
+              imageUrl: user.imageUrl,
+            }
+          : null;
+      })
+    );
+
+    return mutualUsers.filter((user) => user !== null);
+  },
+});
+
+// Helper function for optional current user (add to helpers.ts)
+export async function getCurrentUserOptional(ctx: any) {
+  try {
+    return await getCurrentUser(ctx);
+  } catch {
+    return null;
+  }
+}
 // Helper functions
 async function getUserWithImage(
   ctx: QueryCtx,

@@ -2,7 +2,7 @@ import { Colors } from "@/constants/Colors";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
-export default function ProfileLoader() {
+export default function ProfileSkeleton() {
   return (
     <View style={styles.loadingMainContainer}>
       <View style={styles.loadingContainer}>
@@ -14,6 +14,10 @@ export default function ProfileLoader() {
         <View style={styles.loadingAvatar} />
       </View>
       <View style={styles.loadingBioLine} />
+      <View style={styles.buttonsContainer}>
+        <View style={styles.loadingButton} />
+        <View style={styles.loadingButton} />
+      </View>
     </View>
   );
 }
@@ -46,6 +50,17 @@ const styles = StyleSheet.create({
     height: 16,
     backgroundColor: Colors.borderLighter,
     borderRadius: 8,
-    marginTop: 20,
+    marginTop: 30,
+  },
+  buttonsContainer: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 60,
+  },
+  loadingButton: {
+    height: 45,
+    backgroundColor: Colors.borderLighter,
+    borderRadius: 12,
+    width: "48%",
   },
 });

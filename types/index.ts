@@ -1,34 +1,44 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import * as ImagePicker from "expo-image-picker";
-import { TextInput } from "react-native";
+import { Router } from "expo-router";
+import { RefObject } from "react";
+import { Animated, StyleProp, TextInput, TextStyle } from "react-native";
 
-export type CreatePostProps = {
-  isPreview?: boolean;
-  postId?: Id<"posts">;
+// Base types that can be reused
+export type BaseModalProps = {
   onDismiss?: () => void;
+};
+
+export type BasePostProps = BaseModalProps & {
   initialContent?: string;
 };
+
+export type EntityWithAuthor<T> = T & {
+  author: Doc<"users">;
+  userHasLiked?: boolean;
+};
+
+// Media related types
+export type MediaFileType = "image" | "video";
 
 export type MediaFile = ImagePicker.ImagePickerAsset & {
   id: string;
-  type: "image" | "video";
+  type: MediaFileType;
   isUploading?: boolean;
   uploadProgress?: number;
 };
-export type CreatePostControllerProps = {
-  onDismiss?: () => void;
-  initialContent?: string;
+
+export type MediaSelectionHandler = (type: "camera" | "library") => void;
+export type MediaRemovalHandler = (id: string) => void;
+
+// Post creation types
+export type CreatePostProps = BasePostProps & {
+  isPreview?: boolean;
+  postId?: Id<"posts">;
 };
-export type ImageViewerProps = {
-  url: string;
-  likeCount: string;
-  commentCount: string;
-};
-export type EditProfileProps = {
-  biostring: string;
-  linkstring: string;
-  imageUrl: string;
-};
+
+export type CreatePostControllerProps = BasePostProps;
+
 export type CreatePostHeaderProps = {
   handleCancel: () => void;
   handleSubmit: () => void;
@@ -37,44 +47,7 @@ export type CreatePostHeaderProps = {
   postContent: string;
   mediaFiles: MediaFile[];
 };
-export type MediaPreviewProps = {
-  file: MediaFile;
-  removeMedia: (id: string) => void;
-};
-export type CommentProps = {
-  comment: Doc<"comments"> & {
-    author: Doc<"users">;
-    userHasLiked?: boolean;
-  };
-  index: number;
-  commentInputRef: React.RefObject<TextInput | null>;
-  setCommentText: (text: string) => void;
-  setReplyingTo: (commentId: Id<"comments">) => void;
-};
-export type PostWithAuthorDetails = Doc<"posts"> & {
-  author: Doc<"users">;
-  userHasLiked?: boolean;
-};
-export type PostInputProps = {
-  commentText: string;
-  setCommentText: (text: string) => void;
-  isSubmittingComment: boolean;
-  replyingTo: Id<"comments"> | undefined;
-  setReplyingTo: (id: Id<"comments"> | undefined) => void;
-  commentInputRef: any;
-  animatedInputStyle: any;
-  submitComment: () => void;
-};
-export type IconType = {
-  color: string;
-  size: number;
-  focused: boolean;
-};
-export type tabEnum = "Posts" | "Reposts";
-export type TabsProps = {
-  onTabChange: (tab: tabEnum) => void;
-  activeTab?: tabEnum;
-};
+
 export type CreatePostInputProps = {
   postContent: string;
   handleContentChange: (text: string) => void;
@@ -82,15 +55,89 @@ export type CreatePostInputProps = {
   isPreview?: boolean;
   setTextSelection: (selection: { start: number; end: number }) => void;
 };
+
 export type MediaFilesProps = {
   mediaFiles: MediaFile[];
-  removeMedia: (id: string) => void;
-  selectMedia: (type: "camera" | "library") => void;
+  removeMedia: MediaRemovalHandler;
+  selectMedia: MediaSelectionHandler;
   MAX_MEDIA_FILES: number;
 };
-export type CreatePostActionsProps = {
-  mediaFiles: MediaFile[];
-  selectMedia: (type: "camera" | "library") => void;
+
+export type CreatePostActionsProps = Pick<
+  MediaFilesProps,
+  "mediaFiles" | "selectMedia" | "MAX_MEDIA_FILES"
+> & {
   resetForm: () => void;
-  MAX_MEDIA_FILES: number;
+};
+
+// Comment related types
+export type CommentWithAuthor = EntityWithAuthor<Doc<"comments">>;
+
+export type CommentProps = {
+  comment: CommentWithAuthor;
+  index: number;
+  commentInputRef: RefObject<TextInput | null>;
+  setCommentText: (text: string) => void;
+  setReplyingTo: (commentId: Id<"comments">) => void;
+};
+
+export type PostInputProps = {
+  commentText: string;
+  setCommentText: (text: string) => void;
+  isSubmittingComment: boolean;
+  replyingTo: Id<"comments"> | undefined;
+  setReplyingTo: (id: Id<"comments"> | undefined) => void;
+  commentInputRef: RefObject<TextInput | null>;
+  animatedInputStyle: StyleProp<TextStyle>;
+  submitComment: () => void;
+};
+
+// Profile types
+export type EditProfileProps = {
+  biostring: string;
+  linkstring: string;
+  imageUrl: string;
+};
+export type ProfileHeaderProps = {
+  router: Router;
+  scrollY: Animated.Value;
+  userInfo: Doc<"users">;
+  signOutHandler: () => void;
+};
+export type ProfileTabs = "posts" | "reposts" | "tagged";
+export type ProfileEmptyConfig = Record<
+  ProfileTabs,
+  {
+    icon: any;
+    title: string;
+    subtitle: string;
+    actionTitle: string;
+    action: () => void;
+  }
+>;
+// Post display types
+export type PostWithAuthorDetails = EntityWithAuthor<Doc<"posts">>;
+
+export type ImageViewerProps = {
+  url: string;
+  likeCount: string;
+  commentCount: string;
+};
+
+// Icon types
+export type IconType = {
+  color: string;
+  size: number;
+  focused: boolean;
+};
+
+// Utility types for better type safety
+export type TextSelection = {
+  start: number;
+  end: number;
+};
+
+export type UploadProgress = {
+  isUploading: boolean;
+  uploadProgress: number;
 };

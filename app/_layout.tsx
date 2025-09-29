@@ -90,7 +90,6 @@ export default function RootLayout() {
       </ClerkLoaded>
     </ClerkProvider>
   );
-  // });
 }
 
 const RootLayoutNav = () => {

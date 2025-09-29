@@ -26,7 +26,7 @@ export const usePush = () => {
   >(undefined);
   const router = useRouter();
   const updateUser = useMutation(api.users.updateUser);
-  const { userInfo } = useUserInfo();
+  const { userInfo } = useUserInfo({});
 
   useEffect(() => {
     registerForPushNotificationsAsync()

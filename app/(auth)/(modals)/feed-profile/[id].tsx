@@ -1,5 +1,5 @@
-import Profile from "@/components/Profile";
 import { Id } from "@/convex/_generated/dataModel";
+import Profile from "@/pages/Profile";
 import { useLocalSearchParams } from "expo-router";
 
 const Page = () => {
