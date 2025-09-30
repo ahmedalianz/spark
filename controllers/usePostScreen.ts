@@ -9,7 +9,7 @@ type CommentWithAuthor = Doc<"comments"> & {
   author: Doc<"users">;
   userHasLiked?: boolean;
 };
-const usePost = ({ postId }: { postId: Id<"posts"> }) => {
+const usePostScreen = ({ postId }: { postId: Id<"posts"> }) => {
   const inputScale = useSharedValue(1);
   const commentInputRef = useRef<TextInput>(null);
   const flatListRef = useRef<FlatList<CommentWithAuthor>>(null);
@@ -91,4 +91,4 @@ const usePost = ({ postId }: { postId: Id<"posts"> }) => {
   };
 };
 
-export default usePost;
+export default usePostScreen;

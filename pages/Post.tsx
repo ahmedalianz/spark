@@ -5,7 +5,7 @@ import {
   PostInput,
 } from "@/components/post/index";
 import { Colors } from "@/constants/Colors";
-import usePost from "@/controllers/usePost";
+import usePostScreen from "@/controllers/usePostScreen";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import {
   ActivityIndicator,
@@ -43,7 +43,7 @@ const Post = ({ postId }: CommentsProps) => {
     handleLoadMore,
     animatedInputStyle,
     submitComment,
-  } = usePost({ postId });
+  } = usePostScreen({ postId });
   const { top } = useSafeAreaInsets();
 
   const renderComment: ListRenderItem<CommentWithAuthor> = ({

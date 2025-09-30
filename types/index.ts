@@ -2,7 +2,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import * as ImagePicker from "expo-image-picker";
 import { Router } from "expo-router";
 import { RefObject } from "react";
-import { Animated, StyleProp, TextInput, TextStyle } from "react-native";
+import { Animated, RegisteredStyle, TextInput, ViewStyle } from "react-native";
 
 // Base types that can be reused
 export type BaseModalProps = {
@@ -88,7 +88,7 @@ export type PostInputProps = {
   replyingTo: Id<"comments"> | undefined;
   setReplyingTo: (id: Id<"comments"> | undefined) => void;
   commentInputRef: RefObject<TextInput | null>;
-  animatedInputStyle: StyleProp<TextStyle>;
+  animatedInputStyle: RegisteredStyle<ViewStyle>;
   submitComment: () => void;
 };
 

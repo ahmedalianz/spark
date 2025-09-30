@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 
+import { Post } from "@/components/feed-post";
 import {
   ProfileEmpty,
   ProfileFirstHeader,
@@ -22,7 +23,6 @@ import { Colors } from "@/constants/Colors";
 import useProfile from "@/controllers/useProfile";
 import { PostWithAuthorDetails } from "@/types";
 import { useCallback } from "react";
-import Post from "../components/Post";
 
 export default function Profile({ userId }: { userId?: Id<"users"> }) {
   const {

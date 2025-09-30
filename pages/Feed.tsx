@@ -1,4 +1,4 @@
-import Post from "@/components/Post";
+import { Post } from "@/components/feed-post";
 import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
