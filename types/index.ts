@@ -62,6 +62,10 @@ export type MediaFilesProps = {
   selectMedia: MediaSelectionHandler;
   MAX_MEDIA_FILES: number;
 };
+export type MediaPreviewProps = {
+  removeMedia: MediaRemovalHandler;
+  file: MediaFile;
+};
 
 export type CreatePostActionsProps = Pick<
   MediaFilesProps,

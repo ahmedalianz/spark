@@ -174,7 +174,7 @@ const useCreatePost = ({
         const newFiles: MediaFile[] = result.assets.map((asset: any) => ({
           ...asset,
           id: Date.now() + Math.random().toString(),
-          type: asset.type?.startsWith("image/") ? "image" : "video",
+          type: "image",
           isUploading: false,
           uploadProgress: 0,
         }));

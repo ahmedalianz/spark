@@ -5,9 +5,10 @@ import React from "react";
 import {
   Dimensions,
   Image,
-  ScrollView,
   StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -24,54 +25,202 @@ const PostMedia: React.FC<PostMediaProps> = ({
   commentCount,
 }) => {
   if (!mediaFiles || mediaFiles.length === 0) return null;
-
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.mediaContainer}
-      decelerationRate="fast"
-      snapToInterval={SCREEN_WIDTH * 0.8}
-    >
-      {mediaFiles.map((imageUrl, index) => (
+  const imageCount = mediaFiles.length;
+  if (imageCount === 1) {
+    return (
+      <Link
+        href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=0&likeCount=${likeCount}&commentCount=${commentCount}`}
+        asChild
+      >
+        <TouchableOpacity style={styles.singleImageContainer}>
+          <Image
+            source={{ uri: mediaFiles[0] }}
+            style={styles.singleImage}
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+      </Link>
+    );
+  }
+  // Two images - side by side
+  if (imageCount === 2) {
+    return (
+      <View style={styles.twoImagesContainer}>
+        {mediaFiles.map((imageUrl, index) => (
+          <Link
+            href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=${index}&likeCount=${likeCount}&commentCount=${commentCount}`}
+            key={index}
+            asChild
+          >
+            <TouchableOpacity style={styles.halfImage}>
+              <Image
+                source={{ uri: imageUrl }}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+          </Link>
+        ))}
+      </View>
+    );
+  }
+  if (imageCount === 3) {
+    return (
+      <View style={styles.threeImagesContainer}>
         <Link
-          href={`/(auth)/(modals)/image/${encodeURIComponent(imageUrl)}?&likeCount=${likeCount}&commentCount=${commentCount}`}
-          key={index}
+          href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=0&likeCount=${likeCount}&commentCount=${commentCount}`}
           asChild
         >
-          <TouchableOpacity style={styles.mediaWrapper}>
-            <Image source={{ uri: imageUrl }} style={styles.mediaImage} />
-            <LinearGradient
-              colors={["transparent", Colors.blackPure]}
-              style={styles.mediaOverlay}
+          <TouchableOpacity style={styles.largeImage}>
+            <Image
+              source={{ uri: mediaFiles[0] }}
+              style={styles.image}
+              resizeMode="cover"
             />
           </TouchableOpacity>
         </Link>
-      ))}
-    </ScrollView>
+        <View style={styles.rightColumn}>
+          {mediaFiles.slice(1, 3).map((imageUrl, index) => (
+            <Link
+              href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=${index + 1}&likeCount=${likeCount}&commentCount=${commentCount}`}
+              key={index}
+              asChild
+            >
+              <TouchableOpacity style={styles.smallImage}>
+                <Image
+                  source={{ uri: imageUrl }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+            </Link>
+          ))}
+        </View>
+      </View>
+    );
+  }
+  // Four or more images - 2x2 grid with overlay on last image
+  return (
+    <View style={styles.gridContainer}>
+      {mediaFiles.slice(0, 4).map((imageUrl, index) => {
+        const isLastImage = index === 3;
+        const remainingCount = imageCount - 4;
+
+        return (
+          <Link
+            href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=${index}&likeCount=${likeCount}&commentCount=${commentCount}`}
+            key={index}
+            asChild
+          >
+            <TouchableOpacity style={styles.gridImage} key={index}>
+              <Image
+                source={{ uri: imageUrl }}
+                style={styles.image}
+                resizeMode="cover"
+              />
+              {isLastImage && remainingCount > 0 && (
+                <View style={styles.overlayContainer}>
+                  <LinearGradient
+                    colors={[
+                      Colors.transparentBlack30,
+                      Colors.transparentBlack70,
+                    ]}
+                    style={styles.overlay}
+                  >
+                    <Text style={styles.overlayText}>+{remainingCount}</Text>
+                  </LinearGradient>
+                </View>
+              )}
+            </TouchableOpacity>
+          </Link>
+        );
+      })}
+    </View>
   );
 };
 const styles = StyleSheet.create({
-  mediaContainer: {
-    paddingRight: 20,
-    gap: 12,
-  },
-  mediaWrapper: {
-    position: "relative",
+  singleImageContainer: {
+    width: "100%",
     borderRadius: 16,
     overflow: "hidden",
-  },
-  mediaImage: {
-    width: SCREEN_WIDTH * 0.8,
-    height: 240,
     backgroundColor: Colors.borderLighter,
   },
-  mediaOverlay: {
+  singleImage: {
+    width: SCREEN_WIDTH * 0.8,
+    height: 300,
+  },
+
+  // Two Images
+  twoImagesContainer: {
+    flexDirection: "row",
+    gap: 4,
+    height: 240,
+  },
+  halfImage: {
+    flex: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: Colors.borderLighter,
+  },
+  threeImagesContainer: {
+    flexDirection: "row",
+    gap: 4,
+    height: 280,
+  },
+  largeImage: {
+    flex: 2,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: Colors.borderLighter,
+  },
+  rightColumn: {
+    flex: 1,
+    gap: 4,
+  },
+  smallImage: {
+    flex: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: Colors.borderLighter,
+  },
+
+  // Four or More Images (Grid)
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 4,
+    height: 320,
+  },
+  gridImage: {
+    width: SCREEN_WIDTH * 0.39,
+    height: "49.5%",
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: Colors.borderLighter,
+    position: "relative",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  // Overlay for +N
+  overlayContainer: {
     position: "absolute",
-    bottom: 0,
+    top: 0,
     left: 0,
     right: 0,
-    height: 60,
+    bottom: 0,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlayText: {
+    color: Colors.white,
+    fontSize: 32,
+    fontWeight: "700",
+    fontFamily: "DMSans_700Bold",
   },
 });
 export default PostMedia;

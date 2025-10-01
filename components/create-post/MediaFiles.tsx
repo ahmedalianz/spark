@@ -12,7 +12,7 @@ const MediaFiles = ({
   MAX_MEDIA_FILES,
 }: MediaFilesProps) => {
   const renderMediaPreview = (file: MediaFile) => {
-    return <MediaPreview {...{ file, removeMedia }} />;
+    return <MediaPreview {...{ file, removeMedia }} key={file.id} />;
   };
   return (
     <ScrollView

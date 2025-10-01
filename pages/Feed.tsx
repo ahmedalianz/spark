@@ -438,7 +438,7 @@ const Feed = () => {
           data={displayPosts}
           renderItem={renderPost}
           keyExtractor={(item) => item._id}
-          onEndReached={onLoadMore}
+          // onEndReached={onLoadMore}
           onEndReachedThreshold={0.3}
           ListHeaderComponent={renderHeader}
           ListFooterComponent={renderFooter}
