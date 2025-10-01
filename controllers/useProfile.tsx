@@ -6,7 +6,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { ProfileTabs } from "@/types";
 import { useAuth } from "@clerk/clerk-expo";
-import { usePaginatedQuery } from "convex/react";
+import { usePaginatedQuery, useQuery } from "convex/react";
 import { useCallback, useRef, useState } from "react";
 
 const useProfile = ({ userId }: { userId?: Id<"users"> }) => {
@@ -14,7 +14,9 @@ const useProfile = ({ userId }: { userId?: Id<"users"> }) => {
   const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [activeTab, setActiveTab] = useState<ProfileTabs>("posts");
-  const { userInfo, isLoading, error } = useUserInfo({ userId });
+  const { userInfo, isLoading, error } = useUserInfo();
+  const viewedUserInfo = useQuery(api.users.getUserById, { userId });
+
   const signOutHandler = useCallback(() => {
     signOut();
   }, [signOut]);
@@ -47,6 +49,7 @@ const useProfile = ({ userId }: { userId?: Id<"users"> }) => {
     error,
     status,
     posts,
+    viewedUserInfo,
     signOutHandler,
     setActiveTab,
     handleLoadMore,

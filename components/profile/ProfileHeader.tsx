@@ -16,6 +16,8 @@ const ProfileHeader = ({
   router,
   scrollY,
   userInfo,
+  isCurrentUserProfile,
+  viewedUserInfo,
   signOutHandler,
 }: ProfileHeaderProps) => {
   const headerOpacity = scrollY.interpolate({
@@ -65,7 +67,9 @@ const ProfileHeader = ({
               },
             ]}
           >
-            {`${userInfo?.first_name} ${userInfo?.last_name}`}
+            {isCurrentUserProfile
+              ? `${userInfo?.first_name} ${userInfo?.last_name}`
+              : `${viewedUserInfo?.first_name} ${viewedUserInfo?.last_name}`}
           </Text>
         </View>
 

@@ -106,7 +106,15 @@ export type ProfileHeaderProps = {
   router: Router;
   scrollY: Animated.Value;
   userInfo: Doc<"users">;
+  viewedUserInfo: Doc<"users">;
+  isCurrentUserProfile: boolean;
   signOutHandler: () => void;
+};
+export type ProfileStatsProps = {
+  userInfo: Doc<"users">;
+  viewedUserInfo: Doc<"users">;
+  isCurrentUserProfile: boolean;
+  isLoading: boolean;
 };
 export type ProfileTabs = "posts" | "reposts" | "tagged";
 export type ProfileEmptyConfig = Record<

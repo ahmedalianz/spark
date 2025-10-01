@@ -15,11 +15,11 @@ import {
 import ProfileLoader from "./ProfileSkeleton";
 
 const UserInfo = ({
-  isViewingOtherUser,
+  isCurrentUserProfile,
   userInfo,
 }: {
   userInfo: Doc<"users">;
-  isViewingOtherUser: boolean;
+  isCurrentUserProfile: boolean;
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -95,7 +95,39 @@ const UserInfo = ({
 
       {/* Action Buttons */}
       <View style={styles.actionSection}>
-        {isViewingOtherUser ? (
+        {isCurrentUserProfile ? (
+          <View style={styles.buttonRow}>
+            <Link
+              href={`/(auth)/(modals)/edit-profile?biostring=${
+                userInfo?.bio ? encodeURIComponent(userInfo?.bio) : ""
+              }&linkstring=${userInfo?.websiteUrl ? encodeURIComponent(userInfo?.websiteUrl) : ""}&userId=${
+                userInfo?._id
+              }&imageUrl=${userInfo?.imageUrl ? encodeURIComponent(userInfo?.imageUrl) : ""}`}
+              asChild
+            >
+              <TouchableOpacity style={styles.primaryButton}>
+                <LinearGradient
+                  colors={[Colors.primary, Colors.primaryDark]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.buttonGradient}
+                >
+                  <Ionicons
+                    name="create-outline"
+                    size={18}
+                    color={Colors.white}
+                  />
+                  <Text style={styles.primaryButtonText}>Edit Profile</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Link>
+
+            <TouchableOpacity style={styles.secondaryButton}>
+              <Ionicons name="share-outline" size={18} color={Colors.primary} />
+              <Text style={styles.secondaryButtonText}>Share</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.primaryButton}>
               <LinearGradient
@@ -128,38 +160,6 @@ const UserInfo = ({
                 size={20}
                 color={Colors.primary}
               />
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.buttonRow}>
-            <Link
-              href={`/(auth)/(modals)/edit-profile?biostring=${
-                userInfo?.bio ? encodeURIComponent(userInfo?.bio) : ""
-              }&linkstring=${userInfo?.websiteUrl ? encodeURIComponent(userInfo?.websiteUrl) : ""}&userId=${
-                userInfo?._id
-              }&imageUrl=${userInfo?.imageUrl ? encodeURIComponent(userInfo?.imageUrl) : ""}`}
-              asChild
-            >
-              <TouchableOpacity style={styles.primaryButton}>
-                <LinearGradient
-                  colors={[Colors.primary, Colors.primaryDark]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.buttonGradient}
-                >
-                  <Ionicons
-                    name="create-outline"
-                    size={18}
-                    color={Colors.white}
-                  />
-                  <Text style={styles.primaryButtonText}>Edit Profile</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Link>
-
-            <TouchableOpacity style={styles.secondaryButton}>
-              <Ionicons name="share-outline" size={18} color={Colors.primary} />
-              <Text style={styles.secondaryButtonText}>Share</Text>
             </TouchableOpacity>
           </View>
         )}

@@ -34,6 +34,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
     isLoading,
     error,
     status,
+    viewedUserInfo,
     signOutHandler,
     setActiveTab,
     handleLoadMore,
@@ -67,9 +68,20 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
   if (error) {
     return <View style={styles.container}></View>;
   }
+  const isCurrentUserProfile =
+    userId === undefined || (userId !== undefined && userId === userInfo?._id);
   return (
     <View style={styles.container}>
-      <ProfileHeader {...{ scrollY, userInfo, router, signOutHandler }} />
+      <ProfileHeader
+        {...{
+          scrollY,
+          userInfo,
+          router,
+          signOutHandler,
+          isCurrentUserProfile,
+          viewedUserInfo,
+        }}
+      />
 
       <FlatList
         data={posts}
@@ -95,23 +107,30 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
             <ProfileStats
               isLoading={isLoading}
               userInfo={userInfo}
-              isViewingOtherUser={!!userId}
+              isCurrentUserProfile={isCurrentUserProfile}
+              viewedUserInfo={viewedUserInfo}
             />
 
             {/* Tabs */}
-            <View style={styles.tabContainer}>
-              <TabButtonWrapper tab="posts" icon="grid-outline" label="Posts" />
-              <TabButtonWrapper
-                tab="reposts"
-                icon="chatbubble-outline"
-                label="Reposts"
-              />
-              <TabButtonWrapper
-                tab="tagged"
-                icon="pricetag-outline"
-                label="Tagged"
-              />
-            </View>
+            {isCurrentUserProfile && (
+              <View style={styles.tabContainer}>
+                <TabButtonWrapper
+                  tab="posts"
+                  icon="grid-outline"
+                  label="Posts"
+                />
+                <TabButtonWrapper
+                  tab="reposts"
+                  icon="chatbubble-outline"
+                  label="Reposts"
+                />
+                <TabButtonWrapper
+                  tab="tagged"
+                  icon="pricetag-outline"
+                  label="Tagged"
+                />
+              </View>
+            )}
 
             {/* Loading indicator for first page */}
             {status === "LoadingFirstPage" && (

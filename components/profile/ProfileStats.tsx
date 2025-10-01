@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import { ProfileStatsProps } from "@/types";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import ProfileSkeleton from "./ProfileSkeleton";
@@ -8,30 +9,35 @@ import StoryHighlights from "./StoryHighlights";
 import UserInfo from "./UserInfo";
 
 const ProfileStats = ({
-  isViewingOtherUser,
+  isCurrentUserProfile,
   userInfo,
   isLoading,
-}: {
-  isViewingOtherUser: boolean;
-  userInfo?: any;
-  isLoading?: boolean;
-}) => {
+  viewedUserInfo,
+}: ProfileStatsProps) => {
   return (
     <View style={styles.profileSection}>
       {isLoading ? (
         <ProfileSkeleton />
       ) : (
-        <UserInfo isViewingOtherUser={isViewingOtherUser} userInfo={userInfo} />
+        <UserInfo
+          isCurrentUserProfile={isCurrentUserProfile}
+          userInfo={isCurrentUserProfile ? userInfo : viewedUserInfo}
+        />
       )}
 
       {/* Stats */}
-      <StatsSection userInfo={userInfo} />
+      <StatsSection
+        userInfo={isCurrentUserProfile ? userInfo : viewedUserInfo}
+      />
+      {isCurrentUserProfile && (
+        <>
+          {/* Quick Actions */}
+          <QuickActions />
 
-      {/* Quick Actions */}
-      <QuickActions />
-
-      {/* Story Highlights */}
-      <StoryHighlights />
+          {/* Story Highlights */}
+          <StoryHighlights />
+        </>
+      )}
     </View>
   );
 };
