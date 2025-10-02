@@ -57,7 +57,7 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
     };
 
     startAnimation();
-  }, []);
+  }, [onFinish]);
 
   return (
     <View style={styles.container}>

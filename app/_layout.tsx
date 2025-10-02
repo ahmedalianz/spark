@@ -15,8 +15,8 @@ import {
 // import * as Sentry from "@sentry/react-native";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { Redirect, Slot, SplashScreen, useSegments } from "expo-router";
-import { useEffect, useState } from "react";
+import { Redirect, Slot, useSegments } from "expo-router";
+import { useCallback, useState } from "react";
 import { ActivityIndicator } from "react-native";
 
 // Sentry.init({
@@ -60,23 +60,18 @@ export default function RootLayout() {
     DMSans_500Medium,
     DMSans_700Bold,
   });
-  const [showSplash, setShowSplash] = useState(true);
+  const [appIsReady, setAppIsReady] = useState(false);
+
   const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
     unsavedChangesWarning: false,
   });
-
-  useEffect(() => {
-    SplashScreen.preventAutoHideAsync();
-  }, []);
-
-  useEffect(() => {
+  const onFinishSplash = useCallback(() => {
     if (fontsLoaded) {
-      SplashScreen.hideAsync();
+      setAppIsReady(true);
     }
   }, [fontsLoaded]);
-
-  if (!fontsLoaded || showSplash) {
-    return <AnimatedSplash onFinish={() => setShowSplash(false)} />;
+  if (!appIsReady) {
+    return <AnimatedSplash onFinish={onFinishSplash} />;
   }
   return (
     <ClerkProvider

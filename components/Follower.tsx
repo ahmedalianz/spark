@@ -1,29 +1,14 @@
 import { Colors } from "@/constants/Colors";
-import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
-import React, { useState } from "react";
+import useFollowHandler from "@/hooks/useFollowHandler";
+import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Follower = ({ user }: { user: Doc<"users"> }) => {
-  const followStatus = useQuery(api.follows.checkFollowStatus, {
+  const { followStatus, handleFollowToggle, loading } = useFollowHandler({
     userId: user._id,
   });
-  const followUser = useMutation(api.follows.followUser);
-  const [loading, setLoading] = useState(false);
 
-  const handleFollowToggle = async (targetUser: Doc<"users">) => {
-    setLoading(true);
-    try {
-      await followUser({
-        userId: targetUser._id,
-      });
-    } catch (error) {
-      console.error("Follow action failed:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
   return (
     <View style={styles.userItem}>
       <Image
@@ -68,13 +53,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 12, // Slightly reduced vertical padding for tighter look
+    paddingVertical: 12,
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLighter, // Lighter divider
+    borderBottomColor: Colors.borderLighter,
   },
   avatar: {
-    width: 44, // Slightly smaller avatar
+    width: 44,
     height: 44,
     borderRadius: 22,
     marginRight: 12,
@@ -86,7 +71,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: Colors.textPrimary,
-    marginBottom: 0, // Removed gap
+    marginBottom: 0,
   },
   username: {
     fontSize: 13,
@@ -94,14 +79,14 @@ const styles = StyleSheet.create({
   },
   followButton: {
     paddingHorizontal: 18,
-    paddingVertical: 8, // Adjusted padding
-    borderRadius: 25, // Rounded button
+    paddingVertical: 8,
+    borderRadius: 25,
     borderWidth: 1,
-    minWidth: 100, // Ensure consistent width
+    minWidth: 100,
     alignItems: "center",
   },
   followingButton: {
-    backgroundColor: Colors.background, // Muted background when following
+    backgroundColor: Colors.background,
     borderColor: Colors.border,
   },
   notFollowingButton: {
@@ -113,7 +98,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   followingButtonText: {
-    color: Colors.textPrimary, // Darker text for "Following"
+    color: Colors.textPrimary,
   },
   notFollowingButtonText: {
     color: Colors.white,

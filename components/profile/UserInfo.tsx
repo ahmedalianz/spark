@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { Doc } from "@/convex/_generated/dataModel";
+import useFollowHandler from "@/hooks/useFollowHandler";
 import { MenuSection } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -233,6 +234,9 @@ const UserInfo = ({
   const [userMenu, setUserMenu] = useState<MenuSection[]>(currentUserSections);
 
   const onClose = () => setUserMenuVisible(false);
+  const { followStatus, handleFollowToggle, loading } = useFollowHandler({
+    userId: userInfo?._id,
+  });
   return (
     <Animated.View
       style={[
@@ -327,7 +331,11 @@ const UserInfo = ({
           </View>
         ) : (
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.primaryButton}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => handleFollowToggle(userInfo)}
+              disabled={loading}
+            >
               <LinearGradient
                 colors={[Colors.primary, Colors.primaryDark]}
                 start={{ x: 0, y: 0 }}
@@ -339,7 +347,9 @@ const UserInfo = ({
                   size={18}
                   color={Colors.white}
                 />
-                <Text style={styles.primaryButtonText}>Follow</Text>
+                <Text style={styles.primaryButtonText}>
+                  {followStatus?.isFollowing ? "Unfollow" : "Follow"}
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
 
@@ -463,9 +473,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    gap: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 10,
+    gap: 4,
   },
   primaryButtonText: {
     fontSize: 16,
@@ -479,12 +489,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 25,
     backgroundColor: Colors.tintBlueLight,
     borderWidth: 1.5,
     borderColor: Colors.tintBlue,
-    gap: 8,
+    gap: 4,
   },
   secondaryButtonText: {
     fontSize: 16,

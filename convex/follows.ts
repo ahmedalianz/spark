@@ -151,12 +151,12 @@ export const getFollowing = query({
 
 export const checkFollowStatus = query({
   args: {
-    userId: v.id("users"),
+    userId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
     const currentUser = await getCurrentUser(ctx);
 
-    if (!currentUser || currentUser._id === args.userId) {
+    if (!currentUser || !args?.userId || currentUser._id === args?.userId) {
       return {
         isFollowing: false,
         isFollowedBy: false,
@@ -167,7 +167,9 @@ export const checkFollowStatus = query({
       ctx.db
         .query("follows")
         .withIndex("byFollowerAndFollowing", (q) =>
-          q.eq("followerId", currentUser._id).eq("followingId", args.userId)
+          q
+            .eq("followerId", currentUser._id)
+            .eq("followingId", args.userId as Id<"users">)
         )
         .unique(),
       ctx.db
