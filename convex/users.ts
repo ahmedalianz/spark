@@ -100,11 +100,11 @@ export const searchUsers = query({
 // users.ts - Get mutual followers function
 export const getMutualFollowers = query({
   args: {
-    userId: v.id("users"),
+    userId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
     const currentUser = await getCurrentUserOrThrow(ctx);
-    if (currentUser._id === args.userId) {
+    if (!args.userId || currentUser._id === args.userId) {
       return [];
     }
 

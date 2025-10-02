@@ -4,7 +4,7 @@ import { Tabs, useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import NotificationTabIcon from "@/components/Notification";
+import NotificationTabIcon from "@/components/NotificationTabIcon";
 import { Colors } from "@/constants/Colors";
 import { usePush } from "@/hooks/usePush";
 import * as Haptics from "expo-haptics";

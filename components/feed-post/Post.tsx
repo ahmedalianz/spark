@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { useFeedPost } from "@/controllers/useFeedPost";
+import { useUserInfo } from "@/hooks/useUserInfo";
 import { PostWithAuthorDetails } from "@/types";
 import React, { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -14,8 +15,8 @@ interface PostProps {
 }
 
 const Post: React.FC<PostProps> = ({ post }) => {
-  const { content, mediaFiles, commentCount } = post;
-
+  const { content, mediaFiles, commentCount, author } = post;
+  const { userInfo } = useUserInfo();
   const {
     localLikeCount,
     isLiked,
@@ -28,7 +29,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
     handleMenuAction,
   } = useFeedPost(post);
 
-  const isOwnPost = true; // Replace with actual ownership check
+  const isOwnPost = userInfo?._id === author._id;
 
   return (
     <View style={styles.container}>

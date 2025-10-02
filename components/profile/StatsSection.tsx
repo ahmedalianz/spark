@@ -1,18 +1,24 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { Colors } from "@/constants/Colors";
-// import { api } from "@/convex/_generated/api";
-import { Doc } from "@/convex/_generated/dataModel";
+import { api } from "@/convex/_generated/api";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import formatCount from "@/utils/formatCount";
 import { Ionicons } from "@expo/vector-icons";
-// import { useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { useRouter } from "expo-router";
 
-const StatsSection = ({ userInfo }: { userInfo: Doc<"users"> }) => {
+const StatsSection = ({
+  userInfo,
+  viewedUserId,
+}: {
+  userInfo: Doc<"users">;
+  viewedUserId?: Id<"users">;
+}) => {
   const router = useRouter();
-  // const mutualFollowers = useQuery(api.users.getMutualFollowers, {
-  //   userId: userInfo?._id,
-  // });
+  const mutualFollowers = useQuery(api.users.getMutualFollowers, {
+    userId: viewedUserId,
+  });
   const joinedDate = new Date(userInfo?.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -59,7 +65,7 @@ const StatsSection = ({ userInfo }: { userInfo: Doc<"users"> }) => {
           </View>
         </View>
 
-        {/* {mutualFollowers && mutualFollowers.length > 0 && (
+        {mutualFollowers && mutualFollowers.length > 0 && (
           <TouchableOpacity style={styles.infoCard}>
             <View style={styles.infoCardContent}>
               <Ionicons
@@ -74,7 +80,7 @@ const StatsSection = ({ userInfo }: { userInfo: Doc<"users"> }) => {
               </Text>
             </View>
           </TouchableOpacity>
-        )} */}
+        )}
       </View>
     </View>
   );

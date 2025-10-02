@@ -3,7 +3,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Image,
@@ -12,6 +12,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import CurrentUserMenuModal from "./CurrentUserMenuModal";
+import OtherUserMenuModal from "./OtherUserMenuModal";
 import ProfileLoader from "./ProfileSkeleton";
 
 const UserInfo = ({
@@ -23,7 +25,27 @@ const UserInfo = ({
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
-
+  const [otherUserMenuVisible, setOtherUserMenuVisible] = useState(false);
+  const [currentUserMenuVisible, setCurrentUserMenuVisible] = useState(false);
+  const handleMenuAction = (action: string) => {
+    console.log("Menu action:", action);
+    // Handle different actions here
+    switch (action) {
+      case "share_profile":
+        // Implement share profile logic
+        break;
+      case "toggle_follow":
+        // Implement follow/unfollow logic
+        break;
+      case "report":
+        // Implement report logic
+        break;
+      case "qr_code":
+        // Show QR code modal
+        break;
+      // ... handle other actions
+    }
+  };
   useEffect(() => {
     if (userInfo) {
       Animated.parallel([
@@ -122,9 +144,12 @@ const UserInfo = ({
               </TouchableOpacity>
             </Link>
 
-            <TouchableOpacity style={styles.secondaryButton}>
-              <Ionicons name="share-outline" size={18} color={Colors.primary} />
-              <Text style={styles.secondaryButtonText}>Share</Text>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => setCurrentUserMenuVisible(true)}
+            >
+              <Ionicons name="cog-outline" size={18} color={Colors.primary} />
+              <Text style={styles.secondaryButtonText}>Settings</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -154,7 +179,10 @@ const UserInfo = ({
               <Text style={styles.secondaryButtonText}>Message</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.iconOnlyButton}>
+            <TouchableOpacity
+              style={styles.iconOnlyButton}
+              onPress={() => setOtherUserMenuVisible(true)}
+            >
               <Ionicons
                 name="ellipsis-horizontal"
                 size={20}
@@ -164,6 +192,17 @@ const UserInfo = ({
           </View>
         )}
       </View>
+      <OtherUserMenuModal
+        visible={otherUserMenuVisible}
+        onClose={() => setOtherUserMenuVisible(false)}
+        onMenuAction={handleMenuAction}
+      />
+
+      <CurrentUserMenuModal
+        visible={currentUserMenuVisible}
+        onClose={() => setCurrentUserMenuVisible(false)}
+        onMenuAction={handleMenuAction}
+      />
     </Animated.View>
   );
 };

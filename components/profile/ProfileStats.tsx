@@ -25,16 +25,13 @@ const ProfileStats = ({
         />
       )}
 
-      {/* Stats */}
       <StatsSection
         userInfo={isCurrentUserProfile ? userInfo : viewedUserInfo}
+        viewedUserId={viewedUserInfo?._id}
       />
       {isCurrentUserProfile && (
         <>
-          {/* Quick Actions */}
           <QuickActions />
-
-          {/* Story Highlights */}
           <StoryHighlights />
         </>
       )}

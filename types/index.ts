@@ -55,7 +55,12 @@ export type CreatePostInputProps = {
   isPreview?: boolean;
   setTextSelection: (selection: { start: number; end: number }) => void;
 };
-
+export type PostMenuModalProps = {
+  visible: boolean;
+  onClose: () => void;
+  isOwnPost: boolean;
+  onMenuAction: (action: string) => void;
+};
 export type MediaFilesProps = {
   mediaFiles: MediaFile[];
   removeMedia: MediaRemovalHandler;
@@ -65,6 +70,49 @@ export type MediaFilesProps = {
 export type MediaPreviewProps = {
   removeMedia: MediaRemovalHandler;
   file: MediaFile;
+};
+export type MenuItemProps = {
+  id: string;
+  iconName: string;
+  iconLibrary?: "ionicons" | "feather";
+  title: string;
+  subtitle?: string;
+  isDestructive?: boolean;
+  isDisabled?: boolean;
+  onPress: () => void;
+  testID?: string;
+};
+
+export type MenuSection = {
+  id: string;
+  title?: string;
+  data: MenuItemProps[];
+  showDivider?: boolean;
+};
+
+export type BottomSheetModalProps = {
+  // Core props
+  visible: boolean;
+  onClose: () => void;
+  sections: MenuSection[];
+
+  // Customization props
+  height?: number | string;
+  closeOnBackdropPress?: boolean;
+  closeOnActionPress?: boolean;
+  animationType?: "slide" | "fade" | "none";
+  animationDuration?: number;
+  backdropOpacity?: number;
+
+  // Style props
+  containerStyle?: ViewStyle;
+  sectionStyle?: ViewStyle;
+  itemStyle?: ViewStyle;
+  dividerStyle?: ViewStyle;
+
+  // Custom components
+  renderFooter?: () => React.ReactNode;
+  renderCustomItem?: (item: MenuItemProps, index: number) => React.ReactNode;
 };
 
 export type CreatePostActionsProps = Pick<
