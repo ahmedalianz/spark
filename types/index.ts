@@ -163,6 +163,7 @@ export type ProfileStatsProps = {
   viewedUserInfo: Doc<"users">;
   isCurrentUserProfile: boolean;
   isLoading: boolean;
+  signOutHandler: () => void;
 };
 export type ProfileTabs = "posts" | "reposts" | "tagged";
 export type ProfileEmptyConfig = Record<
@@ -200,4 +201,60 @@ export type TextSelection = {
 export type UploadProgress = {
   isUploading: boolean;
   uploadProgress: number;
+};
+export type UserSettings = {
+  notifications: {
+    push: {
+      likes: boolean;
+      comments: boolean;
+      follows: boolean;
+      mentions: boolean;
+      reposts: boolean;
+      directMessages: boolean;
+      storyReplies: boolean;
+    };
+    email: {
+      securityAlerts: boolean;
+      productUpdates: boolean;
+      weeklyDigest: boolean;
+    };
+    inApp: {
+      badges: boolean;
+      sounds: boolean;
+      previews: boolean;
+    };
+  };
+  privacy: {
+    account: "public" | "private";
+    allowDirectMessages: "everyone" | "following" | "none";
+    showOnlineStatus: boolean;
+    showReadReceipts: boolean;
+    hideLikes: boolean;
+    hideFollowers: boolean;
+  };
+  appearance: {
+    theme: "light" | "dark" | "system";
+    fontSize: "small" | "medium" | "large";
+    reduceMotion: boolean;
+    highContrast: boolean;
+  };
+  feed: {
+    algorithm: "chronological" | "recommended";
+    showReposts: boolean;
+    showQuotes: boolean;
+    autoPlayVideos: boolean;
+    contentLanguages: string[];
+    sensitiveContent: boolean;
+  };
+  accessibility: {
+    altTextReminders: boolean;
+    keyboardShortcuts: boolean;
+    screenReaderOptimized: boolean;
+  };
+  storage: {
+    autoPlayVideos: "always" | "wifi" | "never";
+    imageQuality: "low" | "medium" | "high";
+    clearCacheOnExit: boolean;
+    downloadOriginals: boolean;
+  };
 };

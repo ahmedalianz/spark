@@ -158,21 +158,90 @@ export default defineSchema({
     // Added user preferences
     userId: v.id("users"),
     notifications: v.object({
-      likes: v.boolean(),
-      comments: v.boolean(),
-      follows: v.boolean(),
-      mentions: v.boolean(),
-      reposts: v.boolean(),
+      // Push notifications
+      push: v.object({
+        likes: v.boolean(),
+        comments: v.boolean(),
+        follows: v.boolean(),
+        mentions: v.boolean(),
+        reposts: v.boolean(),
+        directMessages: v.boolean(),
+        storyReplies: v.boolean(),
+      }),
+      // Email notifications
+      email: v.object({
+        securityAlerts: v.boolean(),
+        productUpdates: v.boolean(),
+        weeklyDigest: v.boolean(),
+      }),
+      // In-app notifications
+      inApp: v.object({
+        badges: v.boolean(),
+        sounds: v.boolean(),
+        previews: v.boolean(),
+      }),
     }),
     privacy: v.object({
-      allowDirectMessages: v.boolean(),
+      account: v.union(v.literal("public"), v.literal("private")),
+      allowDirectMessages: v.union(
+        v.literal("everyone"),
+        v.literal("following"),
+        v.literal("none")
+      ),
       showOnlineStatus: v.boolean(),
+      showReadReceipts: v.boolean(),
+      hideLikes: v.boolean(),
+      hideFollowers: v.boolean(),
+      blockedUsers: v.array(v.id("users")),
+      mutedUsers: v.array(v.id("users")),
     }),
-    theme: v.union(v.literal("light"), v.literal("dark")),
+    // Appearance
+    appearance: v.object({
+      theme: v.union(
+        v.literal("light"),
+        v.literal("dark"),
+        v.literal("system")
+      ),
+      fontSize: v.union(
+        v.literal("small"),
+        v.literal("medium"),
+        v.literal("large")
+      ),
+      reduceMotion: v.boolean(),
+      highContrast: v.boolean(),
+    }),
+
+    // Feed preferences
     feed: v.object({
       algorithm: v.union(v.literal("chronological"), v.literal("recommended")),
       showReposts: v.boolean(),
-      language: v.optional(v.string()),
+      showQuotes: v.boolean(),
+      autoPlayVideos: v.boolean(),
+      contentLanguages: v.array(v.string()),
+      sensitiveContent: v.boolean(),
+    }),
+
+    // Accessibility
+    accessibility: v.object({
+      altTextReminders: v.boolean(),
+      keyboardShortcuts: v.boolean(),
+      screenReaderOptimized: v.boolean(),
+    }),
+
+    // Storage & Data
+    storage: v.object({
+      autoPlayVideos: v.union(
+        v.literal("always"),
+        v.literal("wifi"),
+        v.literal("never")
+      ),
+      imageQuality: v.union(
+        v.literal("low"),
+        v.literal("medium"),
+        v.literal("high")
+      ),
+      clearCacheOnExit: v.boolean(),
+      downloadOriginals: v.boolean(),
     }),
     updatedAt: v.number(),
   }).index("byUserId", ["userId"]),

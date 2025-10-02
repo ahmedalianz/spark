@@ -109,6 +109,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
               userInfo={userInfo}
               isCurrentUserProfile={isCurrentUserProfile}
               viewedUserInfo={viewedUserInfo}
+              signOutHandler={signOutHandler}
             />
 
             {/* Tabs */}

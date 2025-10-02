@@ -6,7 +6,6 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import NotificationTabIcon from "@/components/NotificationTabIcon";
 import { Colors } from "@/constants/Colors";
-import { usePush } from "@/hooks/usePush";
 import * as Haptics from "expo-haptics";
 
 const CreateTabIcon = ({ color, size }: { color: string; size: number }) => (
@@ -18,7 +17,7 @@ const CreateTabIcon = ({ color, size }: { color: string; size: number }) => (
 const Layout = () => {
   const { signOut } = useAuth();
   const router = useRouter();
-  usePush();
+  // usePush();
 
   return (
     <Tabs

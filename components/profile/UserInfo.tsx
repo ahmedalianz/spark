@@ -1,8 +1,9 @@
 import { Colors } from "@/constants/Colors";
 import { Doc } from "@/convex/_generated/dataModel";
+import { MenuSection } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -12,21 +13,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import CurrentUserMenuModal from "./CurrentUserMenuModal";
-import OtherUserMenuModal from "./OtherUserMenuModal";
-import ProfileLoader from "./ProfileSkeleton";
+import BottomSheetModal from "../BottomSheetModal";
 
 const UserInfo = ({
   isCurrentUserProfile,
   userInfo,
+  signOutHandler,
 }: {
   userInfo: Doc<"users">;
   isCurrentUserProfile: boolean;
+  signOutHandler: () => void;
 }) => {
+  const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
-  const [otherUserMenuVisible, setOtherUserMenuVisible] = useState(false);
-  const [currentUserMenuVisible, setCurrentUserMenuVisible] = useState(false);
+  const [userMenuVisible, setUserMenuVisible] = useState(false);
   const handleMenuAction = (action: string) => {
     console.log("Menu action:", action);
     // Handle different actions here
@@ -63,10 +64,175 @@ const UserInfo = ({
     }
   }, [userInfo]);
 
-  if (!userInfo) {
-    return <ProfileLoader />;
-  }
+  const otherUserSections = [
+    {
+      id: "actions",
+      data: [
+        {
+          id: "share",
+          iconName: "share-outline",
+          title: "Share profile",
+          onPress: () => handleMenuAction("share_profile"),
+        },
+      ],
+    },
+    {
+      id: "moderation",
+      showDivider: true,
+      data: [
+        {
+          id: "report",
+          iconName: "alert-circle-outline",
+          title: `Report ${userInfo?.first_name}`,
+          subtitle: "We Are Sorry for this experience",
+          onPress: () => handleMenuAction("report"),
+        },
+        {
+          id: "block",
+          iconName: "ban-outline",
+          title: `Block ${userInfo?.first_name}`,
+          subtitle: "You won't be able to see or contact each other",
+          isDestructive: true,
+          onPress: () => handleMenuAction("block"),
+        },
+      ],
+    },
+  ];
+  const currentUserSections = [
+    {
+      id: "account",
+      title: "Account",
+      data: [
+        {
+          id: "edit-profile",
+          iconName: "person-outline",
+          title: "Edit Profile",
+          onPress: () => router.push("/(auth)/(modals)/edit-profile"),
+        },
+        {
+          id: "privacy",
+          iconName: "lock-closed-outline",
+          title: "Privacy & Safety",
+          subtitle: "Manage your privacy settings",
+          onPress: () => console.log("Navigate to privacy settings"),
+        },
+        {
+          id: "security",
+          iconName: "shield-checkmark-outline",
+          title: "Security",
+          subtitle: "Two-factor authentication, login history",
+          onPress: () => console.log("Navigate to security"),
+        },
+        {
+          id: "blocked-users",
+          iconName: "ban-outline",
+          title: "Blocked Users",
+          subtitle: "Manage blocked accounts",
+          onPress: () => console.log("Navigate to blocked users"),
+        },
+      ],
+    },
+    {
+      id: "preferences",
+      title: "Preferences",
+      showDivider: true,
+      data: [
+        {
+          id: "notifications",
+          iconName: "notifications-outline",
+          title: "Notifications",
+          subtitle: "Push, email, and in-app notifications",
+          onPress: () => console.log("Navigate to notifications"),
+        },
+        {
+          id: "feed-preferences",
+          iconName: "newspaper-outline",
+          title: "Feed Preferences",
+          subtitle: "Algorithm, content languages",
+          onPress: () => console.log("Navigate to feed preferences"),
+        },
+        {
+          id: "appearance",
+          iconName: "color-palette-outline",
+          title: "Appearance",
+          subtitle: "Theme, font size, reduce motion",
+          onPress: () => console.log("Navigate to appearance"),
+        },
+        {
+          id: "accessibility",
+          iconName: "accessibility-outline",
+          title: "Accessibility",
+          subtitle: "Alt text, keyboard shortcuts",
+          onPress: () => console.log("Navigate to accessibility"),
+        },
+      ],
+    },
+    {
+      id: "content",
+      title: "Content & Media",
+      showDivider: true,
+      data: [
+        {
+          id: "saved-posts",
+          iconName: "bookmark-outline",
+          title: "Saved Posts",
+          subtitle: "Your bookmarked content",
+          onPress: () => console.log("Navigate to saved posts"),
+        },
+        {
+          id: "drafts",
+          iconName: "document-outline",
+          title: "Drafts",
+          subtitle: "Your unpublished posts",
+          onPress: () => console.log("Navigate to drafts"),
+        },
+        {
+          id: "media-storage",
+          iconName: "cloud-download-outline",
+          title: "Media & Storage",
+          subtitle: "Image quality, cache settings",
+          onPress: () => console.log("Navigate to media storage"),
+        },
+      ],
+    },
+    {
+      id: "support",
+      title: "Support & About",
+      showDivider: true,
+      data: [
+        {
+          id: "help",
+          iconName: "help-circle-outline",
+          title: "Help & Support",
+          onPress: () => console.log("Navigate to help"),
+        },
+        {
+          id: "about",
+          iconName: "information-circle-outline",
+          title: "About Spark",
+          subtitle: "Version 1.0.0",
+          onPress: () => console.log("Navigate to about"),
+        },
+        {
+          id: "data-export",
+          iconName: "download-outline",
+          title: "Data Export",
+          subtitle: "Download your data",
+          onPress: () => console.log("Navigate to data export"),
+        },
+        {
+          id: "logout",
+          iconName: "log-out-outline",
+          title: "Log Out",
+          isDestructive: true,
+          onPress: signOutHandler,
+        },
+      ],
+    },
+  ];
+  const [userMenu, setUserMenu] = useState<MenuSection[]>(currentUserSections);
 
+  const onClose = () => setUserMenuVisible(false);
   return (
     <Animated.View
       style={[
@@ -146,9 +312,16 @@ const UserInfo = ({
 
             <TouchableOpacity
               style={styles.secondaryButton}
-              onPress={() => setCurrentUserMenuVisible(true)}
+              onPress={() => {
+                setUserMenu(currentUserSections);
+                setUserMenuVisible(true);
+              }}
             >
-              <Ionicons name="cog-outline" size={18} color={Colors.primary} />
+              <Ionicons
+                name="settings-outline"
+                size={18}
+                color={Colors.primary}
+              />
               <Text style={styles.secondaryButtonText}>Settings</Text>
             </TouchableOpacity>
           </View>
@@ -181,7 +354,10 @@ const UserInfo = ({
 
             <TouchableOpacity
               style={styles.iconOnlyButton}
-              onPress={() => setOtherUserMenuVisible(true)}
+              onPress={() => {
+                setUserMenu(otherUserSections);
+                setUserMenuVisible(true);
+              }}
             >
               <Ionicons
                 name="ellipsis-horizontal"
@@ -192,16 +368,11 @@ const UserInfo = ({
           </View>
         )}
       </View>
-      <OtherUserMenuModal
-        visible={otherUserMenuVisible}
-        onClose={() => setOtherUserMenuVisible(false)}
-        onMenuAction={handleMenuAction}
-      />
-
-      <CurrentUserMenuModal
-        visible={currentUserMenuVisible}
-        onClose={() => setCurrentUserMenuVisible(false)}
-        onMenuAction={handleMenuAction}
+      <BottomSheetModal
+        visible={userMenuVisible}
+        onClose={onClose}
+        sections={userMenu}
+        height="90%"
       />
     </Animated.View>
   );

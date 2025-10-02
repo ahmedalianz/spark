@@ -13,6 +13,7 @@ const ProfileStats = ({
   userInfo,
   isLoading,
   viewedUserInfo,
+  signOutHandler,
 }: ProfileStatsProps) => {
   return (
     <View style={styles.profileSection}>
@@ -22,6 +23,7 @@ const ProfileStats = ({
         <UserInfo
           isCurrentUserProfile={isCurrentUserProfile}
           userInfo={isCurrentUserProfile ? userInfo : viewedUserInfo}
+          signOutHandler={signOutHandler}
         />
       )}
 
