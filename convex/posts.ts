@@ -93,7 +93,6 @@ export const getFeedPosts = query({
         .collect();
 
       const followingIds = following.map((f) => f.followingId);
-      followingIds.push(user._id); // Include user's own posts
 
       query = query.filter((q) =>
         followingIds.some((id) => q.eq(q.field("authorId"), id))

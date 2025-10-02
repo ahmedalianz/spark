@@ -62,6 +62,11 @@ export const Colors = {
   transparentBlack50: "rgba(0,0,0,0.5)",
   transparentBlack70: "rgba(0, 0, 0, 0.7)",
 
+  // Splash Colors
+  splashColor1: "#3a94d8ff",
+  splashColor2: "#b8c6edff",
+  splashColor3: "#042561ff",
+
   // Platform Specific
   ...Platform.select({
     ios: {

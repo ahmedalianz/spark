@@ -68,7 +68,6 @@ const Feed = () => {
     { filter: currentFilter },
     { initialNumItems: 10 }
   );
-
   //TODO: Search query - only runs when searching
   const searchQueryResult = usePaginatedQuery(
     api.posts.searchPosts,
@@ -429,7 +428,11 @@ const Feed = () => {
 
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={Colors.background}
+        translucent={false}
+      />
       <View style={styles.container}>
         <Animated.FlatList
           showsVerticalScrollIndicator={false}

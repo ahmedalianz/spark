@@ -61,10 +61,13 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#3a94d8ff" />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={Colors.splashColor1}
+      />
 
       <LinearGradient
-        colors={["#3a94d8ff", "#b8c6edff", "#042561ff"]}
+        colors={[Colors.splashColor1, Colors.splashColor2, Colors.splashColor3]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -72,12 +75,9 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
         <Animated.View style={[styles.contentContainer, { opacity: fadeAnim }]}>
           {/* Animated Logo */}
           <Animated.View
-            style={[
-              styles.logoContainer,
-              {
-                transform: [{ scale: scaleAnim }],
-              },
-            ]}
+            style={{
+              transform: [{ scale: scaleAnim }],
+            }}
           >
             <View style={styles.logoShadow}>
               <Image
@@ -100,14 +100,14 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
             style={[styles.loadingContainer, { opacity: textFadeAnim }]}
           >
             <View style={styles.loadingBar}>
-              <Animated.View style={[styles.loadingProgress]} />
+              <Animated.View style={styles.loadingProgress} />
             </View>
           </Animated.View>
 
           {/* Floating particles */}
           <View style={styles.particlesContainer}>
-            {Array.from({ length: 8 }).map((_, index) => (
-              <FloatingParticle key={index} delay={index * 200} />
+            {Array.from({ length: 10 }).map((_, index) => (
+              <FloatingParticle key={index} delay={index * 200} index={index} />
             ))}
           </View>
         </Animated.View>
@@ -129,9 +129,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  logoContainer: {
-    marginBottom: 40,
-  },
+
   logoShadow: {
     shadowColor: Colors.blackPure,
     shadowOffset: {
@@ -145,7 +143,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 250,
     height: 250,
-    transform: [{ translateY: 60 }],
   },
   textContainer: {
     alignItems: "center",

@@ -65,6 +65,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
         onClose={() => setMenuVisible(false)}
         isOwnPost={isOwnPost}
         onMenuAction={handleMenuAction}
+        author={post?.author?.first_name || ""}
       />
     </View>
   );

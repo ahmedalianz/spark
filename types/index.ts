@@ -60,6 +60,7 @@ export type PostMenuModalProps = {
   onClose: () => void;
   isOwnPost: boolean;
   onMenuAction: (action: string) => void;
+  author: string;
 };
 export type MediaFilesProps = {
   mediaFiles: MediaFile[];
@@ -257,4 +258,9 @@ export type UserSettings = {
     clearCacheOnExit: boolean;
     downloadOriginals: boolean;
   };
+};
+export type UploadError = {
+  index: number;
+  fileName: string;
+  error: string;
 };

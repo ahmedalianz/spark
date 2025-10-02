@@ -4,7 +4,10 @@ import { Animated, Dimensions, StyleSheet } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-const FloatingParticle: React.FC<{ delay: number }> = ({ delay }) => {
+const FloatingParticle: React.FC<{ delay: number; index: number }> = ({
+  delay,
+  index,
+}) => {
   const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -41,7 +44,7 @@ const FloatingParticle: React.FC<{ delay: number }> = ({ delay }) => {
         {
           opacity,
           transform: [{ translateY }],
-          left: Math.random() * width,
+          left: index * width * 0.1,
           top: height * 0.7 + Math.random() * 100,
         },
       ]}
