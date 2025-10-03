@@ -16,7 +16,8 @@ const useProfile = ({ userId }: { userId?: Id<"users"> }) => {
   const [activeTab, setActiveTab] = useState<ProfileTabs>("posts");
   const { userInfo, isLoading, error } = useUserInfo();
   const viewedUserInfo = useQuery(api.users.getUserById, { userId });
-
+  const isCurrentUserProfile =
+    userId === undefined || (userId !== undefined && userId === userInfo?._id);
   const signOutHandler = useCallback(() => {
     signOut();
   }, [signOut]);
@@ -50,6 +51,7 @@ const useProfile = ({ userId }: { userId?: Id<"users"> }) => {
     status,
     posts,
     viewedUserInfo,
+    isCurrentUserProfile,
     signOutHandler,
     setActiveTab,
     handleLoadMore,

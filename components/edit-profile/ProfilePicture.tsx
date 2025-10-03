@@ -1,0 +1,134 @@
+import { Colors } from "@/constants/Colors";
+import { ProfilePictureProps } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useRef } from "react";
+import {
+  Animated,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+const ProfilePicture = ({
+  isLoading,
+  selectImage,
+  selectedImage,
+  imageUrl,
+}: ProfilePictureProps) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const animateImagePress = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+  return (
+    <View style={styles.imageSection}>
+      <TouchableOpacity
+        onPress={() => {
+          animateImagePress();
+          selectImage();
+        }}
+        disabled={isLoading}
+        activeOpacity={0.8}
+      >
+        <Animated.View
+          style={[styles.imageContainer, { transform: [{ scale: scaleAnim }] }]}
+        >
+          <LinearGradient
+            colors={[Colors.primary, Colors.primaryDark]}
+            style={styles.imageGradient}
+          >
+            <Image
+              source={{
+                uri: selectedImage?.uri || decodeURIComponent(imageUrl || ""),
+              }}
+              style={styles.profileImage}
+            />
+          </LinearGradient>
+          <View
+            style={[
+              styles.imageOverlay,
+              {
+                opacity: Platform.OS === "ios" ? 0 : 0.8,
+              },
+            ]}
+          >
+            <BlurView intensity={50} tint="dark" style={styles.overlayBlur}>
+              <Ionicons name="camera" size={24} color={Colors.white} />
+              <Text style={styles.overlayText}>Change Photo</Text>
+            </BlurView>
+          </View>
+        </Animated.View>
+      </TouchableOpacity>
+      {selectedImage && (
+        <Text style={styles.imageHint}>New photo selected</Text>
+      )}
+    </View>
+  );
+};
+
+export default ProfilePicture;
+
+const styles = StyleSheet.create({
+  imageSection: {
+    alignItems: "center",
+    paddingTop: 32,
+    paddingBottom: 24,
+  },
+  imageContainer: {
+    position: "relative",
+    marginBottom: 8,
+  },
+  imageGradient: {
+    padding: 4,
+    borderRadius: 65,
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: Colors.borderLighter,
+  },
+  imageOverlay: {
+    position: "absolute",
+    top: 4,
+    left: 4,
+    right: 4,
+    bottom: 4,
+    borderRadius: 60,
+    overflow: "hidden",
+  },
+  overlayBlur: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+  },
+  overlayText: {
+    fontSize: 12,
+    color: Colors.white,
+    fontWeight: "600",
+    fontFamily: "DMSans_500Medium",
+  },
+  imageHint: {
+    fontSize: 14,
+    color: Colors.primary,
+    fontWeight: "500",
+    fontFamily: "DMSans_500Medium",
+  },
+});

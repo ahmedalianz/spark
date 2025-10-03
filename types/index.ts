@@ -28,10 +28,34 @@ export type FollowWithDetails = {
   isFollowing: boolean;
   isFollowedBy: boolean;
 };
-
+export type FollowTabType = "followers" | "following";
+export type FormFieldsProps = {
+  isOverLimit: boolean;
+  bioCharacterCount: number;
+  maxBioLength: number;
+  bio: string;
+  link: string;
+  setBio: React.Dispatch<React.SetStateAction<string>>;
+  setLink: React.Dispatch<React.SetStateAction<string>>;
+};
+export type ProfilePictureProps = {
+  isLoading: boolean;
+  selectImage: () => void;
+  selectedImage: ImagePicker.ImagePickerAsset | null;
+  imageUrl: string | null;
+};
 // Media related types
 export type MediaFileType = "image" | "video";
-
+export type EmptyFollowListProps = {
+  searchQuery: string;
+  activeTab: FollowTabType;
+};
+export type FollowTabProps = {
+  activeTab: FollowTabType;
+  setActiveTab: (tabText: FollowTabType) => void;
+  follows: FollowWithDetails[];
+  title: string;
+};
 export type MediaFile = ImagePicker.ImagePickerAsset & {
   id: string;
   type: MediaFileType;

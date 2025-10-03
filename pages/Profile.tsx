@@ -35,6 +35,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
     error,
     status,
     viewedUserInfo,
+    isCurrentUserProfile,
     signOutHandler,
     setActiveTab,
     handleLoadMore,
@@ -68,8 +69,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
   if (error) {
     return <View style={styles.container}></View>;
   }
-  const isCurrentUserProfile =
-    userId === undefined || (userId !== undefined && userId === userInfo?._id);
+
   return (
     <View style={styles.container}>
       <ProfileHeader

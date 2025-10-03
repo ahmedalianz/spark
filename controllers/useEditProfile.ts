@@ -5,8 +5,8 @@ import { useMutation } from "convex/react";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
-import { Alert, Animated } from "react-native";
+import { useState } from "react";
+import { Alert } from "react-native";
 
 const useEditProfile = ({
   biostring,
@@ -23,7 +23,6 @@ const useEditProfile = ({
   const updateImage = useMutation(api.users.updateImage);
 
   const router = useRouter();
-  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const bioCharacterCount = bio?.length || 0;
   const maxBioLength = 160;
@@ -167,22 +166,7 @@ const useEditProfile = ({
     }
   };
 
-  const animateImagePress = () => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
   return {
-    scaleAnim,
     isLoading,
     isOverLimit,
     selectedImage,
@@ -195,7 +179,6 @@ const useEditProfile = ({
     onDone,
     selectImage,
     handleCancel,
-    animateImagePress,
   };
 };
 

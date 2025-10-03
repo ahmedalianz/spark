@@ -1,12 +1,9 @@
 import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import { Doc } from "@/convex/_generated/dataModel";
+import { useMutation } from "convex/react";
 import { useState } from "react";
 
-const useFollowHandler = ({ userId }: { userId: Id<"users"> }) => {
-  const followStatus = useQuery(api.follows.checkFollowStatus, {
-    userId,
-  });
+const useFollowHandler = () => {
   const followUser = useMutation(api.follows.followUser);
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +20,6 @@ const useFollowHandler = ({ userId }: { userId: Id<"users"> }) => {
     }
   };
   return {
-    followStatus,
     handleFollowToggle,
     loading,
   };
