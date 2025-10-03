@@ -1,6 +1,6 @@
-import { EditProfileProps } from "@/app/(auth)/(modals)/edit-profile";
 import { Colors } from "@/constants/Colors";
 import useEditProfile from "@/controllers/useEditProfile";
+import { EditProfileProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";

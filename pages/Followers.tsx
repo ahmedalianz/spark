@@ -1,10 +1,10 @@
 import Follower from "@/components/Follower";
 import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
-import { Doc } from "@/convex/_generated/dataModel";
+import { FollowWithDetails } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { usePaginatedQuery } from "convex/react";
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -22,7 +22,6 @@ type FollowersFollowingScreenProps = {
   initialTab?: TabType;
 };
 
-// Replace with actual navigation prop type if necessary
 const FollowersFollowingScreen = (
   { initialTab }: FollowersFollowingScreenProps = {
     initialTab: "followers",
@@ -35,29 +34,45 @@ const FollowersFollowingScreen = (
   const {
     results: followers,
     status: followersStatus,
-    loadMore,
+    loadMore: loadMoreFollowers,
   } = usePaginatedQuery(api.follows.getFollowers, {}, { initialNumItems: 15 });
-  const { results: following, status: followingsStatus } = usePaginatedQuery(
-    api.follows.getFollowing,
-    {},
-    { initialNumItems: 15 }
+
+  const {
+    results: following,
+    status: followingsStatus,
+    loadMore: loadMoreFollowing,
+  } = usePaginatedQuery(api.follows.getFollowing, {}, { initialNumItems: 15 });
+
+  const filterUsers = useCallback(
+    (users: FollowWithDetails[]) => {
+      if (!searchQuery) return users;
+      return users.filter((follow) => {
+        const query = searchQuery.toLowerCase();
+
+        return (
+          follow?.user?.first_name?.toLowerCase().startsWith(query) ||
+          follow?.user?.last_name?.toLowerCase().startsWith(query) ||
+          follow?.user?.username?.toLowerCase().startsWith(query)
+        );
+      });
+    },
+    [searchQuery]
   );
 
-  // Filter users based on search query
-  const filterUsers = (users: any[]) =>
-    users?.filter(
-      (user) =>
-        user.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.last_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.username?.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || [];
+  const currentData = useMemo(
+    () =>
+      activeTab === "followers"
+        ? filterUsers(followers || [])
+        : filterUsers(following || []),
+    [activeTab, followers, following, filterUsers]
+  );
 
-  const currentData =
-    activeTab === "followers" ? filterUsers(followers) : filterUsers(following);
-
-  const renderUserItem = ({ item: user }: { item: Doc<"users"> }) => {
-    return <Follower user={user} />;
-  };
+  const renderUserItem = useCallback(
+    ({ item }: { item: FollowWithDetails }) => {
+      return <Follower following={item} />;
+    },
+    []
+  );
 
   if (
     followersStatus === "LoadingFirstPage" ||
@@ -73,7 +88,6 @@ const FollowersFollowingScreen = (
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, activeTab === "followers" && styles.activeTab]}
@@ -129,6 +143,11 @@ const FollowersFollowingScreen = (
         data={currentData}
         renderItem={renderUserItem}
         keyExtractor={(item) => item._id}
+        onEndReached={
+          activeTab === "followers"
+            ? () => loadMoreFollowers(15)
+            : () => loadMoreFollowing(15)
+        }
         showsVerticalScrollIndicator={false}
         // Add padding to offset the floating search bar
         contentContainerStyle={styles.listContentContainer}
@@ -180,11 +199,11 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: 14, // Slightly reduced padding
+    paddingVertical: 14,
     alignItems: "center",
   },
   activeTab: {
-    borderBottomWidth: 3, // Thicker underline for emphasis
+    borderBottomWidth: 3,
     borderBottomColor: Colors.primary,
   },
   tabText: {
@@ -194,7 +213,7 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: Colors.primary,
-    fontWeight: "700", // Bolder text for active tab
+    fontWeight: "700",
   },
   searchContainer: {
     flexDirection: "row",
@@ -202,7 +221,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     marginBottom: 8,
     paddingHorizontal: 12,
-    shadowColor: "#000",
+    shadowColor: Colors.blackPure,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -217,8 +236,8 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   listContentContainer: {
-    paddingTop: 8, // Add a little space before the first item
-    paddingBottom: 20, // Add space at the bottom of the list
+    paddingTop: 8,
+    paddingBottom: 20,
   },
 
   emptyState: {

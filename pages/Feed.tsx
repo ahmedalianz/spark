@@ -275,7 +275,7 @@ const Feed = () => {
       <View style={styles.topBar}>
         <Animated.View style={pullRefreshStyle}>
           <Image
-            source={require("@/assets/images/logo.png")}
+            source={require("@/assets/images/spark-empty.webp")}
             style={styles.logo}
           />
         </Animated.View>

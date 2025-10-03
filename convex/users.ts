@@ -80,9 +80,9 @@ export const searchUsers = query({
       const searchTerm = args.query.toLowerCase();
       const filteredUsers = users.page.filter(
         (user) =>
-          user.first_name?.toLowerCase().includes(searchTerm) ||
-          user.last_name?.toLowerCase().includes(searchTerm) ||
-          user.username?.toLowerCase().includes(searchTerm)
+          user.first_name?.toLowerCase().startsWith(searchTerm) ||
+          user.last_name?.toLowerCase().startsWith(searchTerm) ||
+          user.username?.toLowerCase().startsWith(searchTerm)
       );
 
       return {
@@ -117,7 +117,9 @@ export const getMutualFollowers = query({
     // Get who follows the target user
     const targetFollowers = await ctx.db
       .query("follows")
-      .withIndex("byFollowing", (q) => q.eq("followingId", args.userId))
+      .withIndex("byFollowing", (q) =>
+        q.eq("followingId", args.userId as Id<"users">)
+      )
       .collect();
 
     // Find mutual connections

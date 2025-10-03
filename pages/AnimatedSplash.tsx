@@ -81,7 +81,7 @@ const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onFinish }) => {
           >
             <View style={styles.logoShadow}>
               <Image
-                source={require("@/assets/images/logo.webp")}
+                source={require("@/assets/images/spark-word.webp")}
                 style={styles.logo}
                 resizeMode="contain"
               />
@@ -141,23 +141,15 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   logo: {
-    width: 250,
-    height: 250,
+    width: 350,
+    height: 350,
   },
   textContainer: {
     alignItems: "center",
     marginBottom: 20,
+    transform: [{ translateY: -50 }],
   },
-  appName: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: Colors.white,
-    marginBottom: 8,
-    letterSpacing: 2,
-    textShadowColor: Colors.transparentBlack30,
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 10,
-  },
+
   tagline: {
     fontSize: 16,
     color: Colors.white,
@@ -167,6 +159,7 @@ const styles = StyleSheet.create({
   loadingContainer: {
     width: width * 0.6,
     alignItems: "center",
+    transform: [{ translateY: -50 }],
   },
   loadingBar: {
     width: "100%",

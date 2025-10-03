@@ -77,6 +77,8 @@ export const followUser = mutation({
   },
 });
 
+// In your convex/follows.ts
+
 export const getFollowers = query({
   args: {
     paginationOpts: paginationOptsValidator,
@@ -84,8 +86,10 @@ export const getFollowers = query({
   handler: async (ctx, args) => {
     const currentUser = await getCurrentUserOrThrow(ctx);
 
+    // Get people who follow the current user
     const follows = await ctx.db
       .query("follows")
+      .withIndex("byFollowing", (q) => q.eq("followingId", currentUser._id))
       .order("desc")
       .paginate(args.paginationOpts);
 
@@ -93,15 +97,18 @@ export const getFollowers = query({
       follows.page.map(async (follow) => {
         const [user, isFollowedByCurrentUser] = await Promise.all([
           getUserWithImage(ctx, follow.followerId),
-          currentUser
-            ? isUserFollowedBy(ctx, currentUser._id, follow.followerId)
-            : false,
+          // Check if current user follows back this follower
+          isUserFollowedBy(ctx, currentUser._id, follow.followerId),
         ]);
 
         return {
           ...follow,
           user,
           isFollowedByCurrentUser,
+          // For followers, isFollowing means current user follows them back
+          isFollowing: isFollowedByCurrentUser,
+          // For followers, isFollowedBy is always true (they follow current user)
+          isFollowedBy: true,
         };
       })
     );
@@ -120,8 +127,10 @@ export const getFollowing = query({
   handler: async (ctx, args) => {
     const currentUser = await getCurrentUserOrThrow(ctx);
 
+    // Get people the current user follows
     const follows = await ctx.db
       .query("follows")
+      .withIndex("byFollower", (q) => q.eq("followerId", currentUser._id))
       .order("desc")
       .paginate(args.paginationOpts);
 
@@ -129,15 +138,18 @@ export const getFollowing = query({
       follows.page.map(async (follow) => {
         const [user, isFollowedByCurrentUser] = await Promise.all([
           getUserWithImage(ctx, follow.followingId),
-          currentUser
-            ? isUserFollowedBy(ctx, currentUser._id, follow.followingId)
-            : false,
+          // Check if the followed user follows back current user
+          isUserFollowedBy(ctx, currentUser._id, follow.followingId),
         ]);
 
         return {
           ...follow,
           user,
           isFollowedByCurrentUser,
+          // For following, isFollowing is always true (current user follows them)
+          isFollowing: true,
+          // For following, isFollowedBy means they follow current user back
+          isFollowedBy: isFollowedByCurrentUser,
         };
       })
     );
@@ -175,7 +187,9 @@ export const checkFollowStatus = query({
       ctx.db
         .query("follows")
         .withIndex("byFollowerAndFollowing", (q) =>
-          q.eq("followerId", args.userId).eq("followingId", currentUser._id)
+          q
+            .eq("followerId", args.userId as Id<"users">)
+            .eq("followingId", currentUser._id)
         )
         .unique(),
     ]);

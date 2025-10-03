@@ -17,6 +17,17 @@ export type EntityWithAuthor<T> = T & {
   author: Doc<"users">;
   userHasLiked?: boolean;
 };
+export type FollowWithDetails = {
+  user: Doc<"users">;
+  _id: string;
+  followerId: string;
+  followingId: string;
+  createdAt: number;
+  updatedAt?: number;
+  isFollowedByCurrentUser: boolean;
+  isFollowing: boolean;
+  isFollowedBy: boolean;
+};
 
 // Media related types
 export type MediaFileType = "image" | "video";

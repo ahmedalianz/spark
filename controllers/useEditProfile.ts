@@ -1,5 +1,5 @@
-import { EditProfileProps } from "@/app/(auth)/(modals)/edit-profile";
 import { api } from "@/convex/_generated/api";
+import { EditProfileProps } from "@/types";
 import * as Sentry from "@sentry/react-native";
 import { useMutation } from "convex/react";
 import * as Haptics from "expo-haptics";

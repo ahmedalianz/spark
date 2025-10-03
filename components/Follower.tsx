@@ -1,45 +1,48 @@
 import { Colors } from "@/constants/Colors";
-import { Doc } from "@/convex/_generated/dataModel";
 import useFollowHandler from "@/hooks/useFollowHandler";
+import { FollowWithDetails } from "@/types";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const Follower = ({ user }: { user: Doc<"users"> }) => {
-  const { followStatus, handleFollowToggle, loading } = useFollowHandler({
-    userId: user._id,
-  });
+const Follower = ({ following }: { following: FollowWithDetails }) => {
+  const { handleFollowToggle, loading } = useFollowHandler();
+  const isFollowing = following.isFollowing;
 
   return (
     <View style={styles.userItem}>
       <Image
         source={{
-          uri: user.imageUrl || "https://via.placeholder.com/50",
+          uri:
+            following?.user?.imageUrl ||
+            `https://ui-avatars.com/api/?name=${following.user.first_name}+${following.user.last_name}&background=random`,
         }}
         style={styles.avatar}
       />
       <View style={styles.userInfo}>
-        <Text style={styles.name}>{user.first_name || "Unknown User"}</Text>
-        <Text style={styles.username}>@{user.username || "user"}</Text>
+        <Text style={styles.name}>
+          {following?.user?.first_name || "Unknown User"}
+        </Text>
+        <Text style={styles.username}>
+          @{following?.user?.username || "user"}
+        </Text>
       </View>
       <TouchableOpacity
         style={[
           styles.followButton,
-          followStatus?.isFollowing
-            ? styles.followingButton
-            : styles.notFollowingButton,
+          isFollowing ? styles.followingButton : styles.notFollowingButton,
         ]}
-        onPress={() => handleFollowToggle(user)}
+        onPress={() => handleFollowToggle(following?.user)}
         disabled={loading}
       >
         <Text
           style={[
             styles.followButtonText,
-            followStatus?.isFollowing
+            isFollowing
               ? styles.followingButtonText
               : styles.notFollowingButtonText,
           ]}
         >
-          {followStatus?.isFollowing ? "Following" : "Follow"}
+          {isFollowing ? "Following" : "Follow"}
         </Text>
       </TouchableOpacity>
     </View>

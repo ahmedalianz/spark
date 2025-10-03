@@ -1,8 +1,10 @@
 import { Colors } from "@/constants/Colors";
+import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import useFollowHandler from "@/hooks/useFollowHandler";
 import { MenuSection } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -64,7 +66,11 @@ const UserInfo = ({
       ]).start();
     }
   }, [userInfo]);
-
+  const editProfileRoute: any = `/(auth)/(modals)/edit-profile?biostring=${
+    userInfo?.bio ? encodeURIComponent(userInfo?.bio) : ""
+  }&linkstring=${userInfo?.websiteUrl ? encodeURIComponent(userInfo?.websiteUrl) : ""}&userId=${
+    userInfo?._id
+  }&imageUrl=${userInfo?.imageUrl ? encodeURIComponent(userInfo?.imageUrl) : ""}`;
   const otherUserSections = [
     {
       id: "actions",
@@ -108,28 +114,28 @@ const UserInfo = ({
           id: "edit-profile",
           iconName: "person-outline",
           title: "Edit Profile",
-          onPress: () => router.push("/(auth)/(modals)/edit-profile"),
+          onPress: () => router.push(editProfileRoute),
         },
         {
           id: "privacy",
           iconName: "lock-closed-outline",
           title: "Privacy & Safety",
           subtitle: "Manage your privacy settings",
-          onPress: () => console.log("Navigate to privacy settings"),
+          onPress: () => router.push("/(auth)/(settings)/privacy"),
         },
         {
           id: "security",
           iconName: "shield-checkmark-outline",
           title: "Security",
           subtitle: "Two-factor authentication, login history",
-          onPress: () => console.log("Navigate to security"),
+          onPress: () => router.push("/(auth)/(settings)/security"),
         },
         {
           id: "blocked-users",
           iconName: "ban-outline",
           title: "Blocked Users",
           subtitle: "Manage blocked accounts",
-          onPress: () => console.log("Navigate to blocked users"),
+          onPress: () => router.push("/(auth)/(settings)/blocked-users"),
         },
       ],
     },
@@ -143,28 +149,28 @@ const UserInfo = ({
           iconName: "notifications-outline",
           title: "Notifications",
           subtitle: "Push, email, and in-app notifications",
-          onPress: () => console.log("Navigate to notifications"),
+          onPress: () => router.push("/(auth)/(settings)/notifications"),
         },
         {
           id: "feed-preferences",
           iconName: "newspaper-outline",
           title: "Feed Preferences",
           subtitle: "Algorithm, content languages",
-          onPress: () => console.log("Navigate to feed preferences"),
+          onPress: () => router.push("/(auth)/(settings)/feed-preferences"),
         },
         {
           id: "appearance",
           iconName: "color-palette-outline",
           title: "Appearance",
           subtitle: "Theme, font size, reduce motion",
-          onPress: () => console.log("Navigate to appearance"),
+          onPress: () => router.push("/(auth)/(settings)/appearance"),
         },
         {
           id: "accessibility",
           iconName: "accessibility-outline",
           title: "Accessibility",
           subtitle: "Alt text, keyboard shortcuts",
-          onPress: () => console.log("Navigate to accessibility"),
+          onPress: () => router.push("/(auth)/(settings)/accessibility"),
         },
       ],
     },
@@ -205,21 +211,14 @@ const UserInfo = ({
           id: "help",
           iconName: "help-circle-outline",
           title: "Help & Support",
-          onPress: () => console.log("Navigate to help"),
+          onPress: () => router.push("/(auth)/(settings)/help"),
         },
         {
           id: "about",
           iconName: "information-circle-outline",
           title: "About Spark",
           subtitle: "Version 1.0.0",
-          onPress: () => console.log("Navigate to about"),
-        },
-        {
-          id: "data-export",
-          iconName: "download-outline",
-          title: "Data Export",
-          subtitle: "Download your data",
-          onPress: () => console.log("Navigate to data export"),
+          onPress: () => router.push("/(auth)/(settings)/about"),
         },
         {
           id: "logout",
@@ -234,7 +233,8 @@ const UserInfo = ({
   const [userMenu, setUserMenu] = useState<MenuSection[]>(currentUserSections);
 
   const onClose = () => setUserMenuVisible(false);
-  const { followStatus, handleFollowToggle, loading } = useFollowHandler({
+  const { handleFollowToggle, loading } = useFollowHandler();
+  const followStatus = useQuery(api.follows.checkFollowStatus, {
     userId: userInfo?._id,
   });
   return (
@@ -289,14 +289,7 @@ const UserInfo = ({
       <View style={styles.actionSection}>
         {isCurrentUserProfile ? (
           <View style={styles.buttonRow}>
-            <Link
-              href={`/(auth)/(modals)/edit-profile?biostring=${
-                userInfo?.bio ? encodeURIComponent(userInfo?.bio) : ""
-              }&linkstring=${userInfo?.websiteUrl ? encodeURIComponent(userInfo?.websiteUrl) : ""}&userId=${
-                userInfo?._id
-              }&imageUrl=${userInfo?.imageUrl ? encodeURIComponent(userInfo?.imageUrl) : ""}`}
-              asChild
-            >
+            <Link href={editProfileRoute} asChild>
               <TouchableOpacity style={styles.primaryButton}>
                 <LinearGradient
                   colors={[Colors.primary, Colors.primaryDark]}

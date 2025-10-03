@@ -4,7 +4,7 @@
     "slug": "spark",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo_empty.png",
+    "icon": "./assets/images/spark.webp",
     "scheme": "spark",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,11 +13,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
+        "foregroundImage": "./assets/images/spark.webp",
         "backgroundColor": "#667eea"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.spark"
+      "package": "com.ahmedalianz.spark"
     },
     "web": {
       "bundler": "metro",

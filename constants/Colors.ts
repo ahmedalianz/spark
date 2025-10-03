@@ -15,7 +15,7 @@ export const Colors = {
   background: "#FDF8FF",
   backgroundLight: "#fafafa",
   backgroundCard: "#f5f5f5",
-
+  backgroundSecondary: "#F8F9FA",
   // Text Colors
   textPrimary: "#1a1a1a",
   textSecondary: "#333",
