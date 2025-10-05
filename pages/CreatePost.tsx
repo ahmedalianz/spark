@@ -5,8 +5,8 @@ import {
   MediaFiles,
   UserAvatar,
 } from "@/components/create-post";
-import { Colors } from "@/constants/Colors";
 import useCreatePost from "@/controllers/useCreatePost";
+import useAppTheme from "@/hooks/useAppTheme";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { CreatePostProps } from "@/types";
 import { useRouter } from "expo-router";
@@ -24,7 +24,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { userInfo } = useUserInfo();
-
+  const { colors } = useAppTheme();
   const {
     postContent,
     mediaFiles,
@@ -41,7 +41,13 @@ const CreatePost: React.FC<CreatePostProps> = ({
   } = useCreatePost({ onDismiss, initialContent });
 
   return (
-    <View style={[styles.container, { paddingTop: isPreview ? 0 : top }]}>
+    <View
+      style={{
+        paddingTop: isPreview ? 0 : top,
+        backgroundColor: colors.background,
+        flex: 1,
+      }}
+    >
       <Header
         {...{
           handleCancel,
@@ -50,6 +56,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
           uploadProgress,
           postContent,
           mediaFiles,
+          colors,
         }}
       />
 
@@ -64,8 +71,16 @@ const CreatePost: React.FC<CreatePostProps> = ({
             style={styles.previewDisabledContainer}
           />
         )}
-        <View style={styles.contentCard}>
-          <UserAvatar userInfo={userInfo} />
+        <View
+          style={[
+            styles.contentCard,
+            {
+              backgroundColor: colors.white,
+              shadowColor: colors.black,
+            },
+          ]}
+        >
+          <UserAvatar userInfo={userInfo} colors={colors} />
 
           <CreatePostInput
             {...{
@@ -74,6 +89,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
               isExpanded,
               isPreview,
               setTextSelection,
+              colors,
             }}
           />
 
@@ -84,12 +100,19 @@ const CreatePost: React.FC<CreatePostProps> = ({
                 removeMedia,
                 selectMedia,
                 MAX_MEDIA_FILES,
+                colors,
               }}
             />
           )}
           {!isPreview && (
             <CreatePostActions
-              {...{ mediaFiles, selectMedia, resetForm, MAX_MEDIA_FILES }}
+              {...{
+                mediaFiles,
+                selectMedia,
+                resetForm,
+                MAX_MEDIA_FILES,
+                colors,
+              }}
             />
           )}
         </View>
@@ -99,19 +122,13 @@ const CreatePost: React.FC<CreatePostProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
   scrollView: {
     flex: 1,
   },
   contentCard: {
-    backgroundColor: Colors.white,
     margin: 16,
     borderRadius: 20,
     padding: 20,
-    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 16,

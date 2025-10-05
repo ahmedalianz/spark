@@ -6,12 +6,13 @@ import {
   View,
 } from "react-native";
 
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 
 const StoryHighlights = () => {
   const [showHighlights, setShowHighlights] = useState(true);
+  const { colors } = useAppTheme();
 
   const highlights = [
     { id: "1", title: "Travel", image: "🌍", count: 5 },
@@ -19,15 +20,23 @@ const StoryHighlights = () => {
     { id: "3", title: "Food", image: "🍕", count: 12 },
     { id: "4", title: "Events", image: "🎉", count: 3 },
   ];
+
   return (
-    <View style={styles.highlightsContainer}>
+    <View
+      style={[
+        styles.highlightsContainer,
+        { borderTopColor: colors.borderLight },
+      ]}
+    >
       <View style={styles.highlightsHeader}>
-        <Text style={styles.highlightsTitle}>Highlights</Text>
+        <Text style={[styles.highlightsTitle, { color: colors.textPrimary }]}>
+          Highlights
+        </Text>
         <TouchableOpacity onPress={() => setShowHighlights(!showHighlights)}>
           <Ionicons
             name={showHighlights ? "chevron-up" : "chevron-down"}
             size={20}
-            color={Colors.textTertiary}
+            color={colors.textTertiary}
           />
         </TouchableOpacity>
       </View>
@@ -39,21 +48,51 @@ const StoryHighlights = () => {
           style={styles.highlightsList}
         >
           <TouchableOpacity style={styles.addHighlight}>
-            <View style={styles.addHighlightCircle}>
-              <Ionicons name="add" size={24} color={Colors.textTertiary} />
+            <View
+              style={[
+                styles.addHighlightCircle,
+                {
+                  backgroundColor: colors.backgroundLight,
+                  borderColor: colors.borderLight,
+                },
+              ]}
+            >
+              <Ionicons name="add" size={24} color={colors.textTertiary} />
             </View>
-            <Text style={styles.highlightLabel}>New</Text>
+            <Text
+              style={[styles.highlightLabel, { color: colors.textSecondary }]}
+            >
+              New
+            </Text>
           </TouchableOpacity>
 
           {highlights.map((highlight) => (
             <TouchableOpacity key={highlight.id} style={styles.highlightItem}>
-              <View style={styles.highlightCircle}>
+              <View
+                style={[
+                  styles.highlightCircle,
+                  { backgroundColor: colors.primary },
+                ]}
+              >
                 <Text style={styles.highlightEmoji}>{highlight.image}</Text>
-                <View style={styles.highlightBadge}>
-                  <Text style={styles.highlightCount}>{highlight.count}</Text>
+                <View
+                  style={[
+                    styles.highlightBadge,
+                    { backgroundColor: colors.error },
+                  ]}
+                >
+                  <Text
+                    style={[styles.highlightCount, { color: colors.white }]}
+                  >
+                    {highlight.count}
+                  </Text>
                 </View>
               </View>
-              <Text style={styles.highlightLabel}>{highlight.title}</Text>
+              <Text
+                style={[styles.highlightLabel, { color: colors.textSecondary }]}
+              >
+                {highlight.title}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -69,7 +108,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
   },
   highlightsHeader: {
     flexDirection: "row",
@@ -80,7 +118,6 @@ const styles = StyleSheet.create({
   highlightsTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
   },
   highlightsList: {
@@ -94,9 +131,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: Colors.backgroundLight,
     borderWidth: 2,
-    borderColor: Colors.borderLight,
     borderStyle: "dashed",
     justifyContent: "center",
     alignItems: "center",
@@ -110,7 +145,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: Colors.primary,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
@@ -123,7 +157,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -4,
     right: -4,
-    backgroundColor: Colors.error,
     borderRadius: 10,
     width: 20,
     height: 20,
@@ -132,12 +165,10 @@ const styles = StyleSheet.create({
   },
   highlightCount: {
     fontSize: 10,
-    color: Colors.white,
     fontWeight: "600",
   },
   highlightLabel: {
     fontSize: 12,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
 });

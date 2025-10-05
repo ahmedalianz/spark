@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import { PostActionsProps } from "@/types";
 import formatCount from "@/utils/formatCount";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -10,16 +10,6 @@ import {
   View,
 } from "react-native";
 
-interface PostActionsProps {
-  likeCount: number;
-  commentCount: number;
-  isLiked: boolean;
-  scaleAnim: Animated.Value;
-  onLike: () => void;
-  onComments: () => void;
-  onShare: () => void;
-}
-
 const PostActions: React.FC<PostActionsProps> = ({
   likeCount,
   commentCount,
@@ -28,20 +18,30 @@ const PostActions: React.FC<PostActionsProps> = ({
   onLike,
   onComments,
   onShare,
+  colors,
 }) => {
   return (
     <View style={styles.actions}>
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
         <TouchableOpacity
-          style={[styles.actionButton, isLiked && styles.likedButton]}
+          style={[
+            styles.actionButton,
+            isLiked && { backgroundColor: colors.borderSecondary },
+          ]}
           onPress={onLike}
         >
           <Ionicons
             name={isLiked ? "heart" : "heart-outline"}
             size={22}
-            color={isLiked ? Colors.accentLike : Colors.textTertiary}
+            color={isLiked ? colors.accentLike : colors.textTertiary}
           />
-          <Text style={[styles.actionText, isLiked && styles.likedText]}>
+          <Text
+            style={[
+              styles.actionText,
+              { color: colors.textTertiary },
+              isLiked && { color: colors.accentLike },
+            ]}
+          >
             {formatCount(likeCount)}
           </Text>
         </TouchableOpacity>
@@ -51,19 +51,22 @@ const PostActions: React.FC<PostActionsProps> = ({
         <Ionicons
           name="chatbubble-outline"
           size={22}
-          color={Colors.textTertiary}
+          color={colors.textTertiary}
         />
-        <Text style={styles.actionText}>{formatCount(commentCount)}</Text>
+        <Text style={[styles.actionText, { color: colors.textTertiary }]}>
+          {formatCount(commentCount)}
+        </Text>
       </TouchableOpacity>
 
       <View style={styles.rightActions}>
         <TouchableOpacity style={styles.shareButton} onPress={onShare}>
-          <Feather name="send" size={20} color={Colors.textTertiary} />
+          <Feather name="send" size={20} color={colors.textTertiary} />
         </TouchableOpacity>
       </View>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
@@ -78,18 +81,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     minWidth: 60,
   },
-  likedButton: {
-    backgroundColor: Colors.borderSecondary,
-  },
   actionText: {
     marginLeft: 6,
     fontSize: 13,
-    color: Colors.textTertiary,
     fontWeight: "500",
     fontFamily: "DMSans_500Medium",
-  },
-  likedText: {
-    color: Colors.accentLike,
   },
   rightActions: {
     flexDirection: "row",
@@ -101,4 +97,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
 });
+
 export default PostActions;

@@ -1,26 +1,62 @@
-import { Colors } from "@/constants/Colors";
+import { ColorsType } from "@/types";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
-export default function ProfileSkeleton() {
+export default function ProfileSkeleton({ colors }: { colors: ColorsType }) {
   return (
     <View style={styles.loadingMainContainer}>
       <View style={styles.loadingContainer}>
         <View style={styles.loadingContent}>
-          <View style={[styles.loadingLine, { width: "60%" }]} />
-          <View style={styles.loadingLine} />
-          <View style={[styles.loadingLine, { width: "60%" }]} />
+          <View
+            style={[
+              styles.loadingLine,
+              { width: "60%", backgroundColor: colors.borderLighter },
+            ]}
+          />
+          <View
+            style={[
+              styles.loadingLine,
+              { backgroundColor: colors.borderLighter },
+            ]}
+          />
+          <View
+            style={[
+              styles.loadingLine,
+              { width: "60%", backgroundColor: colors.borderLighter },
+            ]}
+          />
         </View>
-        <View style={styles.loadingAvatar} />
+        <View
+          style={[
+            styles.loadingAvatar,
+            { backgroundColor: colors.borderLighter },
+          ]}
+        />
       </View>
-      <View style={styles.loadingBioLine} />
+      <View
+        style={[
+          styles.loadingBioLine,
+          { backgroundColor: colors.borderLighter },
+        ]}
+      />
       <View style={styles.buttonsContainer}>
-        <View style={styles.loadingButton} />
-        <View style={styles.loadingButton} />
+        <View
+          style={[
+            styles.loadingButton,
+            { backgroundColor: colors.borderLighter },
+          ]}
+        />
+        <View
+          style={[
+            styles.loadingButton,
+            { backgroundColor: colors.borderLighter },
+          ]}
+        />
       </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   loadingMainContainer: {
     paddingHorizontal: 20,
@@ -34,7 +70,6 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.borderLighter,
   },
   loadingContent: {
     flex: 1,
@@ -42,13 +77,11 @@ const styles = StyleSheet.create({
   },
   loadingLine: {
     height: 16,
-    backgroundColor: Colors.borderLighter,
     borderRadius: 8,
     width: "80%",
   },
   loadingBioLine: {
     height: 16,
-    backgroundColor: Colors.borderLighter,
     borderRadius: 8,
     marginTop: 30,
   },
@@ -59,7 +92,6 @@ const styles = StyleSheet.create({
   },
   loadingButton: {
     height: 45,
-    backgroundColor: Colors.borderLighter,
     borderRadius: 12,
     width: "48%",
   },

@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { CreatePostInputProps } from "@/types";
 import React, { useRef } from "react";
 import { Animated, StyleSheet, TextInput } from "react-native";
@@ -9,6 +8,7 @@ const CreatePostInput = ({
   isExpanded,
   isPreview,
   setTextSelection,
+  colors,
 }: CreatePostInputProps) => {
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const textInputRef = useRef<TextInput>(null);
@@ -19,11 +19,15 @@ const CreatePostInput = ({
         ref={textInputRef}
         style={[
           styles.input,
+          {
+            color: colors.textSecondary,
+            backgroundColor: colors.backgroundLight,
+          },
           isExpanded && styles.inputExpanded,
           isPreview && styles.inputPreview,
         ]}
         placeholder={"What's happening?"}
-        placeholderTextColor={Colors.textMuted}
+        placeholderTextColor={colors.textMuted}
         value={postContent}
         onChangeText={handleContentChange}
         onSelectionChange={(e) => setTextSelection(e.nativeEvent.selection)}
@@ -43,11 +47,9 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 18,
     lineHeight: 28,
-    color: Colors.textSecondary,
     minHeight: 100,
     marginBottom: 20,
     fontWeight: "400",
-    backgroundColor: Colors.backgroundLight,
     borderRadius: 12,
     padding: 16,
     textAlignVertical: "top",

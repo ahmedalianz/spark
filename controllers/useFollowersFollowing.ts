@@ -49,6 +49,8 @@ const useFollowersFollowing = ({
   );
 
   return {
+    followers,
+    following,
     activeTab,
     searchQuery,
     currentData,

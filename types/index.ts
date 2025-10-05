@@ -44,17 +44,20 @@ export type ProfilePictureProps = {
   selectedImage: ImagePicker.ImagePickerAsset | null;
   imageUrl: string | null;
 };
+export type ColorsType = Record<string, string>;
 // Media related types
 export type MediaFileType = "image" | "video";
 export type EmptyFollowListProps = {
   searchQuery: string;
   activeTab: FollowTabType;
+  colors: ColorsType;
 };
 export type FollowTabProps = {
   activeTab: FollowTabType;
   setActiveTab: (tabText: FollowTabType) => void;
   follows: FollowWithDetails[];
   title: string;
+  colors: ColorsType;
 };
 export type MediaFile = ImagePicker.ImagePickerAsset & {
   id: string;
@@ -80,6 +83,7 @@ export type CreatePostHeaderProps = {
   isUploading: boolean;
   uploadProgress: number;
   postContent: string;
+  colors: ColorsType;
   mediaFiles: MediaFile[];
 };
 
@@ -88,6 +92,7 @@ export type CreatePostInputProps = {
   handleContentChange: (text: string) => void;
   isExpanded: boolean;
   isPreview?: boolean;
+  colors: ColorsType;
   setTextSelection: (selection: { start: number; end: number }) => void;
 };
 export type PostMenuModalProps = {
@@ -102,10 +107,12 @@ export type MediaFilesProps = {
   removeMedia: MediaRemovalHandler;
   selectMedia: MediaSelectionHandler;
   MAX_MEDIA_FILES: number;
+  colors: ColorsType;
 };
 export type MediaPreviewProps = {
   removeMedia: MediaRemovalHandler;
   file: MediaFile;
+  colors: ColorsType;
 };
 export type MenuItemProps = {
   id: string;
@@ -156,6 +163,7 @@ export type CreatePostActionsProps = Pick<
   "mediaFiles" | "selectMedia" | "MAX_MEDIA_FILES"
 > & {
   resetForm: () => void;
+  colors: ColorsType;
 };
 
 // Comment related types
@@ -192,13 +200,50 @@ export type ProfileHeaderProps = {
   userInfo: Doc<"users">;
   viewedUserInfo: Doc<"users">;
   isCurrentUserProfile: boolean;
+  colors: ColorsType;
   signOutHandler: () => void;
+};
+export type PostActionsProps = {
+  likeCount: number;
+  commentCount: number;
+  isLiked: boolean;
+  scaleAnim: Animated.Value;
+  onLike: () => void;
+  onComments: () => void;
+  onShare: () => void;
+  colors: ColorsType;
+};
+export type PostHeaderProps = {
+  post: PostWithAuthorDetails;
+  colors: ColorsType;
+  onMenuPress: () => void;
+};
+
+export type PostMediaProps = {
+  mediaFiles?: string[];
+  likeCount: number;
+  commentCount: number;
+  colors: ColorsType;
+};
+
+export type PostEngagementProps = {
+  likeCount: number;
+  commentCount: number;
+  onCommentsPress: () => void;
+  colors: ColorsType;
 };
 export type ProfileStatsProps = {
   userInfo: Doc<"users">;
   viewedUserInfo: Doc<"users">;
   isCurrentUserProfile: boolean;
+  colors: ColorsType;
   isLoading: boolean;
+  signOutHandler: () => void;
+};
+export type UserInfoProps = {
+  userInfo: Doc<"users">;
+  isCurrentUserProfile: boolean;
+  colors: ColorsType;
   signOutHandler: () => void;
 };
 export type ProfileTabs = "posts" | "reposts" | "tagged";

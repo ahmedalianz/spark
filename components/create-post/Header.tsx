@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { CreatePostHeaderProps } from "@/types";
 import { Stack } from "expo-router";
 import React from "react";
@@ -11,6 +10,7 @@ const Header = ({
   uploadProgress,
   postContent,
   mediaFiles,
+  colors,
 }: CreatePostHeaderProps) => {
   return (
     <>
@@ -21,16 +21,25 @@ const Header = ({
               onPress={handleCancel}
               style={styles.headerButton}
             >
-              <Text style={styles.headerButtonText}>Cancel</Text>
+              <Text
+                style={[
+                  styles.headerButtonText,
+                  { color: colors.textTertiary },
+                ]}
+              >
+                Cancel
+              </Text>
             </TouchableOpacity>
           ),
           headerRight: () => (
             <TouchableOpacity
               style={[
                 styles.submitButton,
+                { backgroundColor: colors.primary },
                 !postContent.trim() &&
-                  mediaFiles.length === 0 &&
-                  styles.submitButtonDisabled,
+                  mediaFiles.length === 0 && {
+                    backgroundColor: colors.textDisabled,
+                  },
               ]}
               onPress={handleSubmit}
               disabled={
@@ -40,9 +49,11 @@ const Header = ({
               <Text
                 style={[
                   styles.submitButtonText,
+                  { color: colors.white },
                   !postContent.trim() &&
-                    mediaFiles.length === 0 &&
-                    styles.submitButtonTextDisabled,
+                    mediaFiles.length === 0 && {
+                      color: colors.textMuted,
+                    },
                 ]}
               >
                 {isUploading ? "Posting..." : "Post"}
@@ -51,21 +62,37 @@ const Header = ({
           ),
           headerTitle: "",
           headerStyle: {
-            backgroundColor: Colors.background,
+            backgroundColor: colors.background,
           },
         }}
       />
 
       {isUploading && (
-        <View style={styles.uploadingHeader}>
-          <Text style={styles.uploadingText}>
+        <View
+          style={[
+            styles.uploadingHeader,
+            {
+              backgroundColor: colors.tintBlueLight,
+              borderBottomColor: colors.tintBlue,
+            },
+          ]}
+        >
+          <Text style={[styles.uploadingText, { color: colors.primary }]}>
             Uploading... {uploadProgress.toFixed(0)}%
           </Text>
-          <View style={styles.globalProgressTrack}>
+          <View
+            style={[
+              styles.globalProgressTrack,
+              { backgroundColor: colors.borderLight },
+            ]}
+          >
             <View
               style={[
                 styles.globalProgressBar,
-                { width: `${uploadProgress}%` },
+                {
+                  width: `${uploadProgress}%`,
+                  backgroundColor: colors.primary,
+                },
               ]}
             />
           </View>
@@ -83,54 +110,38 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   headerButtonText: {
-    color: Colors.textTertiary,
     fontSize: 16,
     fontWeight: "600",
   },
   submitButton: {
-    backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 20,
-    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
-  submitButtonDisabled: {
-    backgroundColor: Colors.textDisabled,
-    shadowOpacity: 0,
-  },
   submitButtonText: {
-    color: Colors.white,
     fontWeight: "700",
     fontSize: 16,
   },
-  submitButtonTextDisabled: {
-    color: Colors.textMuted,
-  },
   uploadingHeader: {
-    backgroundColor: Colors.tintBlueLight,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.tintBlue,
   },
   uploadingText: {
-    color: Colors.primary,
     fontWeight: "600",
     fontSize: 14,
     marginBottom: 8,
   },
   globalProgressTrack: {
     height: 4,
-    backgroundColor: Colors.borderLight,
     borderRadius: 2,
   },
   globalProgressBar: {
     height: "100%",
-    backgroundColor: Colors.primary,
     borderRadius: 2,
   },
 });

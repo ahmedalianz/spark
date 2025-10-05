@@ -1,11 +1,16 @@
-import { Colors } from "@/constants/Colors";
-import { ProfileEmptyConfig, ProfileTabs } from "@/types";
+import { ColorsType, ProfileEmptyConfig, ProfileTabs } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const ProfileEmpty = ({ activeTab }: { activeTab: ProfileTabs }) => {
+const ProfileEmpty = ({
+  activeTab,
+  colors,
+}: {
+  activeTab: ProfileTabs;
+  colors: ColorsType;
+}) => {
   const router = useRouter();
   const emptyConfig: ProfileEmptyConfig = {
     posts: {
@@ -35,16 +40,27 @@ const ProfileEmpty = ({ activeTab }: { activeTab: ProfileTabs }) => {
 
   return (
     <View style={styles.emptyState}>
-      <View style={styles.emptyIconContainer}>
-        <Ionicons name={config.icon} size={52} color={Colors.borderDisabled} />
+      <View
+        style={[
+          styles.emptyIconContainer,
+          { backgroundColor: colors.backgroundLight },
+        ]}
+      >
+        <Ionicons name={config.icon} size={52} color={colors.borderDisabled} />
       </View>
-      <Text style={styles.emptyStateText}>{config.title}</Text>
-      <Text style={styles.emptyStateSubtext}>{config.subtitle}</Text>
+      <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
+        {config.title}
+      </Text>
+      <Text style={[styles.emptyStateSubtext, { color: colors.textMuted }]}>
+        {config.subtitle}
+      </Text>
       <TouchableOpacity
-        style={styles.emptyActionButton}
+        style={[styles.emptyActionButton, { backgroundColor: colors.primary }]}
         onPress={config.action}
       >
-        <Text style={styles.emptyActionText}>{config.actionTitle}</Text>
+        <Text style={[styles.emptyActionText, { color: colors.white }]}>
+          {config.actionTitle}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -62,7 +78,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.backgroundLight,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
@@ -70,13 +85,11 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 20,
     fontWeight: "600",
-    color: Colors.textSecondary,
     marginTop: 8,
     fontFamily: "DMSans_600SemiBold",
   },
   emptyStateSubtext: {
     fontSize: 14,
-    color: Colors.textMuted,
     textAlign: "center",
     marginTop: 8,
     marginBottom: 20,
@@ -84,13 +97,11 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   emptyActionButton: {
-    backgroundColor: Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 25,
   },
   emptyActionText: {
-    color: Colors.white,
     fontSize: 14,
     fontWeight: "600",
     fontFamily: "DMSans_600SemiBold",

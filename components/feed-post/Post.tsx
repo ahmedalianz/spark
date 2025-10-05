@@ -1,7 +1,6 @@
-import { Colors } from "@/constants/Colors";
 import { useFeedPost } from "@/controllers/useFeedPost";
 import { useUserInfo } from "@/hooks/useUserInfo";
-import { PostWithAuthorDetails } from "@/types";
+import { ColorsType, PostWithAuthorDetails } from "@/types";
 import React, { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import PostActions from "./PostActions";
@@ -12,9 +11,10 @@ import PostMenuModal from "./PostMenuModal";
 
 interface PostProps {
   post: PostWithAuthorDetails;
+  colors: ColorsType;
 }
 
-const Post: React.FC<PostProps> = ({ post }) => {
+const Post: React.FC<PostProps> = ({ post, colors }) => {
   const { content, mediaFiles, commentCount, author } = post;
   const { userInfo } = useUserInfo();
   const {
@@ -32,15 +32,22 @@ const Post: React.FC<PostProps> = ({ post }) => {
   const isOwnPost = userInfo?._id === author._id;
 
   return (
-    <View style={styles.container}>
-      <PostHeader post={post} onMenuPress={() => setMenuVisible(true)} />
+    <View style={[styles.container, { backgroundColor: colors.white }]}>
+      <PostHeader
+        post={post}
+        onMenuPress={() => setMenuVisible(true)}
+        colors={colors}
+      />
 
       <View style={styles.content}>
-        <Text style={styles.contentText}>{content}</Text>
+        <Text style={[styles.contentText, { color: colors.black }]}>
+          {content}
+        </Text>
         <PostMedia
           mediaFiles={mediaFiles}
           likeCount={localLikeCount}
           commentCount={commentCount}
+          colors={colors}
         />
       </View>
 
@@ -48,6 +55,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
         likeCount={localLikeCount}
         commentCount={commentCount}
         onCommentsPress={handleOpenComments}
+        colors={colors}
       />
 
       <PostActions
@@ -58,6 +66,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
         onLike={handleLike}
         onComments={handleOpenComments}
         onShare={handleShare}
+        colors={colors}
       />
 
       <PostMenuModal
@@ -72,9 +81,9 @@ const Post: React.FC<PostProps> = ({ post }) => {
 };
 
 export default memo(Post);
+
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.white,
     paddingVertical: 16,
     borderRadius: 16,
     paddingHorizontal: 20,
@@ -85,7 +94,6 @@ const styles = StyleSheet.create({
   contentText: {
     fontSize: 16,
     lineHeight: 22,
-    color: Colors.black,
     marginBottom: 12,
     fontFamily: "DMSans_400Regular",
   },

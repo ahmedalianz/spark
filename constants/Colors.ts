@@ -66,17 +66,6 @@ export const Colors = {
   splashColor1: "#3a94d8ff",
   splashColor2: "#b8c6edff",
   splashColor3: "#042561ff",
-
-  // Platform Specific
-  ...Platform.select({
-    ios: {
-      submit: PlatformColor("systemBlueColor"),
-    },
-    android: {
-      submit: PlatformColor("@android:color/system_primary_light"),
-    },
-    default: { submit: "black" },
-  }),
 };
 export const DarkColors = {
   // Primary Colors (same as light theme for consistency)

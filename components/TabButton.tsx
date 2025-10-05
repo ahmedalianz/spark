@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -9,29 +8,45 @@ const TabButton = ({
   tab,
   label,
   icon,
+  colors,
 }: {
   activeTab: any;
   setActiveTab: any;
   tab: any;
   label: any;
   icon: any;
+  colors: any;
 }) => {
   return (
     <TouchableOpacity
-      style={[styles.tabButton, activeTab === tab && styles.tabButtonActive]}
+      style={[
+        styles.tabButton,
+        activeTab === tab && { backgroundColor: colors.tintBlueLight },
+      ]}
       onPress={() => setActiveTab(tab as any)}
     >
       <Ionicons
         name={icon}
         size={20}
-        color={activeTab === tab ? Colors.primary : Colors.textTertiary}
+        color={activeTab === tab ? colors.primary : colors.textTertiary}
       />
       <Text
-        style={[styles.tabLabel, activeTab === tab && styles.tabLabelActive]}
+        style={[
+          styles.tabLabel,
+          { color: colors.textTertiary },
+          activeTab === tab && {
+            color: colors.primary,
+            fontWeight: "600",
+          },
+        ]}
       >
         {label}
       </Text>
-      {activeTab === tab && <View style={styles.tabIndicator} />}
+      {activeTab === tab && (
+        <View
+          style={[styles.tabIndicator, { backgroundColor: colors.primary }]}
+        />
+      )}
     </TouchableOpacity>
   );
 };
@@ -45,19 +60,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     position: "relative",
   },
-  tabButtonActive: {
-    backgroundColor: Colors.tintBlueLight,
-  },
   tabLabel: {
     fontSize: 14,
-    color: Colors.textTertiary,
     fontWeight: "500",
     marginTop: 4,
     fontFamily: "DMSans_500Medium",
-  },
-  tabLabelActive: {
-    color: Colors.primary,
-    fontWeight: "600",
   },
   tabIndicator: {
     position: "absolute",
@@ -65,7 +72,6 @@ const styles = StyleSheet.create({
     left: "25%",
     right: "25%",
     height: 3,
-    backgroundColor: Colors.primary,
     borderRadius: 2,
   },
 });

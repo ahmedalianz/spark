@@ -1,19 +1,34 @@
-import { Colors } from "@/constants/Colors";
 import { FollowTabProps, FollowTabType } from "@/types";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
-const Tab = ({ activeTab, setActiveTab, follows, title }: FollowTabProps) => {
+const Tab = ({
+  activeTab,
+  setActiveTab,
+  follows,
+  title,
+  colors,
+}: FollowTabProps) => {
   const lowerCaseTitle = title.toLowerCase();
   return (
     <TouchableOpacity
-      style={[styles.tab, activeTab === lowerCaseTitle && styles.activeTab]}
+      style={[
+        styles.tab,
+        activeTab === lowerCaseTitle && {
+          borderBottomWidth: 3,
+          borderBottomColor: colors.primary,
+        },
+      ]}
       onPress={() => setActiveTab(lowerCaseTitle as FollowTabType)}
     >
       <Text
         style={[
           styles.tabText,
-          activeTab === lowerCaseTitle && styles.activeTabText,
+          { color: colors.textTertiary },
+          activeTab === lowerCaseTitle && {
+            color: colors.primary,
+            fontWeight: "700",
+          },
         ]}
       >
         {title} {follows && `(${follows.length})`}
@@ -30,17 +45,8 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: "center",
   },
-  activeTab: {
-    borderBottomWidth: 3,
-    borderBottomColor: Colors.primary,
-  },
   tabText: {
     fontSize: 15,
-    color: Colors.textTertiary,
     fontWeight: "500",
-  },
-  activeTabText: {
-    color: Colors.primary,
-    fontWeight: "700",
   },
 });

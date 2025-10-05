@@ -1,17 +1,34 @@
-import { Colors } from "@/constants/Colors";
 import { EmptyFollowListProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-const EmptyList = ({ searchQuery, activeTab }: EmptyFollowListProps) => {
+const EmptyList = ({
+  searchQuery,
+  activeTab,
+  colors,
+}: EmptyFollowListProps) => {
   return (
     <View style={styles.emptyState}>
-      <Ionicons name="people-outline" size={64} color={Colors.textTertiary} />
-      <Text style={styles.emptyStateText}>
+      <Ionicons name="people-outline" size={64} color={colors.textTertiary} />
+      <Text
+        style={[
+          styles.emptyStateText,
+          {
+            color: colors.textPrimary,
+          },
+        ]}
+      >
         {searchQuery ? "No users found" : `No ${activeTab} yet`}
       </Text>
-      <Text style={styles.emptyStateSubtext}>
+      <Text
+        style={[
+          styles.emptyStateSubtext,
+          {
+            color: colors.textTertiary,
+          },
+        ]}
+      >
         {!searchQuery && activeTab === "followers"
           ? "When someone follows you, they'll appear here."
           : !searchQuery && activeTab === "following"
@@ -34,13 +51,11 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 18,
     fontWeight: "600",
-    color: Colors.textPrimary,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyStateSubtext: {
     fontSize: 14,
-    color: Colors.textTertiary,
     textAlign: "center",
     lineHeight: 20,
   },

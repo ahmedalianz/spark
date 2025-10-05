@@ -1,5 +1,4 @@
 import { Post } from "@/components/feed-post";
-import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import useAppTheme from "@/hooks/useAppTheme";
@@ -39,7 +38,7 @@ import CreatePost from "./CreatePost";
 type FeedFilter = "all" | "following";
 
 const Feed = () => {
-  const { colors, theme } = useAppTheme();
+  const { colors, barStyleColors } = useAppTheme();
   const [currentFilter, setCurrentFilter] = useState<FeedFilter>("all");
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -212,7 +211,7 @@ const Feed = () => {
   const renderPost = ({ item }: { item: Doc<"posts"> }) => (
     <Animated.View
       entering={Platform.OS === "ios" ? undefined : undefined}
-      style={styles.postContainer}
+      style={[styles.postContainer, { backgroundColor: colors.white }]}
     >
       <Link href={`/(auth)/(modals)/post/${item._id}`} asChild>
         <TouchableOpacity activeOpacity={0.95}>
@@ -223,6 +222,7 @@ const Feed = () => {
                 userHasLiked: boolean;
               }
             }
+            colors={colors}
           />
         </TouchableOpacity>
       </Link>
@@ -241,12 +241,20 @@ const Feed = () => {
         <Text
           style={[
             styles.filterTabText,
-            currentFilter === "all" && styles.activeFilterTabText,
+            { color: colors.textMuted },
+            currentFilter === "all" && { color: colors.textSecondary },
           ]}
         >
           For You
         </Text>
-        {currentFilter === "all" && <View style={styles.filterTabIndicator} />}
+        {currentFilter === "all" && (
+          <View
+            style={[
+              styles.filterTabIndicator,
+              { backgroundColor: colors.primary },
+            ]}
+          />
+        )}
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -259,20 +267,28 @@ const Feed = () => {
         <Text
           style={[
             styles.filterTabText,
-            currentFilter === "following" && styles.activeFilterTabText,
+            { color: colors.textMuted },
+            currentFilter === "following" && { color: colors.textSecondary },
           ]}
         >
           Following
         </Text>
         {currentFilter === "following" && (
-          <View style={styles.filterTabIndicator} />
+          <View
+            style={[
+              styles.filterTabIndicator,
+              { backgroundColor: colors.primary },
+            ]}
+          />
         )}
       </TouchableOpacity>
     </View>
   );
 
   const renderHeader = () => (
-    <Animated.View style={[styles.headerContainer, headerAnimatedStyle]}>
+    <Animated.View
+      style={[headerAnimatedStyle, { backgroundColor: colors.white }]}
+    >
       {/* Logo and Actions */}
       <View style={styles.topBar}>
         <Animated.View style={pullRefreshStyle}>
@@ -286,27 +302,38 @@ const Feed = () => {
           <TouchableOpacity
             style={[
               styles.headerButton,
-              showSearch && styles.headerButtonActive,
+              { backgroundColor: colors.backgroundLight },
+              showSearch && { backgroundColor: colors.tintBlueLight },
             ]}
             onPress={toggleSearch}
           >
             <Ionicons
               name={showSearch ? "close" : "search-outline"}
               size={24}
-              color={showSearch ? Colors.primary : Colors.textSecondary}
+              color={showSearch ? colors.primary : colors.textSecondary}
             />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.headerButton}
+            style={[
+              styles.headerButton,
+              { backgroundColor: colors.backgroundLight },
+            ]}
             onPress={() => router.push("/(auth)/(tabs)/notifications")}
           >
             <Ionicons
               name="notifications-outline"
               size={24}
-              color={Colors.textSecondary}
+              color={colors.textSecondary}
             />
-            {unreadCount > 0 && <View style={styles.notificationBadge} />}
+            {unreadCount > 0 && (
+              <View
+                style={[
+                  styles.notificationBadge,
+                  { backgroundColor: colors.accentLike },
+                ]}
+              />
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -318,13 +345,18 @@ const Feed = () => {
           exiting={FadeOutUp.duration(200)}
           style={styles.searchContainer}
         >
-          <View style={styles.searchInputContainer}>
-            <Ionicons name="search" size={20} color={Colors.textMuted} />
+          <View
+            style={[
+              styles.searchInputContainer,
+              { backgroundColor: colors.backgroundLight },
+            ]}
+          >
+            <Ionicons name="search" size={20} color={colors.textMuted} />
             <TextInput
               ref={searchInputRef}
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.textSecondary }]}
               placeholder="Search posts, users, topics..."
-              placeholderTextColor={Colors.textMuted}
+              placeholderTextColor={colors.textMuted}
               value={searchQuery}
               onChangeText={handleSearch}
               returnKeyType="search"
@@ -334,13 +366,13 @@ const Feed = () => {
             {(searchQuery.length > 0 || isSearching) && (
               <View style={styles.searchActions}>
                 {isSearching ? (
-                  <ActivityIndicator size="small" color={Colors.primary} />
+                  <ActivityIndicator size="small" color={colors.primary} />
                 ) : (
                   <TouchableOpacity onPress={() => handleSearch("")}>
                     <Ionicons
                       name="close-circle"
                       size={20}
-                      color={Colors.textMuted}
+                      color={colors.textMuted}
                     />
                   </TouchableOpacity>
                 )}
@@ -350,7 +382,9 @@ const Feed = () => {
 
           {searchQuery.length > 0 && (
             <View style={styles.searchStats}>
-              <Text style={styles.searchStatsText}>
+              <Text
+                style={[styles.searchStatsText, { color: colors.textMuted }]}
+              >
                 {searchResults.length} results for "{searchQuery}"
               </Text>
             </View>
@@ -371,8 +405,8 @@ const Feed = () => {
 
     return (
       <View style={styles.footerLoader}>
-        <ActivityIndicator size="small" color={Colors.primary} />
-        <Text style={styles.loadingText}>
+        <ActivityIndicator size="small" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textMuted }]}>
           {searchQuery.length > 0 ? "Searching..." : "Loading more posts..."}
         </Text>
       </View>
@@ -386,16 +420,29 @@ const Feed = () => {
     if (searchQuery.length > 0) {
       return (
         <View style={styles.emptyState}>
-          <Ionicons name="search-outline" size={64} color={Colors.textMuted} />
-          <Text style={styles.emptyStateTitle}>No results found</Text>
-          <Text style={styles.emptyStateSubtitle}>
+          <Ionicons name="search-outline" size={64} color={colors.textMuted} />
+          <Text
+            style={[styles.emptyStateTitle, { color: colors.textSecondary }]}
+          >
+            No results found
+          </Text>
+          <Text
+            style={[styles.emptyStateSubtitle, { color: colors.textMuted }]}
+          >
             Try searching for different keywords or check your spelling
           </Text>
           <TouchableOpacity
-            style={styles.emptyStateButton}
+            style={[
+              styles.emptyStateButton,
+              { backgroundColor: colors.primary },
+            ]}
             onPress={() => handleSearch("")}
           >
-            <Text style={styles.emptyStateButtonText}>Clear Search</Text>
+            <Text
+              style={[styles.emptyStateButtonText, { color: colors.white }]}
+            >
+              Clear Search
+            </Text>
           </TouchableOpacity>
         </View>
       );
@@ -406,23 +453,25 @@ const Feed = () => {
         <Ionicons
           name="chatbubbles-outline"
           size={64}
-          color={Colors.textMuted}
+          color={colors.textMuted}
         />
-        <Text style={styles.emptyStateTitle}>
+        <Text style={[styles.emptyStateTitle, { color: colors.textSecondary }]}>
           {currentFilter === "following"
             ? "No posts from following"
             : "No posts yet"}
         </Text>
-        <Text style={styles.emptyStateSubtitle}>
+        <Text style={[styles.emptyStateSubtitle, { color: colors.textMuted }]}>
           {currentFilter === "following"
             ? "Follow some users to see their posts here"
             : "Be the first to start a conversation!"}
         </Text>
         <TouchableOpacity
-          style={styles.emptyStateButton}
+          style={[styles.emptyStateButton, { backgroundColor: colors.primary }]}
           onPress={() => router.push("/(auth)/(modals)/create-post")}
         >
-          <Text style={styles.emptyStateButtonText}>Create Post</Text>
+          <Text style={[styles.emptyStateButtonText, { color: colors.white }]}>
+            Create Post
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -431,11 +480,11 @@ const Feed = () => {
   return (
     <>
       <StatusBar
-        barStyle={theme === "light" ? "dark-content" : "light-content"}
+        barStyle={barStyleColors}
         backgroundColor={colors.background}
         translucent={false}
       />
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Animated.FlatList
           showsVerticalScrollIndicator={false}
           onScroll={scrollHandler}
@@ -457,18 +506,23 @@ const Feed = () => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={Colors.primary}
-              colors={[Colors.primary]}
-              progressBackgroundColor={Colors.white}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+              progressBackgroundColor={colors.white}
             />
           }
         />
 
         {/* Loading State */}
         {displayStatus === "LoadingFirstPage" && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-            <Text style={styles.loadingText}>
+          <View
+            style={[
+              styles.loadingOverlay,
+              { backgroundColor: colors.background },
+            ]}
+          >
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={[styles.loadingText, { color: colors.textMuted }]}>
               {searchQuery.length > 0 ? "Searching..." : "Loading your feed..."}
             </Text>
           </View>
@@ -481,10 +535,6 @@ const Feed = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
-  },
-  headerContainer: {
-    backgroundColor: Colors.white,
   },
   topBar: {
     flexDirection: "row",
@@ -506,13 +556,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.backgroundLight,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-  },
-  headerButtonActive: {
-    backgroundColor: Colors.tintBlueLight,
   },
   notificationBadge: {
     position: "absolute",
@@ -521,7 +567,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.accentLike,
   },
   searchContainer: {
     paddingHorizontal: 20,
@@ -530,7 +575,6 @@ const styles = StyleSheet.create({
   searchInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.backgroundLight,
     borderRadius: 25,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -539,7 +583,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: Colors.textSecondary,
   },
   searchActions: {
     width: 20,
@@ -553,7 +596,6 @@ const styles = StyleSheet.create({
   },
   searchStatsText: {
     fontSize: 12,
-    color: Colors.textMuted,
     fontWeight: "500",
   },
 
@@ -575,10 +617,6 @@ const styles = StyleSheet.create({
   filterTabText: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textMuted,
-  },
-  activeFilterTabText: {
-    color: Colors.textSecondary,
   },
   filterTabIndicator: {
     position: "absolute",
@@ -586,7 +624,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 2,
-    backgroundColor: Colors.primary,
     borderRadius: 1,
   },
 
@@ -594,7 +631,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   postContainer: {
-    backgroundColor: Colors.white,
     marginHorizontal: 16,
     marginBottom: 2,
     borderRadius: 12,
@@ -612,7 +648,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: Colors.textMuted,
     fontWeight: "500",
   },
   loadingOverlay: {
@@ -621,7 +656,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: Colors.background,
     justifyContent: "center",
     alignItems: "center",
     gap: 16,
@@ -634,26 +668,22 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: Colors.textSecondary,
     marginTop: 16,
     marginBottom: 8,
     textAlign: "center",
   },
   emptyStateSubtitle: {
     fontSize: 16,
-    color: Colors.textMuted,
     textAlign: "center",
     lineHeight: 24,
     marginBottom: 24,
   },
   emptyStateButton: {
-    backgroundColor: Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 25,
   },
   emptyStateButtonText: {
-    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },

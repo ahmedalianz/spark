@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { CreatePostActionsProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -9,12 +8,21 @@ const CreatePostActions = ({
   selectMedia,
   resetForm,
   MAX_MEDIA_FILES,
+  colors,
 }: CreatePostActionsProps) => {
   return (
-    <View style={styles.iconRow}>
+    <View
+      style={[
+        styles.iconRow,
+        {
+          borderTopColor: colors.borderLighter,
+        },
+      ]}
+    >
       <TouchableOpacity
         style={[
           styles.iconButton,
+          { backgroundColor: colors.tintBlueLight },
           mediaFiles.length >= MAX_MEDIA_FILES && styles.iconButtonDisabled,
         ]}
         onPress={() => selectMedia("library")}
@@ -25,8 +33,8 @@ const CreatePostActions = ({
           size={22}
           color={
             mediaFiles.length >= MAX_MEDIA_FILES
-              ? Colors.textDisabled
-              : Colors.primary
+              ? colors.textDisabled
+              : colors.primary
           }
         />
       </TouchableOpacity>
@@ -34,6 +42,7 @@ const CreatePostActions = ({
       <TouchableOpacity
         style={[
           styles.iconButton,
+          { backgroundColor: colors.tintBlueLight },
           mediaFiles.length >= MAX_MEDIA_FILES && styles.iconButtonDisabled,
         ]}
         onPress={() => selectMedia("camera")}
@@ -44,16 +53,24 @@ const CreatePostActions = ({
           size={22}
           color={
             mediaFiles.length >= MAX_MEDIA_FILES
-              ? Colors.textDisabled
-              : Colors.primary
+              ? colors.textDisabled
+              : colors.primary
           }
         />
       </TouchableOpacity>
 
       <View style={styles.spacer} />
 
-      <TouchableOpacity onPress={resetForm} style={styles.clearButton}>
-        <Ionicons name="refresh-outline" size={20} color={Colors.textMuted} />
+      <TouchableOpacity
+        onPress={resetForm}
+        style={[
+          styles.clearButton,
+          {
+            backgroundColor: colors.backgroundLight,
+          },
+        ]}
+      >
+        <Ionicons name="refresh-outline" size={20} color={colors.textMuted} />
       </TouchableOpacity>
     </View>
   );
@@ -67,13 +84,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLighter,
   },
   iconButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.tintBlueLight,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -88,7 +103,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.backgroundLight,
     justifyContent: "center",
     alignItems: "center",
   },

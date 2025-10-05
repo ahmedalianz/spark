@@ -9,7 +9,6 @@ import {
   View,
 } from "react-native";
 
-import { Colors } from "@/constants/Colors";
 import { ProfileHeaderProps } from "@/types";
 
 const ProfileHeader = ({
@@ -18,6 +17,7 @@ const ProfileHeader = ({
   userInfo,
   isCurrentUserProfile,
   viewedUserInfo,
+  colors,
   signOutHandler,
 }: ProfileHeaderProps) => {
   const headerOpacity = scrollY.interpolate({
@@ -37,9 +37,10 @@ const ProfileHeader = ({
         styles.animatedHeader,
         {
           opacity: headerOpacity,
+          borderBottomColor: colors.transparentWhite20,
           transform: [{ translateY: headerTranslateY }],
         },
-        Platform.OS === "android" && { backgroundColor: Colors.primary },
+        Platform.OS === "android" && { backgroundColor: colors.primary },
       ]}
     >
       {Platform.OS === "ios" && (
@@ -50,11 +51,19 @@ const ProfileHeader = ({
         />
       )}
       <View style={styles.headerContent}>
-        <TouchableOpacity style={styles.headerButton} onPress={router.back}>
+        <TouchableOpacity
+          style={[
+            styles.headerButton,
+            {
+              backgroundColor: colors.transparentWhite10,
+            },
+          ]}
+          onPress={router.back}
+        >
           <Ionicons
             name="chevron-back"
             size={22}
-            color={Platform.OS === "android" ? Colors.white : Colors.black}
+            color={Platform.OS === "android" ? colors.white : colors.black}
           />
         </TouchableOpacity>
 
@@ -63,7 +72,7 @@ const ProfileHeader = ({
             style={[
               styles.headerTitle,
               {
-                color: Platform.OS === "android" ? Colors.white : Colors.black,
+                color: Platform.OS === "android" ? colors.white : colors.black,
               },
             ]}
           >
@@ -81,7 +90,7 @@ const ProfileHeader = ({
             <Ionicons
               name="notifications-outline"
               size={20}
-              color={Platform.OS === "android" ? Colors.white : Colors.black}
+              color={Platform.OS === "android" ? colors.white : colors.black}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -91,7 +100,7 @@ const ProfileHeader = ({
             <Ionicons
               name="log-out-outline"
               size={20}
-              color={Platform.OS === "android" ? Colors.white : Colors.black}
+              color={Platform.OS === "android" ? colors.white : colors.black}
             />
           </TouchableOpacity>
         </View>
@@ -111,7 +120,6 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     paddingTop: Platform.OS === "ios" ? 44 : 30,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.transparentWhite20,
   },
   headerContent: {
     flexDirection: "row",
@@ -134,7 +142,6 @@ const styles = StyleSheet.create({
   headerButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: Colors.transparentWhite10,
   },
   headerActions: {
     flexDirection: "row",

@@ -1,6 +1,6 @@
-import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import useAppTheme from "@/hooks/useAppTheme";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, usePaginatedQuery } from "convex/react";
@@ -24,6 +24,7 @@ import Animated, {
   SlideOutLeft,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 const mockNotifications = [
   {
     _id: "notification_1" as Id<"notifications">,
@@ -117,12 +118,9 @@ const Notifications = () => {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const { colors } = useAppTheme();
 
-  const {
-    // results: notifications,
-    status,
-    loadMore,
-  } = usePaginatedQuery(
+  const { status, loadMore } = usePaginatedQuery(
     api.notifications.getNotifications,
     {},
     { initialNumItems: 20 }
@@ -199,29 +197,29 @@ const Notifications = () => {
     switch (type) {
       case "like":
         return (
-          <Ionicons name="heart" color={Colors.accentLike} {...iconProps} />
+          <Ionicons name="heart" color={colors.accentLike} {...iconProps} />
         );
       case "comment":
         return (
-          <Ionicons name="chatbubble" color={Colors.primary} {...iconProps} />
+          <Ionicons name="chatbubble" color={colors.primary} {...iconProps} />
         );
       case "reply":
         return (
-          <Ionicons name="arrow-undo" color={Colors.primary} {...iconProps} />
+          <Ionicons name="arrow-undo" color={colors.primary} {...iconProps} />
         );
       case "follow":
         return (
-          <Ionicons name="person-add" color={Colors.success} {...iconProps} />
+          <Ionicons name="person-add" color={colors.success} {...iconProps} />
         );
       case "mention":
-        return <Ionicons name="at" color={Colors.warning} {...iconProps} />;
+        return <Ionicons name="at" color={colors.warning} {...iconProps} />;
       case "post_share":
-        return <Ionicons name="share" color={Colors.info} {...iconProps} />;
+        return <Ionicons name="share" color={colors.info} {...iconProps} />;
       default:
         return (
           <Ionicons
             name="notifications"
-            color={Colors.textMuted}
+            color={colors.textMuted}
             {...iconProps}
           />
         );
@@ -243,7 +241,15 @@ const Notifications = () => {
       <TouchableOpacity
         style={[
           styles.notificationCard,
-          !item.isRead && styles.unreadNotification,
+          {
+            backgroundColor: colors.white,
+            shadowColor: colors.blackPure,
+          },
+          !item.isRead && {
+            backgroundColor: colors.tintBlueLight,
+            borderLeftWidth: 3,
+            borderLeftColor: colors.primary,
+          },
         ]}
         onPress={() => handleNotificationPress(item)}
         activeOpacity={0.7}
@@ -260,58 +266,104 @@ const Notifications = () => {
                 style={styles.avatar}
               />
             ) : (
-              <View style={styles.systemAvatar}>
+              <View
+                style={[
+                  styles.systemAvatar,
+                  { backgroundColor: colors.tintBlueLight },
+                ]}
+              >
                 <Ionicons
                   name="notifications"
                   size={20}
-                  color={Colors.primary}
+                  color={colors.primary}
                 />
               </View>
             )}
 
-            <View style={styles.notificationIcon}>
+            <View
+              style={[
+                styles.notificationIcon,
+                {
+                  backgroundColor: colors.white,
+                  shadowColor: colors.blackPure,
+                },
+              ]}
+            >
               {getNotificationIcon(item.type)}
             </View>
           </View>
         </View>
 
         <View style={styles.notificationContent}>
-          <Text style={styles.notificationMessage}>{item.message}</Text>
-          <Text style={styles.notificationTime}>
+          <Text
+            style={[
+              styles.notificationMessage,
+              { color: colors.textSecondary },
+            ]}
+          >
+            {item.message}
+          </Text>
+          <Text style={[styles.notificationTime, { color: colors.textMuted }]}>
             {formatTimeAgo(item._creationTime)}
           </Text>
         </View>
 
         <View style={styles.notificationActions}>
-          {!item.isRead && <View style={styles.unreadDot} />}
+          {!item.isRead && (
+            <View
+              style={[styles.unreadDot, { backgroundColor: colors.primary }]}
+            />
+          )}
         </View>
       </TouchableOpacity>
     </Animated.View>
   );
 
   const renderHeader = () => (
-    <View style={styles.header}>
+    <View
+      style={[
+        styles.header,
+        {
+          backgroundColor: colors.white,
+          borderBottomColor: colors.borderLighter,
+        },
+      ]}
+    >
       <View style={styles.headerTop}>
-        <Text style={styles.headerTitle}>Notifications</Text>
+        <Text style={[styles.headerTitle, { color: colors.textSecondary }]}>
+          Notifications
+        </Text>
         {unreadCount > 0 && (
           <TouchableOpacity
-            style={styles.markAllButton}
+            style={[
+              styles.markAllButton,
+              { backgroundColor: colors.tintBlueLight },
+            ]}
             onPress={handleMarkAllAsRead}
           >
-            <Text style={styles.markAllButtonText}>Mark all as read</Text>
+            <Text style={[styles.markAllButtonText, { color: colors.primary }]}>
+              Mark all as read
+            </Text>
           </TouchableOpacity>
         )}
       </View>
 
       <View style={styles.filterTabs}>
         <TouchableOpacity
-          style={[styles.filterTab, filter === "all" && styles.activeFilterTab]}
+          style={[
+            styles.filterTab,
+            filter === "all" && {
+              borderBottomWidth: 2,
+              borderBottomColor: colors.primary,
+            },
+          ]}
           onPress={() => setFilter("all")}
         >
           <Text
             style={[
               styles.filterTabText,
-              filter === "all" && styles.activeFilterTabText,
+              { color: colors.textMuted },
+              filter === "all" && { color: colors.textSecondary },
             ]}
           >
             All
@@ -321,19 +373,23 @@ const Notifications = () => {
         <TouchableOpacity
           style={[
             styles.filterTab,
-            filter === "unread" && styles.activeFilterTab,
+            filter === "unread" && {
+              borderBottomWidth: 2,
+              borderBottomColor: colors.primary,
+            },
           ]}
           onPress={() => setFilter("unread")}
         >
           <Text
             style={[
               styles.filterTabText,
-              filter === "unread" && styles.activeFilterTabText,
+              { color: colors.textMuted },
+              filter === "unread" && { color: colors.textSecondary },
             ]}
           >
             Unread
             {unreadCount > 0 && (
-              <Text style={styles.unreadBadge}> ({unreadCount})</Text>
+              <Text style={{ color: colors.primary }}> ({unreadCount})</Text>
             )}
           </Text>
         </TouchableOpacity>
@@ -343,19 +399,24 @@ const Notifications = () => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <View style={styles.emptyIconContainer}>
+      <View
+        style={[
+          styles.emptyIconContainer,
+          { backgroundColor: colors.backgroundLight },
+        ]}
+      >
         <Ionicons
           name="notifications-outline"
           size={64}
-          color={Colors.textMuted}
+          color={colors.textMuted}
         />
       </View>
-      <Text style={styles.emptyStateTitle}>
+      <Text style={[styles.emptyStateTitle, { color: colors.textSecondary }]}>
         {filter === "unread"
           ? "No unread notifications"
           : "No notifications yet"}
       </Text>
-      <Text style={styles.emptyStateSubtitle}>
+      <Text style={[styles.emptyStateSubtitle, { color: colors.textMuted }]}>
         {filter === "unread"
           ? "All caught up! Check back later for new notifications."
           : "We'll notify you when something happens with your posts and interactions."}
@@ -367,14 +428,21 @@ const Notifications = () => {
     if (status !== "LoadingMore") return null;
     return (
       <View style={styles.loadingFooter}>
-        <ActivityIndicator size="small" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading more notifications...</Text>
+        <ActivityIndicator size="small" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textMuted }]}>
+          Loading more notifications...
+        </Text>
       </View>
     );
   };
 
   return (
-    <View style={[styles.container, { paddingTop: top }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: top, backgroundColor: colors.background },
+      ]}
+    >
       <FlatList
         data={notifications}
         renderItem={renderNotification}
@@ -395,17 +463,24 @@ const Notifications = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.primary}
-            colors={[Colors.primary]}
-            progressBackgroundColor={Colors.white}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.white}
           />
         }
       />
 
       {status === "LoadingFirstPage" && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={Colors.primary} />
-          <Text style={styles.loadingText}>Loading notifications...</Text>
+        <View
+          style={[
+            styles.loadingOverlay,
+            { backgroundColor: colors.background },
+          ]}
+        >
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textMuted }]}>
+            Loading notifications...
+          </Text>
         </View>
       )}
     </View>
@@ -415,7 +490,6 @@ const Notifications = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   scrollContent: {
     paddingBottom: 20,
@@ -423,11 +497,9 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
-    backgroundColor: Colors.white,
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLighter,
     marginBottom: 8,
   },
   headerTop: {
@@ -439,17 +511,14 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: "bold",
-    color: Colors.textSecondary,
   },
   markAllButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: Colors.tintBlueLight,
   },
   markAllButtonText: {
     fontSize: 14,
-    color: Colors.primary,
     fontWeight: "600",
   },
 
@@ -463,42 +532,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     position: "relative",
   },
-  activeFilterTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: Colors.primary,
-  },
   filterTabText: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textMuted,
-  },
-  activeFilterTabText: {
-    color: Colors.textSecondary,
-  },
-  unreadBadge: {
-    color: Colors.primary,
-    fontSize: 14,
   },
 
   // Notification Cards
   notificationCard: {
     flexDirection: "row",
-    backgroundColor: Colors.white,
     marginHorizontal: 16,
     marginBottom: 8,
     borderRadius: 12,
     padding: 16,
     alignItems: "flex-start",
-    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
-  },
-  unreadNotification: {
-    backgroundColor: Colors.tintBlueLight,
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.primary,
   },
 
   // Avatar and Icon
@@ -517,7 +567,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.tintBlueLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -528,10 +577,8 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: Colors.white,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -546,12 +593,10 @@ const styles = StyleSheet.create({
   notificationMessage: {
     fontSize: 15,
     lineHeight: 20,
-    color: Colors.textSecondary,
     marginBottom: 4,
   },
   notificationTime: {
     fontSize: 12,
-    color: Colors.textMuted,
   },
 
   // Actions
@@ -564,7 +609,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.primary,
     marginBottom: 8,
   },
   actionButton: {
@@ -573,7 +617,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.backgroundLight,
   },
 
   // Empty State
@@ -587,7 +630,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.backgroundLight,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 20,
@@ -595,13 +637,11 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: Colors.textSecondary,
     marginBottom: 8,
     textAlign: "center",
   },
   emptyStateSubtitle: {
     fontSize: 16,
-    color: Colors.textMuted,
     textAlign: "center",
     lineHeight: 24,
   },
@@ -616,7 +656,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: Colors.textMuted,
   },
   loadingOverlay: {
     position: "absolute",
@@ -624,7 +663,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: Colors.background,
     justifyContent: "center",
     alignItems: "center",
     gap: 16,

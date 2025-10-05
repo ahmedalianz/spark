@@ -5,11 +5,27 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import NotificationTabIcon from "@/components/NotificationTabIcon";
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
+import { ColorsType } from "@/types";
 import * as Haptics from "expo-haptics";
 
-const CreateTabIcon = ({ color, size }: { color: string; size: number }) => (
-  <View style={styles.createIconContainer}>
+const CreateTabIcon = ({
+  color,
+  size,
+  colors,
+}: {
+  color: string;
+  size: number;
+  colors: ColorsType;
+}) => (
+  <View
+    style={[
+      styles.createIconContainer,
+      {
+        backgroundColor: colors.backgroundCard,
+      },
+    ]}
+  >
     <Ionicons name="add" size={size} color={color} />
   </View>
 );
@@ -17,13 +33,18 @@ const CreateTabIcon = ({ color, size }: { color: string; size: number }) => (
 const Layout = () => {
   const { signOut } = useAuth();
   const router = useRouter();
+  const { colors } = useAppTheme();
   // usePush();
 
   return (
     <Tabs
       screenOptions={{
         tabBarShowLabel: false,
-        tabBarActiveTintColor: Colors.primary,
+        tabBarActiveTintColor: colors.primary,
+        tabBarStyle: {
+          backgroundColor: colors.background,
+          borderTopColor: colors.borderLight,
+        },
       }}
     >
       <Tabs.Screen
@@ -61,7 +82,7 @@ const Layout = () => {
         name="create"
         options={{
           tabBarIcon: ({ color, size }) => (
-            <CreateTabIcon color={color} size={size} />
+            <CreateTabIcon color={color} size={size} colors={colors} />
           ),
         }}
         listeners={{
@@ -106,7 +127,6 @@ const styles = StyleSheet.create({
     color: "blue",
   },
   createIconContainer: {
-    backgroundColor: Colors.backgroundCard,
     borderRadius: 8,
     padding: 2,
   },

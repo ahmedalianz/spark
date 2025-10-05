@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -18,20 +18,35 @@ const ProfileFooter = ({
   status: any;
   handleLoadMore: any;
 }) => {
+  const { colors } = useAppTheme();
+
   if (status === "LoadingMore") {
     return (
       <View style={styles.loadingFooter}>
-        <ActivityIndicator color={Colors.primary} size="small" />
-        <Text style={styles.loadingText}>Loading more...</Text>
+        <ActivityIndicator color={colors.primary} size="small" />
+        <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
+          Loading more...
+        </Text>
       </View>
     );
   }
 
   if (status === "CanLoadMore") {
     return (
-      <TouchableOpacity style={styles.loadMoreButton} onPress={handleLoadMore}>
-        <Text style={styles.loadMoreText}>Load More</Text>
-        <Ionicons name="chevron-down" size={16} color={Colors.primary} />
+      <TouchableOpacity
+        style={[
+          styles.loadMoreButton,
+          {
+            backgroundColor: colors.tintBlueLight,
+            borderColor: colors.tintBlue,
+          },
+        ]}
+        onPress={handleLoadMore}
+      >
+        <Text style={[styles.loadMoreText, { color: colors.primary }]}>
+          Load More
+        </Text>
+        <Ionicons name="chevron-down" size={16} color={colors.primary} />
       </TouchableOpacity>
     );
   }
@@ -39,8 +54,10 @@ const ProfileFooter = ({
   if (posts && posts.length > 0 && status === "Exhausted") {
     return (
       <View style={styles.endMessage}>
-        <Ionicons name="checkmark-done" size={20} color={Colors.textMuted} />
-        <Text style={styles.endMessageText}>{"You've reached the end"}</Text>
+        <Ionicons name="checkmark-done" size={20} color={colors.textMuted} />
+        <Text style={[styles.endMessageText, { color: colors.textMuted }]}>
+          {"You've reached the end"}
+        </Text>
       </View>
     );
   }
@@ -60,7 +77,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
   loadMoreButton: {
@@ -70,15 +86,12 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginHorizontal: 20,
     marginVertical: 12,
-    backgroundColor: Colors.tintBlueLight,
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: Colors.tintBlue,
     gap: 8,
   },
   loadMoreText: {
     fontSize: 15,
-    color: Colors.primary,
     fontWeight: "600",
     fontFamily: "DMSans_600SemiBold",
   },
@@ -89,7 +102,6 @@ const styles = StyleSheet.create({
   },
   endMessageText: {
     fontSize: 14,
-    color: Colors.textMuted,
     fontFamily: "DMSans_400Regular",
   },
 });

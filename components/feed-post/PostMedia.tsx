@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import { PostMediaProps } from "@/types";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import React from "react";
@@ -13,26 +13,27 @@ import {
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-interface PostMediaProps {
-  mediaFiles?: string[];
-  likeCount: number;
-  commentCount: number;
-}
-
 const PostMedia: React.FC<PostMediaProps> = ({
   mediaFiles,
   likeCount,
   commentCount,
+  colors,
 }) => {
   if (!mediaFiles || mediaFiles.length === 0) return null;
   const imageCount = mediaFiles.length;
+
   if (imageCount === 1) {
     return (
       <Link
         href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=0&likeCount=${likeCount}&commentCount=${commentCount}`}
         asChild
       >
-        <TouchableOpacity style={styles.singleImageContainer}>
+        <TouchableOpacity
+          style={[
+            styles.singleImageContainer,
+            { backgroundColor: colors.borderLighter },
+          ]}
+        >
           <Image
             source={{ uri: mediaFiles[0] }}
             style={styles.singleImage}
@@ -42,6 +43,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
       </Link>
     );
   }
+
   // Two images - side by side
   if (imageCount === 2) {
     return (
@@ -52,7 +54,12 @@ const PostMedia: React.FC<PostMediaProps> = ({
             key={index}
             asChild
           >
-            <TouchableOpacity style={styles.halfImage}>
+            <TouchableOpacity
+              style={[
+                styles.halfImage,
+                { backgroundColor: colors.borderLighter },
+              ]}
+            >
               <Image
                 source={{ uri: imageUrl }}
                 style={styles.image}
@@ -64,6 +71,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
       </View>
     );
   }
+
   if (imageCount === 3) {
     return (
       <View style={styles.threeImagesContainer}>
@@ -71,7 +79,12 @@ const PostMedia: React.FC<PostMediaProps> = ({
           href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=0&likeCount=${likeCount}&commentCount=${commentCount}`}
           asChild
         >
-          <TouchableOpacity style={styles.largeImage}>
+          <TouchableOpacity
+            style={[
+              styles.largeImage,
+              { backgroundColor: colors.borderLighter },
+            ]}
+          >
             <Image
               source={{ uri: mediaFiles[0] }}
               style={styles.image}
@@ -86,7 +99,12 @@ const PostMedia: React.FC<PostMediaProps> = ({
               key={index}
               asChild
             >
-              <TouchableOpacity style={styles.smallImage}>
+              <TouchableOpacity
+                style={[
+                  styles.smallImage,
+                  { backgroundColor: colors.borderLighter },
+                ]}
+              >
                 <Image
                   source={{ uri: imageUrl }}
                   style={styles.image}
@@ -99,6 +117,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
       </View>
     );
   }
+
   // Four or more images - 2x2 grid with overlay on last image
   return (
     <View style={styles.gridContainer}>
@@ -112,7 +131,13 @@ const PostMedia: React.FC<PostMediaProps> = ({
             key={index}
             asChild
           >
-            <TouchableOpacity style={styles.gridImage} key={index}>
+            <TouchableOpacity
+              style={[
+                styles.gridImage,
+                { backgroundColor: colors.borderLighter },
+              ]}
+              key={index}
+            >
               <Image
                 source={{ uri: imageUrl }}
                 style={styles.image}
@@ -122,12 +147,14 @@ const PostMedia: React.FC<PostMediaProps> = ({
                 <View style={styles.overlayContainer}>
                   <LinearGradient
                     colors={[
-                      Colors.transparentBlack30,
-                      Colors.transparentBlack70,
+                      colors.transparentBlack30,
+                      colors.transparentBlack70,
                     ]}
                     style={styles.overlay}
                   >
-                    <Text style={styles.overlayText}>+{remainingCount}</Text>
+                    <Text style={[styles.overlayText, { color: colors.white }]}>
+                      +{remainingCount}
+                    </Text>
                   </LinearGradient>
                 </View>
               )}
@@ -138,12 +165,12 @@ const PostMedia: React.FC<PostMediaProps> = ({
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   singleImageContainer: {
     width: "100%",
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: Colors.borderLighter,
   },
   singleImage: {
     width: SCREEN_WIDTH * 0.8,
@@ -160,8 +187,9 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 12,
     overflow: "hidden",
-    backgroundColor: Colors.borderLighter,
   },
+
+  // Three Images
   threeImagesContainer: {
     flexDirection: "row",
     gap: 4,
@@ -171,7 +199,6 @@ const styles = StyleSheet.create({
     flex: 2,
     borderRadius: 12,
     overflow: "hidden",
-    backgroundColor: Colors.borderLighter,
   },
   rightColumn: {
     flex: 1,
@@ -181,7 +208,6 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 12,
     overflow: "hidden",
-    backgroundColor: Colors.borderLighter,
   },
 
   // Four or More Images (Grid)
@@ -196,13 +222,13 @@ const styles = StyleSheet.create({
     height: "49.5%",
     borderRadius: 12,
     overflow: "hidden",
-    backgroundColor: Colors.borderLighter,
     position: "relative",
   },
   image: {
     width: "100%",
     height: "100%",
   },
+
   // Overlay for +N
   overlayContainer: {
     position: "absolute",
@@ -217,10 +243,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   overlayText: {
-    color: Colors.white,
     fontSize: 32,
     fontWeight: "700",
     fontFamily: "DMSans_700Bold",
   },
 });
+
 export default PostMedia;

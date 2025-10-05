@@ -1,6 +1,6 @@
 import { EmptyList, Follower, Tab } from "@/components/FollowersFollowing";
-import { Colors } from "@/constants/Colors";
 import useFollowersFollowing from "@/controllers/useFollowersFollowing";
+import useAppTheme from "@/hooks/useAppTheme";
 import { FollowTabType, FollowWithDetails } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback } from "react";
@@ -24,7 +24,10 @@ const FollowersFollowing = (
     initialTab: "followers",
   }
 ) => {
+  const { colors } = useAppTheme();
   const {
+    followers,
+    following,
     activeTab,
     searchQuery,
     currentData,
@@ -37,9 +40,9 @@ const FollowersFollowing = (
   } = useFollowersFollowing({ initialTab });
   const renderUserItem = useCallback(
     ({ item }: { item: FollowWithDetails }) => {
-      return <Follower following={item} />;
+      return <Follower following={item} colors={colors} />;
     },
-    []
+    [colors]
   );
   const { top } = useSafeAreaInsets();
   if (
@@ -47,44 +50,92 @@ const FollowersFollowing = (
     followingsStatus === "LoadingFirstPage"
   ) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading connections...</Text>
+      <View
+        style={[
+          styles.loadingContainer,
+          {
+            backgroundColor: colors.background,
+          },
+        ]}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text
+          style={[
+            styles.loadingText,
+            {
+              color: colors.textTertiary,
+            },
+          ]}
+        >
+          Loading connections...
+        </Text>
       </View>
     );
   }
   return (
-    <View style={[styles.container, { paddingTop: top }]}>
-      <View style={styles.tabContainer}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: top,
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.tabContainer,
+          {
+            backgroundColor: colors.white,
+            borderBottomColor: colors.border,
+          },
+        ]}
+      >
         <Tab
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           follows={followers}
           title="Followers"
+          colors={colors}
         />
         <Tab
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          follows={followers}
+          follows={following}
           title="Following"
+          colors={colors}
         />
       </View>
 
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color={Colors.textTertiary} />
+      <View
+        style={[
+          styles.searchContainer,
+          {
+            backgroundColor: colors.white,
+            shadowColor: colors.blackPure,
+            borderColor: colors.borderLighter,
+          },
+        ]}
+      >
+        <Ionicons name="search" size={20} color={colors.textTertiary} />
         <TextInput
-          style={styles.searchInput}
+          style={[
+            styles.searchInput,
+            {
+              color: colors.textPrimary,
+            },
+          ]}
           placeholder={`Search ${activeTab}...`}
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholderTextColor={Colors.textTertiary}
+          placeholderTextColor={colors.textTertiary}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery("")}>
             <Ionicons
               name="close-circle"
               size={20}
-              color={Colors.textTertiary}
+              color={colors.textTertiary}
             />
           </TouchableOpacity>
         )}
@@ -103,7 +154,11 @@ const FollowersFollowing = (
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContentContainer}
         ListEmptyComponent={
-          <EmptyList searchQuery={searchQuery} activeTab={activeTab} />
+          <EmptyList
+            searchQuery={searchQuery}
+            activeTab={activeTab}
+            colors={colors}
+          />
         }
       />
     </View>
@@ -113,45 +168,35 @@ const FollowersFollowing = (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.background,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: Colors.textTertiary,
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: Colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
-
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.white,
     marginBottom: 8,
     paddingHorizontal: 12,
-    shadowColor: Colors.blackPure,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
     borderWidth: 1,
-    borderColor: Colors.borderLighter,
   },
   searchInput: {
     flex: 1,
     marginLeft: 8,
     fontSize: 16,
-    color: Colors.textPrimary,
   },
   listContentContainer: {
     paddingTop: 8,

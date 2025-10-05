@@ -1,45 +1,105 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { Colors } from "@/constants/Colors";
+import { ColorsType } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-const QuickActions = () => {
+const QuickActions = ({ colors }: { colors: ColorsType }) => {
   return (
     <View style={styles.quickActionsContainer}>
       <TouchableOpacity style={styles.quickActionButton}>
         <LinearGradient
-          colors={[Colors.primary, Colors.primaryDark]}
+          colors={[colors.primary, colors.primaryDark]}
           style={styles.quickActionGradient}
         >
-          <Ionicons name="add" size={20} color={Colors.white} />
+          <Ionicons name="add" size={20} color={colors.white} />
         </LinearGradient>
-        <Text style={styles.quickActionText}>Story</Text>
+        <Text
+          style={[
+            styles.quickActionText,
+            {
+              color: colors.textSecondary,
+            },
+          ]}
+        >
+          Story
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.quickActionButton}>
-        <View style={styles.quickActionSecondary}>
-          <Ionicons name="camera-outline" size={20} color={Colors.primary} />
+        <View
+          style={[
+            styles.quickActionSecondary,
+            {
+              backgroundColor: colors.tintBlueLight,
+              borderColor: colors.tintBlue,
+            },
+          ]}
+        >
+          <Ionicons name="camera-outline" size={20} color={colors.primary} />
         </View>
-        <Text style={styles.quickActionText}>Photo</Text>
+        <Text
+          style={[
+            styles.quickActionText,
+            {
+              color: colors.textSecondary,
+            },
+          ]}
+        >
+          Photo
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.quickActionButton}>
-        <View style={styles.quickActionSecondary}>
-          <Ionicons name="videocam-outline" size={20} color={Colors.primary} />
+        <View
+          style={[
+            styles.quickActionSecondary,
+            {
+              backgroundColor: colors.tintBlueLight,
+              borderColor: colors.tintBlue,
+            },
+          ]}
+        >
+          <Ionicons name="videocam-outline" size={20} color={colors.primary} />
         </View>
-        <Text style={styles.quickActionText}>Video</Text>
+        <Text
+          style={[
+            styles.quickActionText,
+            {
+              color: colors.textSecondary,
+            },
+          ]}
+        >
+          Video
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.quickActionButton}>
-        <View style={styles.quickActionSecondary}>
+        <View
+          style={[
+            styles.quickActionSecondary,
+            {
+              backgroundColor: colors.tintBlueLight,
+              borderColor: colors.tintBlue,
+            },
+          ]}
+        >
           <Ionicons
             name="musical-notes-outline"
             size={20}
-            color={Colors.primary}
+            color={colors.primary}
           />
         </View>
-        <Text style={styles.quickActionText}>Live</Text>
+        <Text
+          style={[
+            styles.quickActionText,
+            {
+              color: colors.textSecondary,
+            },
+          ]}
+        >
+          Live
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -70,15 +130,13 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Colors.tintBlueLight,
+
     borderWidth: 1,
-    borderColor: Colors.tintBlue,
     justifyContent: "center",
     alignItems: "center",
   },
   quickActionText: {
     fontSize: 12,
-    color: Colors.textSecondary,
     fontWeight: "500",
     fontFamily: "DMSans_500Medium",
   },

@@ -1,8 +1,6 @@
-import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
-import { Doc } from "@/convex/_generated/dataModel";
 import useFollowHandler from "@/hooks/useFollowHandler";
-import { MenuSection } from "@/types";
+import { MenuSection, UserInfoProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,16 +19,14 @@ import BottomSheetModal from "../BottomSheetModal";
 const UserInfo = ({
   isCurrentUserProfile,
   userInfo,
+  colors,
   signOutHandler,
-}: {
-  userInfo: Doc<"users">;
-  isCurrentUserProfile: boolean;
-  signOutHandler: () => void;
-}) => {
+}: UserInfoProps) => {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const [userMenuVisible, setUserMenuVisible] = useState(false);
+
   const handleMenuAction = (action: string) => {
     console.log("Menu action:", action);
     // Handle different actions here
@@ -50,6 +46,7 @@ const UserInfo = ({
       // ... handle other actions
     }
   };
+
   useEffect(() => {
     if (userInfo) {
       Animated.parallel([
@@ -66,11 +63,13 @@ const UserInfo = ({
       ]).start();
     }
   }, [userInfo]);
+
   const editProfileRoute: any = `/(auth)/(modals)/edit-profile?biostring=${
     userInfo?.bio ? encodeURIComponent(userInfo?.bio) : ""
   }&linkstring=${userInfo?.websiteUrl ? encodeURIComponent(userInfo?.websiteUrl) : ""}&userId=${
     userInfo?._id
   }&imageUrl=${userInfo?.imageUrl ? encodeURIComponent(userInfo?.imageUrl) : ""}`;
+
   const otherUserSections = [
     {
       id: "actions",
@@ -105,6 +104,7 @@ const UserInfo = ({
       ],
     },
   ];
+
   const currentUserSections = [
     {
       id: "account",
@@ -230,13 +230,14 @@ const UserInfo = ({
       ],
     },
   ];
-  const [userMenu, setUserMenu] = useState<MenuSection[]>(currentUserSections);
 
+  const [userMenu, setUserMenu] = useState<MenuSection[]>(currentUserSections);
   const onClose = () => setUserMenuVisible(false);
   const { handleFollowToggle, loading } = useFollowHandler();
   const followStatus = useQuery(api.follows.checkFollowStatus, {
     userId: userInfo?._id,
   });
+
   return (
     <Animated.View
       style={[
@@ -251,21 +252,23 @@ const UserInfo = ({
       <View style={styles.profileHeader}>
         <View style={styles.profileInfo}>
           <View style={styles.nameContainer}>
-            <Text style={styles.name}>
+            <Text style={[styles.name, { color: colors.black }]}>
               {userInfo?.first_name} {userInfo?.last_name}
             </Text>
           </View>
-          <Text style={styles.email}>{userInfo?.email}</Text>
+          <Text style={[styles.email, { color: colors.textTertiary }]}>
+            {userInfo?.email}
+          </Text>
         </View>
 
         <View style={styles.avatarContainer}>
           <LinearGradient
-            colors={[Colors.primary, Colors.primaryDark]}
+            colors={[colors.primary, colors.primaryDark]}
             style={styles.avatarGradient}
           >
             <Image
               source={{ uri: userInfo?.imageUrl as string }}
-              style={styles.avatar}
+              style={[styles.avatar, { backgroundColor: colors.borderLighter }]}
             />
           </LinearGradient>
         </View>
@@ -273,26 +276,30 @@ const UserInfo = ({
 
       {/* Bio Section */}
       <View style={styles.bioSection}>
-        <Text style={styles.bio}>
+        <Text style={[styles.bio, { color: colors.textSecondary }]}>
           {userInfo?.bio || "✨ No bio yet - the mystery adds to the charm"}
         </Text>
 
         {userInfo?.websiteUrl && (
           <TouchableOpacity style={styles.websiteContainer}>
-            <Ionicons name="link-outline" size={16} color={Colors.primary} />
-            <Text style={styles.websiteText}>{userInfo.websiteUrl}</Text>
+            <Ionicons name="link-outline" size={16} color={colors.primary} />
+            <Text style={[styles.websiteText, { color: colors.primary }]}>
+              {userInfo.websiteUrl}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
 
       {/* Action Buttons */}
-      <View style={styles.actionSection}>
+      <View
+        style={[styles.actionSection, { borderTopColor: colors.borderLighter }]}
+      >
         {isCurrentUserProfile ? (
           <View style={styles.buttonRow}>
             <Link href={editProfileRoute} asChild>
               <TouchableOpacity style={styles.primaryButton}>
                 <LinearGradient
-                  colors={[Colors.primary, Colors.primaryDark]}
+                  colors={[colors.primary, colors.primaryDark]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.buttonGradient}
@@ -300,15 +307,25 @@ const UserInfo = ({
                   <Ionicons
                     name="create-outline"
                     size={18}
-                    color={Colors.white}
+                    color={colors.white}
                   />
-                  <Text style={styles.primaryButtonText}>Edit Profile</Text>
+                  <Text
+                    style={[styles.primaryButtonText, { color: colors.white }]}
+                  >
+                    Edit Profile
+                  </Text>
                 </LinearGradient>
               </TouchableOpacity>
             </Link>
 
             <TouchableOpacity
-              style={styles.secondaryButton}
+              style={[
+                styles.secondaryButton,
+                {
+                  backgroundColor: colors.tintBlueLight,
+                  borderColor: colors.tintBlue,
+                },
+              ]}
               onPress={() => {
                 setUserMenu(currentUserSections);
                 setUserMenuVisible(true);
@@ -317,9 +334,13 @@ const UserInfo = ({
               <Ionicons
                 name="settings-outline"
                 size={18}
-                color={Colors.primary}
+                color={colors.primary}
               />
-              <Text style={styles.secondaryButtonText}>Settings</Text>
+              <Text
+                style={[styles.secondaryButtonText, { color: colors.primary }]}
+              >
+                Settings
+              </Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -330,7 +351,7 @@ const UserInfo = ({
               disabled={loading}
             >
               <LinearGradient
-                colors={[Colors.primary, Colors.primaryDark]}
+                colors={[colors.primary, colors.primaryDark]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.buttonGradient}
@@ -338,25 +359,45 @@ const UserInfo = ({
                 <Ionicons
                   name="person-add-outline"
                   size={18}
-                  color={Colors.white}
+                  color={colors.white}
                 />
-                <Text style={styles.primaryButtonText}>
+                <Text
+                  style={[styles.primaryButtonText, { color: colors.white }]}
+                >
                   {followStatus?.isFollowing ? "Unfollow" : "Follow"}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.secondaryButton}>
+            <TouchableOpacity
+              style={[
+                styles.secondaryButton,
+                {
+                  backgroundColor: colors.tintBlueLight,
+                  borderColor: colors.tintBlue,
+                },
+              ]}
+            >
               <Ionicons
                 name="chatbubble-outline"
                 size={18}
-                color={Colors.primary}
+                color={colors.primary}
               />
-              <Text style={styles.secondaryButtonText}>Message</Text>
+              <Text
+                style={[styles.secondaryButtonText, { color: colors.primary }]}
+              >
+                Message
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.iconOnlyButton}
+              style={[
+                styles.iconOnlyButton,
+                {
+                  backgroundColor: colors.tintBlueLight,
+                  borderColor: colors.tintBlue,
+                },
+              ]}
               onPress={() => {
                 setUserMenu(otherUserSections);
                 setUserMenuVisible(true);
@@ -365,7 +406,7 @@ const UserInfo = ({
               <Ionicons
                 name="ellipsis-horizontal"
                 size={20}
-                color={Colors.primary}
+                color={colors.primary}
               />
             </TouchableOpacity>
           </View>
@@ -386,7 +427,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 24,
   },
-
   profileHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -405,12 +445,10 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: "700",
-    color: Colors.black,
     fontFamily: "DMSans_700Bold",
   },
   email: {
     fontSize: 15,
-    color: Colors.textTertiary,
     marginBottom: 16,
     fontFamily: "DMSans_400Regular",
   },
@@ -425,16 +463,13 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.borderLighter,
   },
-
   bioSection: {
     marginBottom: 24,
   },
   bio: {
     fontSize: 16,
     lineHeight: 22,
-    color: Colors.textSecondary,
     marginBottom: 12,
     fontFamily: "DMSans_400Regular",
   },
@@ -445,12 +480,10 @@ const styles = StyleSheet.create({
   },
   websiteText: {
     fontSize: 15,
-    color: Colors.primary,
     fontFamily: "DMSans_500Medium",
   },
   actionSection: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.borderLighter,
     paddingTop: 20,
   },
   buttonRow: {
@@ -473,7 +506,6 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.white,
     fontFamily: "DMSans_500Medium",
   },
   secondaryButton: {
@@ -484,26 +516,22 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 10,
     borderRadius: 25,
-    backgroundColor: Colors.tintBlueLight,
     borderWidth: 1.5,
-    borderColor: Colors.tintBlue,
     gap: 4,
   },
   secondaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.primary,
     fontFamily: "DMSans_500Medium",
   },
   iconOnlyButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: Colors.tintBlueLight,
     borderWidth: 1.5,
-    borderColor: Colors.tintBlue,
     alignItems: "center",
     justifyContent: "center",
   },
 });
+
 export default UserInfo;

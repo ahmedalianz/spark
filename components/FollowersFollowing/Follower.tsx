@@ -1,15 +1,28 @@
-import { Colors } from "@/constants/Colors";
 import useFollowHandler from "@/hooks/useFollowHandler";
-import { FollowWithDetails } from "@/types";
+import { ColorsType, FollowWithDetails } from "@/types";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const Follower = ({ following }: { following: FollowWithDetails }) => {
+const Follower = ({
+  following,
+  colors,
+}: {
+  following: FollowWithDetails;
+  colors: ColorsType;
+}) => {
   const { handleFollowToggle, loading } = useFollowHandler();
   const isFollowing = following.isFollowing;
 
   return (
-    <View style={styles.userItem}>
+    <View
+      style={[
+        styles.userItem,
+        {
+          backgroundColor: colors.white,
+          borderBottomColor: colors.borderLighter,
+        },
+      ]}
+    >
       <Image
         source={{
           uri:
@@ -19,17 +32,36 @@ const Follower = ({ following }: { following: FollowWithDetails }) => {
         style={styles.avatar}
       />
       <View style={styles.userInfo}>
-        <Text style={styles.name}>
+        <Text
+          style={[
+            styles.name,
+            {
+              color: colors.textPrimary,
+            },
+          ]}
+        >
           {following?.user?.first_name || "Unknown User"}
         </Text>
-        <Text style={styles.username}>
+        <Text
+          style={[
+            styles.username,
+            {
+              color: colors.textTertiary,
+            },
+          ]}
+        >
           @{following?.user?.username || "user"}
         </Text>
       </View>
       <TouchableOpacity
         style={[
           styles.followButton,
-          isFollowing ? styles.followingButton : styles.notFollowingButton,
+          isFollowing
+            ? { backgroundColor: colors.background, borderColor: colors.border }
+            : {
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+              },
         ]}
         onPress={() => handleFollowToggle(following?.user)}
         disabled={loading}
@@ -38,8 +70,8 @@ const Follower = ({ following }: { following: FollowWithDetails }) => {
           style={[
             styles.followButtonText,
             isFollowing
-              ? styles.followingButtonText
-              : styles.notFollowingButtonText,
+              ? { color: colors.textPrimary }
+              : { color: colors.white },
           ]}
         >
           {isFollowing ? "Following" : "Follow"}
@@ -57,9 +89,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: Colors.white,
+
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLighter,
   },
   avatar: {
     width: 44,
@@ -73,12 +104,10 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: "600",
-    color: Colors.textPrimary,
     marginBottom: 0,
   },
   username: {
     fontSize: 13,
-    color: Colors.textTertiary,
   },
   followButton: {
     paddingHorizontal: 18,
@@ -88,22 +117,8 @@ const styles = StyleSheet.create({
     minWidth: 100,
     alignItems: "center",
   },
-  followingButton: {
-    backgroundColor: Colors.background,
-    borderColor: Colors.border,
-  },
-  notFollowingButton: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
   followButtonText: {
     fontSize: 14,
     fontWeight: "600",
-  },
-  followingButtonText: {
-    color: Colors.textPrimary,
-  },
-  notFollowingButtonText: {
-    color: Colors.white,
   },
 });

@@ -19,8 +19,8 @@ import {
   ProfileStats,
 } from "@/components/profile";
 import TabButton from "@/components/TabButton";
-import { Colors } from "@/constants/Colors";
 import useProfile from "@/controllers/useProfile";
+import useAppTheme from "@/hooks/useAppTheme";
 import { PostWithAuthorDetails } from "@/types";
 import { useCallback } from "react";
 
@@ -41,8 +41,10 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
     handleLoadMore,
   } = useProfile({ userId });
 
+  const { colors } = useAppTheme();
+
   const renderEmptyComponent = useCallback(() => {
-    return <ProfileEmpty activeTab={activeTab} />;
+    return <ProfileEmpty activeTab={activeTab} colors={colors} />;
   }, [activeTab]);
 
   const renderFooter = useCallback(() => {
@@ -52,26 +54,34 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
   const renderItem = useCallback(
     ({ item }: { item: PostWithAuthorDetails }) => (
       <Link href={`/(auth)/(modals)/post/${item._id}`} asChild>
-        <TouchableOpacity style={styles.postWrapper}>
-          <Post post={item} />
+        <TouchableOpacity
+          style={[
+            styles.postWrapper,
+            { backgroundColor: colors.white, shadowColor: colors.blackPure },
+          ]}
+        >
+          <Post post={item} colors={colors} />
         </TouchableOpacity>
       </Link>
     ),
-    []
+    [colors]
   );
 
   const TabButtonWrapper = useCallback(
     ({ tab, icon, label }: { tab: string; icon: string; label: string }) => (
-      <TabButton {...{ activeTab, setActiveTab, tab, label, icon }} />
+      <TabButton {...{ activeTab, setActiveTab, tab, label, icon, colors }} />
     ),
     [activeTab]
   );
+
   if (error) {
-    return <View style={styles.container}></View>;
+    router.replace("/(auth)/error");
   }
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: colors.backgroundLight }]}
+    >
       <ProfileHeader
         {...{
           scrollY,
@@ -80,6 +90,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
           signOutHandler,
           isCurrentUserProfile,
           viewedUserInfo,
+          colors,
         }}
       />
 
@@ -102,7 +113,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
         ListFooterComponent={renderFooter}
         ListHeaderComponent={
           <>
-            <ProfileFirstHeader {...{ router, signOutHandler }} />
+            <ProfileFirstHeader {...{ router, signOutHandler, colors }} />
 
             <ProfileStats
               isLoading={isLoading}
@@ -110,11 +121,20 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
               isCurrentUserProfile={isCurrentUserProfile}
               viewedUserInfo={viewedUserInfo}
               signOutHandler={signOutHandler}
+              colors={colors}
             />
 
             {/* Tabs */}
             {isCurrentUserProfile && (
-              <View style={styles.tabContainer}>
+              <View
+                style={[
+                  styles.tabContainer,
+                  {
+                    backgroundColor: colors.white,
+                    borderBottomColor: colors.borderLight,
+                  },
+                ]}
+              >
                 <TabButtonWrapper
                   tab="posts"
                   icon="grid-outline"
@@ -136,8 +156,12 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
             {/* Loading indicator for first page */}
             {status === "LoadingFirstPage" && (
               <View style={styles.firstPageLoading}>
-                <ActivityIndicator color={Colors.primary} size="large" />
-                <Text style={styles.loadingText}>Loading {activeTab}...</Text>
+                <ActivityIndicator color={colors.primary} size="large" />
+                <Text
+                  style={[styles.loadingText, { color: colors.textTertiary }]}
+                >
+                  Loading {activeTab}...
+                </Text>
               </View>
             )}
           </>
@@ -149,28 +173,22 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.backgroundLight,
     flex: 1,
   },
   // Tab Styles
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: Colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
   },
   loadingText: {
     fontSize: 14,
-    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
   // Content Styles
   postWrapper: {
-    backgroundColor: Colors.white,
     marginHorizontal: 16,
     marginVertical: 6,
     borderRadius: 20,
-    shadowColor: Colors.blackPure,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 12,

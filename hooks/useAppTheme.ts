@@ -1,7 +1,7 @@
 import { Colors, DarkColors } from "@/constants/Colors";
 import { useThemeStore } from "@/store/themeStore";
 import { useMemo } from "react";
-import { Appearance } from "react-native";
+import { Appearance, StatusBarStyle } from "react-native";
 
 const useAppTheme = () => {
   const { fontSizeScale, theme } = useThemeStore();
@@ -9,6 +9,10 @@ const useAppTheme = () => {
     ...Colors,
   };
   const colorScheme = Appearance.getColorScheme();
+  const barStyleColors: StatusBarStyle =
+    theme === "dark" || (theme === "system" && colorScheme === "dark")
+      ? "light-content"
+      : "dark-content";
   if (theme === "dark" || (theme === "system" && colorScheme === "dark")) {
     colors = {
       ...Colors,
@@ -41,7 +45,7 @@ const useAppTheme = () => {
     }),
     [fontSizeScale]
   );
-  return { colors, FontSizes };
+  return { colors, FontSizes, fontSizeScale, theme, barStyleColors };
 };
 
 export default useAppTheme;
