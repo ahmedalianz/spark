@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useState } from "react";
@@ -15,6 +15,7 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HelpSupportScreen() {
+  const { colors } = useAppTheme();
   const handleOpenLink = (url: string) => {
     Linking.openURL(url).catch(() => {
       Alert.alert("Error", "Unable to open link");
@@ -49,7 +50,12 @@ export default function HelpSupportScreen() {
     iconColor: string;
   }) => (
     <TouchableOpacity
-      style={styles.helpCard}
+      style={[
+        styles.helpCard,
+        {
+          backgroundColor: colors.white,
+        },
+      ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -63,11 +69,17 @@ export default function HelpSupportScreen() {
           <Ionicons name={icon as any} size={24} color={iconColor} />
         </View>
         <View style={styles.helpTextContainer}>
-          <Text style={styles.helpTitle}>{title}</Text>
-          <Text style={styles.helpDescription}>{description}</Text>
+          <Text style={[styles.helpTitle, { color: colors.textPrimary }]}>
+            {title}
+          </Text>
+          <Text
+            style={[styles.helpDescription, { color: colors.textSecondary }]}
+          >
+            {description}
+          </Text>
         </View>
       </View>
-      <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
+      <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
     </TouchableOpacity>
   );
 
@@ -82,7 +94,7 @@ export default function HelpSupportScreen() {
 
     return (
       <TouchableOpacity
-        style={styles.faqItem}
+        style={[styles.faqItem, { backgroundColor: colors.white }]}
         onPress={() => {
           setIsExpanded(!isExpanded);
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -90,27 +102,41 @@ export default function HelpSupportScreen() {
         activeOpacity={0.7}
       >
         <View style={styles.faqHeader}>
-          <Text style={styles.faqQuestion}>{question}</Text>
+          <Text style={[styles.faqQuestion, { color: colors.textPrimary }]}>
+            {question}
+          </Text>
           <Ionicons
             name={isExpanded ? "chevron-up" : "chevron-down"}
             size={20}
-            color={Colors.textSecondary}
+            color={colors.textSecondary}
           />
         </View>
-        {isExpanded && <Text style={styles.faqAnswer}>{answer}</Text>}
+        {isExpanded && (
+          <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+            {answer}
+          </Text>
+        )}
       </TouchableOpacity>
     );
   };
   const { top } = useSafeAreaInsets();
+
   return (
     <ScrollView
-      style={[styles.container, { paddingTop: top }]}
+      style={[
+        styles.container,
+        { paddingTop: top, backgroundColor: colors.backgroundSecondary },
+      ]}
       showsVerticalScrollIndicator={false}
     >
       {/* Header */}
       <Animated.View entering={FadeIn.duration(400)} style={styles.header}>
-        <Text style={styles.headerTitle}>How can we help?</Text>
-        <Text style={styles.headerSubtitle}>Find answers and get support</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+          How can we help?
+        </Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+          Find answers and get support
+        </Text>
       </Animated.View>
 
       {/* Quick Actions */}
@@ -153,7 +179,9 @@ export default function HelpSupportScreen() {
         entering={FadeInDown.delay(200).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Popular Topics</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Popular Topics
+        </Text>
         <View style={styles.topicsContainer}>
           {[
             { title: "Getting Started", icon: "rocket" },
@@ -165,15 +193,23 @@ export default function HelpSupportScreen() {
           ].map((topic, index) => (
             <TouchableOpacity
               key={index}
-              style={styles.topicChip}
+              style={[
+                styles.topicChip,
+                {
+                  backgroundColor: colors.white,
+                  borderColor: colors.borderLight,
+                },
+              ]}
               onPress={() => console.log(`Open ${topic.title}`)}
             >
               <Ionicons
                 name={topic.icon as any}
                 size={18}
-                color={Colors.primary}
+                color={colors.primary}
               />
-              <Text style={styles.topicText}>{topic.title}</Text>
+              <Text style={[styles.topicText, { color: colors.textPrimary }]}>
+                {topic.title}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -184,7 +220,9 @@ export default function HelpSupportScreen() {
         entering={FadeInDown.delay(300).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Frequently Asked</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Frequently Asked
+        </Text>
         <FAQItem
           question="How do I reset my password?"
           answer="Go to Settings > Security > Change Password. You'll need to verify your email address before creating a new password."
@@ -206,26 +244,44 @@ export default function HelpSupportScreen() {
       {/* Contact Info */}
       <Animated.View
         entering={FadeInDown.delay(400).duration(400)}
-        style={styles.contactCard}
+        style={[styles.contactCard, { backgroundColor: colors.primary }]}
       >
-        <Text style={styles.contactTitle}>Still need help?</Text>
-        <Text style={styles.contactDescription}>
+        <Text style={[styles.contactTitle, { color: colors.white }]}>
+          Still need help?
+        </Text>
+        <Text style={[styles.contactDescription, { color: colors.white }]}>
           Our support team is available 24/7
         </Text>
         <View style={styles.contactMethods}>
           <TouchableOpacity
-            style={styles.contactButton}
+            style={[
+              styles.contactButton,
+              { backgroundColor: colors.white + "20" },
+            ]}
             onPress={() => handleOpenLink("mailto:support@spark.app")}
           >
-            <Ionicons name="mail" size={20} color={Colors.white} />
-            <Text style={styles.contactButtonText}>Email Us</Text>
+            <Ionicons name="mail" size={20} color={colors.white} />
+            <Text style={[styles.contactButtonText, { color: colors.white }]}>
+              Email Us
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.contactButton, styles.contactButtonSecondary]}
+            style={[
+              styles.contactButton,
+              styles.contactButtonSecondary,
+              { backgroundColor: colors.white },
+            ]}
             onPress={() => handleOpenLink("https://twitter.com/spark")}
           >
-            <Ionicons name="logo-twitter" size={20} color={Colors.primary} />
-            <Text style={styles.contactButtonTextSecondary}>Tweet Us</Text>
+            <Ionicons name="logo-twitter" size={20} color={colors.primary} />
+            <Text
+              style={[
+                styles.contactButtonTextSecondary,
+                { color: colors.primary },
+              ]}
+            >
+              Tweet Us
+            </Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -238,7 +294,6 @@ export default function HelpSupportScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundSecondary,
   },
   header: {
     paddingHorizontal: 20,
@@ -248,13 +303,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
   section: {
@@ -264,14 +317,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 16,
   },
 
   // Help Card
   helpCard: {
-    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
@@ -298,13 +349,11 @@ const styles = StyleSheet.create({
   helpTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 4,
   },
   helpDescription: {
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
 
@@ -318,23 +367,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: Colors.white,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
   },
   topicText: {
     fontSize: 14,
     fontWeight: "500",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_500Medium",
   },
 
   // FAQ
   faqItem: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -347,14 +392,12 @@ const styles = StyleSheet.create({
   faqQuestion: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     flex: 1,
     marginRight: 12,
   },
   faqAnswer: {
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     marginTop: 12,
     lineHeight: 20,
@@ -362,7 +405,6 @@ const styles = StyleSheet.create({
 
   // Contact Card
   contactCard: {
-    backgroundColor: Colors.primary,
     borderRadius: 16,
     padding: 24,
     marginHorizontal: 20,
@@ -372,13 +414,11 @@ const styles = StyleSheet.create({
   contactTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: Colors.white,
     fontFamily: "DMSans_700Bold",
     marginBottom: 8,
   },
   contactDescription: {
     fontSize: 15,
-    color: Colors.white,
     fontFamily: "DMSans_400Regular",
     marginBottom: 20,
     opacity: 0.9,
@@ -394,23 +434,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: Colors.white + "20",
     paddingVertical: 14,
     borderRadius: 12,
-  },
-  contactButtonSecondary: {
-    backgroundColor: Colors.white,
   },
   contactButtonText: {
     fontSize: 15,
     fontWeight: "600",
-    color: Colors.white,
     fontFamily: "DMSans_600SemiBold",
   },
   contactButtonTextSecondary: {
     fontSize: 15,
     fontWeight: "600",
-    color: Colors.primary,
     fontFamily: "DMSans_600SemiBold",
   },
 

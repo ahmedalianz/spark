@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { ProfilePictureProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
@@ -19,6 +18,7 @@ const ProfilePicture = ({
   selectImage,
   selectedImage,
   imageUrl,
+  colors,
 }: ProfilePictureProps) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -50,14 +50,17 @@ const ProfilePicture = ({
           style={[styles.imageContainer, { transform: [{ scale: scaleAnim }] }]}
         >
           <LinearGradient
-            colors={[Colors.primary, Colors.primaryDark]}
+            colors={[colors.primary, colors.primaryDark]}
             style={styles.imageGradient}
           >
             <Image
               source={{
                 uri: selectedImage?.uri || decodeURIComponent(imageUrl || ""),
               }}
-              style={styles.profileImage}
+              style={[
+                styles.profileImage,
+                { backgroundColor: colors.borderLighter },
+              ]}
             />
           </LinearGradient>
           <View
@@ -69,14 +72,18 @@ const ProfilePicture = ({
             ]}
           >
             <BlurView intensity={50} tint="dark" style={styles.overlayBlur}>
-              <Ionicons name="camera" size={24} color={Colors.white} />
-              <Text style={styles.overlayText}>Change Photo</Text>
+              <Ionicons name="camera" size={24} color={colors.textPrimary} />
+              <Text style={[styles.overlayText, { color: colors.textPrimary }]}>
+                Change Photo
+              </Text>
             </BlurView>
           </View>
         </Animated.View>
       </TouchableOpacity>
       {selectedImage && (
-        <Text style={styles.imageHint}>New photo selected</Text>
+        <Text style={[styles.imageHint, { color: colors.primary }]}>
+          New photo selected
+        </Text>
       )}
     </View>
   );
@@ -102,7 +109,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: Colors.borderLighter,
   },
   imageOverlay: {
     position: "absolute",
@@ -121,13 +127,11 @@ const styles = StyleSheet.create({
   },
   overlayText: {
     fontSize: 12,
-    color: Colors.white,
     fontWeight: "600",
     fontFamily: "DMSans_500Medium",
   },
   imageHint: {
     fontSize: 14,
-    color: Colors.primary,
     fontWeight: "500",
     fontFamily: "DMSans_500Medium",
   },

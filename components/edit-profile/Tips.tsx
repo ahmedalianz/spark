@@ -1,21 +1,25 @@
-import { Colors } from "@/constants/Colors";
+import { ColorsType } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-const Tips = () => {
+const Tips = ({ colors }: { colors: ColorsType }) => {
   return (
-    <View style={styles.tipsContainer}>
-      <Text style={styles.tipsTitle}>Profile Tips</Text>
+    <View
+      style={[styles.tipsContainer, { backgroundColor: colors.tintBlueLight }]}
+    >
+      <Text style={[styles.tipsTitle, { color: colors.black }]}>
+        Profile Tips
+      </Text>
       <View style={styles.tip}>
-        <Ionicons name="bulb-outline" size={16} color={Colors.primary} />
-        <Text style={styles.tipText}>
+        <Ionicons name="bulb-outline" size={16} color={colors.primary} />
+        <Text style={[styles.tipText, { color: colors.textTertiary }]}>
           A good bio helps others understand who you are
         </Text>
       </View>
       <View style={styles.tip}>
-        <Ionicons name="link-outline" size={16} color={Colors.primary} />
-        <Text style={styles.tipText}>
+        <Ionicons name="link-outline" size={16} color={colors.primary} />
+        <Text style={[styles.tipText, { color: colors.textTertiary }]}>
           Share your website or portfolio to showcase your work
         </Text>
       </View>
@@ -30,14 +34,12 @@ const styles = StyleSheet.create({
     marginTop: 32,
     paddingHorizontal: 20,
     paddingVertical: 20,
-    backgroundColor: Colors.tintBlueLight,
     borderRadius: 16,
     marginHorizontal: 20,
   },
   tipsTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: Colors.black,
     marginBottom: 12,
     fontFamily: "DMSans_700Bold",
   },
@@ -50,7 +52,6 @@ const styles = StyleSheet.create({
   tipText: {
     flex: 1,
     fontSize: 14,
-    color: Colors.textTertiary,
     lineHeight: 20,
     fontFamily: "DMSans_400Regular",
   },

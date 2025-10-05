@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { FormFieldsProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -18,53 +17,86 @@ const FormFields = ({
   link,
   setBio,
   setLink,
+  colors,
 }: FormFieldsProps) => {
   return (
     <View style={styles.formContainer}>
       {/* Bio Section */}
       <View style={styles.fieldContainer}>
         <View style={styles.fieldHeader}>
-          <Text style={styles.fieldLabel}>Bio</Text>
+          <Text style={[styles.fieldLabel, { color: colors.black }]}>Bio</Text>
           <Text
-            style={[styles.characterCount, isOverLimit && styles.overLimitText]}
+            style={[
+              styles.characterCount,
+              { color: colors.textMuted },
+              isOverLimit && [
+                styles.overLimitText,
+                { color: colors.accentLike },
+              ],
+            ]}
           >
             {bioCharacterCount}/{maxBioLength}
           </Text>
         </View>
-        <View style={[styles.inputContainer, styles.bioContainer]}>
+        <View
+          style={[
+            styles.inputContainer,
+            styles.bioContainer,
+            {
+              backgroundColor: colors.tintBlueLight,
+              borderColor: colors.tintBlue,
+            },
+          ]}
+        >
           <TextInput
             value={bio}
             onChangeText={setBio}
             placeholder="Write something about yourself..."
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={colors.textMuted}
             numberOfLines={4}
             multiline
             textAlignVertical="top"
-            style={[styles.textInput, styles.bioInput]}
+            style={[styles.textInput, styles.bioInput, { color: colors.black }]}
             maxLength={maxBioLength + 20} // Allow some overflow for warning
           />
         </View>
         {isOverLimit && (
-          <Text style={styles.errorText}>Bio exceeds maximum length</Text>
+          <Text style={[styles.errorText, { color: colors.accentLike }]}>
+            Bio exceeds maximum length
+          </Text>
         )}
       </View>
 
       {/* Link Section */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>Website</Text>
-        <View style={styles.inputContainer}>
+        <Text style={[styles.fieldLabel, { color: colors.black }]}>
+          Website
+        </Text>
+        <View
+          style={[
+            styles.inputContainer,
+            {
+              backgroundColor: colors.tintBlueLight,
+              borderColor: colors.tintBlue,
+            },
+          ]}
+        >
           <View style={styles.inputIcon}>
-            <Ionicons name="link-outline" size={20} color={Colors.primary} />
+            <Ionicons name="link-outline" size={20} color={colors.primary} />
           </View>
           <TextInput
             value={link}
             onChangeText={setLink}
             placeholder="https://yourwebsite.com"
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={colors.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="url"
-            style={[styles.textInput, styles.linkInput]}
+            style={[
+              styles.textInput,
+              styles.linkInput,
+              { color: colors.black },
+            ]}
           />
           {link ? (
             <TouchableOpacity
@@ -74,7 +106,7 @@ const FormFields = ({
               <Ionicons
                 name="close-circle"
                 size={20}
-                color={Colors.textDisabled}
+                color={colors.textDisabled}
               />
             </TouchableOpacity>
           ) : null}
@@ -102,23 +134,16 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 16,
     fontWeight: "700",
-    color: Colors.black,
     fontFamily: "DMSans_700Bold",
   },
   characterCount: {
     fontSize: 14,
-    color: Colors.textMuted,
     fontFamily: "DMSans_400Regular",
-  },
-  overLimitText: {
-    color: Colors.accentLike,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.tintBlueLight,
     borderWidth: 2,
-    borderColor: Colors.tintBlue,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -133,7 +158,6 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontSize: 16,
-    color: Colors.black,
     fontFamily: "DMSans_400Regular",
   },
   bioInput: {
@@ -148,7 +172,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 14,
-    color: Colors.accentLike,
     marginTop: 6,
     fontFamily: "DMSans_400Regular",
   },

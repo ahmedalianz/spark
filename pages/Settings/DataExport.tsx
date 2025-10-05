@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Stack } from "expo-router";
@@ -23,6 +23,7 @@ interface ExportRequest {
 }
 
 export default function DataExport() {
+  const { colors } = useAppTheme();
   const [selectedDataTypes, setSelectedDataTypes] = useState({
     posts: true,
     comments: true,
@@ -99,7 +100,11 @@ export default function DataExport() {
     <TouchableOpacity
       style={[
         styles.dataTypeCard,
-        selectedDataTypes[dataKey] && styles.dataTypeCardSelected,
+        { backgroundColor: colors.white, borderColor: colors.borderLight },
+        selectedDataTypes[dataKey] && {
+          borderColor: colors.primary,
+          backgroundColor: colors.primary + "05",
+        },
       ]}
       onPress={() => {
         setSelectedDataTypes((prev) => ({
@@ -120,18 +125,31 @@ export default function DataExport() {
           <Ionicons name={icon as any} size={22} color={iconColor} />
         </View>
         <View style={styles.dataTypeTextContainer}>
-          <Text style={styles.dataTypeTitle}>{title}</Text>
-          <Text style={styles.dataTypeDescription}>{description}</Text>
+          <Text style={[styles.dataTypeTitle, { color: colors.textPrimary }]}>
+            {title}
+          </Text>
+          <Text
+            style={[
+              styles.dataTypeDescription,
+              { color: colors.textSecondary },
+            ]}
+          >
+            {description}
+          </Text>
         </View>
       </View>
       <View
         style={[
           styles.checkbox,
-          selectedDataTypes[dataKey] && styles.checkboxSelected,
+          { borderColor: colors.borderLight },
+          selectedDataTypes[dataKey] && {
+            backgroundColor: colors.primary,
+            borderColor: colors.primary,
+          },
         ]}
       >
         {selectedDataTypes[dataKey] && (
-          <Ionicons name="checkmark" size={18} color={Colors.white} />
+          <Ionicons name="checkmark" size={18} color={colors.white} />
         )}
       </View>
     </TouchableOpacity>
@@ -147,7 +165,7 @@ export default function DataExport() {
         case "failed":
           return "#EF4444";
         default:
-          return Colors.textTertiary;
+          return colors.textTertiary;
       }
     };
 
@@ -165,7 +183,7 @@ export default function DataExport() {
     };
 
     return (
-      <View style={styles.historyItem}>
+      <View style={[styles.historyItem, { backgroundColor: colors.white }]}>
         <View style={styles.historyContent}>
           <View
             style={[
@@ -180,7 +198,7 @@ export default function DataExport() {
             />
           </View>
           <View style={styles.historyTextContainer}>
-            <Text style={styles.historyDate}>
+            <Text style={[styles.historyDate, { color: colors.textPrimary }]}>
               {new Date(request.date).toLocaleDateString("en-US", {
                 month: "long",
                 day: "numeric",
@@ -197,17 +215,26 @@ export default function DataExport() {
                 {request.status.charAt(0).toUpperCase() +
                   request.status.slice(1)}
               </Text>
-              <Text style={styles.historyDot}>•</Text>
-              <Text style={styles.historySize}>{request.size}</Text>
+              <Text style={[styles.historyDot, { color: colors.textTertiary }]}>
+                •
+              </Text>
+              <Text
+                style={[styles.historySize, { color: colors.textTertiary }]}
+              >
+                {request.size}
+              </Text>
             </View>
           </View>
         </View>
         {request.status === "completed" && request.downloadUrl && (
           <TouchableOpacity
-            style={styles.downloadButton}
+            style={[
+              styles.downloadButton,
+              { backgroundColor: colors.primary + "15" },
+            ]}
             onPress={() => handleDownload(request.downloadUrl!)}
           >
-            <Ionicons name="download" size={20} color={Colors.primary} />
+            <Ionicons name="download" size={20} color={colors.primary} />
           </TouchableOpacity>
         )}
       </View>
@@ -220,17 +247,27 @@ export default function DataExport() {
         options={{
           title: "Data Export",
           headerStyle: {
-            backgroundColor: Colors.primary,
+            backgroundColor: colors.primary,
           },
-          headerTintColor: Colors.white,
+          headerTintColor: colors.white,
         }}
       />
 
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={[
+          styles.container,
+          { backgroundColor: colors.backgroundSecondary },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <Animated.View entering={FadeIn.duration(400)} style={styles.header}>
-          <Text style={styles.headerTitle}>Download Your Data</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+            Download Your Data
+          </Text>
+          <Text
+            style={[styles.headerSubtitle, { color: colors.textSecondary }]}
+          >
             Request a copy of your information from Spark
           </Text>
         </Animated.View>
@@ -238,14 +275,14 @@ export default function DataExport() {
         {/* Info Card */}
         <Animated.View
           entering={FadeInDown.delay(100).duration(400)}
-          style={styles.infoCard}
+          style={[styles.infoCard, { backgroundColor: colors.primary + "10" }]}
         >
           <Ionicons
             name="information-circle"
             size={24}
-            color={Colors.primary}
+            color={colors.primary}
           />
-          <Text style={styles.infoText}>
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
             {
               "Your data will be prepared as a downloadable file. We'll email you when it's ready (usually within 48 hours). The download link expires after 7 days."
             }
@@ -257,7 +294,9 @@ export default function DataExport() {
           entering={FadeInDown.delay(200).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Select Data to Export</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Select Data to Export
+          </Text>
           <DataTypeToggle
             icon="document-text"
             title="Posts"
@@ -322,11 +361,19 @@ export default function DataExport() {
           style={styles.buttonContainer}
         >
           <TouchableOpacity
-            style={styles.requestButton}
+            style={[
+              styles.requestButton,
+              {
+                backgroundColor: colors.primary,
+                shadowColor: colors.primary,
+              },
+            ]}
             onPress={handleRequestExport}
           >
-            <Ionicons name="download-outline" size={20} color={Colors.white} />
-            <Text style={styles.requestButtonText}>Request Data Export</Text>
+            <Ionicons name="download-outline" size={20} color={colors.white} />
+            <Text style={[styles.requestButtonText, { color: colors.white }]}>
+              Request Data Export
+            </Text>
           </TouchableOpacity>
         </Animated.View>
 
@@ -335,22 +382,38 @@ export default function DataExport() {
           entering={FadeInDown.delay(400).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Export History</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Export History
+          </Text>
           {exportHistory.length > 0 ? (
             exportHistory.map((request) => (
               <ExportHistoryItem key={request.id} request={request} />
             ))
           ) : (
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconContainer}>
+            <View
+              style={[styles.emptyState, { backgroundColor: colors.white }]}
+            >
+              <View
+                style={[
+                  styles.emptyIconContainer,
+                  { backgroundColor: colors.borderLighter },
+                ]}
+              >
                 <Ionicons
                   name="folder-open"
                   size={48}
-                  color={Colors.textTertiary}
+                  color={colors.textTertiary}
                 />
               </View>
-              <Text style={styles.emptyTitle}>No Export History</Text>
-              <Text style={styles.emptyDescription}>
+              <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
+                No Export History
+              </Text>
+              <Text
+                style={[
+                  styles.emptyDescription,
+                  { color: colors.textSecondary },
+                ]}
+              >
                 Your data export requests will appear here
               </Text>
             </View>
@@ -360,10 +423,10 @@ export default function DataExport() {
         {/* Privacy Note */}
         <Animated.View
           entering={FadeInDown.delay(500).duration(400)}
-          style={styles.privacyCard}
+          style={[styles.privacyCard, { backgroundColor: "#10B981" + "10" }]}
         >
           <Ionicons name="shield-checkmark" size={24} color="#10B981" />
-          <Text style={styles.privacyText}>
+          <Text style={[styles.privacyText, { color: colors.textSecondary }]}>
             Your data export is encrypted and only accessible by you. We never
             share your personal information with third parties.
           </Text>
@@ -378,7 +441,6 @@ export default function DataExport() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundSecondary || "#F8F9FA",
   },
   header: {
     paddingHorizontal: 20,
@@ -388,13 +450,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     lineHeight: 22,
   },
@@ -405,14 +465,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 16,
   },
 
   // Info Card
   infoCard: {
-    backgroundColor: Colors.primary + "10",
     borderRadius: 12,
     padding: 16,
     flexDirection: "row",
@@ -423,7 +481,6 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     lineHeight: 20,
     marginLeft: 12,
@@ -431,7 +488,6 @@ const styles = StyleSheet.create({
 
   // Data Type Card
   dataTypeCard: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -439,11 +495,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderWidth: 2,
-    borderColor: Colors.borderLight,
-  },
-  dataTypeCardSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary + "05",
   },
   dataTypeContent: {
     flexDirection: "row",
@@ -464,13 +515,11 @@ const styles = StyleSheet.create({
   dataTypeTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 2,
   },
   dataTypeDescription: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
   checkbox: {
@@ -478,13 +527,8 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.borderLight,
     justifyContent: "center",
     alignItems: "center",
-  },
-  checkboxSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
   },
 
   // Request Button
@@ -497,10 +541,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    backgroundColor: Colors.primary,
     paddingVertical: 16,
     borderRadius: 12,
-    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -509,13 +551,11 @@ const styles = StyleSheet.create({
   requestButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.white,
     fontFamily: "DMSans_600SemiBold",
   },
 
   // Export History
   historyItem: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -542,7 +582,6 @@ const styles = StyleSheet.create({
   historyDate: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 4,
   },
@@ -558,25 +597,21 @@ const styles = StyleSheet.create({
   },
   historyDot: {
     fontSize: 13,
-    color: Colors.textTertiary,
   },
   historySize: {
     fontSize: 13,
-    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
   downloadButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.primary + "15",
     justifyContent: "center",
     alignItems: "center",
   },
 
   // Empty State
   emptyState: {
-    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 40,
     alignItems: "center",
@@ -585,7 +620,6 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: Colors.borderLighter,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
@@ -593,20 +627,17 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 8,
   },
   emptyDescription: {
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     textAlign: "center",
   },
 
   // Privacy Card
   privacyCard: {
-    backgroundColor: "#10B981" + "10",
     borderRadius: 12,
     padding: 16,
     flexDirection: "row",
@@ -617,7 +648,6 @@ const styles = StyleSheet.create({
   privacyText: {
     flex: 1,
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     lineHeight: 20,
     marginLeft: 12,

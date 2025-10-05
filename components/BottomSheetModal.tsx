@@ -1,5 +1,10 @@
-import { Colors } from "@/constants/Colors";
-import { BottomSheetModalProps, MenuItemProps, MenuSection } from "@/types";
+import useAppTheme from "@/hooks/useAppTheme";
+import {
+  BottomSheetModalProps,
+  ColorsType,
+  MenuItemProps,
+  MenuSection,
+} from "@/types";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef } from "react";
 import {
@@ -27,14 +32,20 @@ const MenuItem = ({
   isDisabled = false,
   style,
   showArrow = true,
-}: MenuItemProps & { style?: ViewStyle; showArrow?: boolean }) => {
+  colors,
+}: MenuItemProps & {
+  style?: ViewStyle;
+  showArrow?: boolean;
+  colors: ColorsType;
+}) => {
   const IconComponent = iconLibrary === "feather" ? Feather : Ionicons;
 
   return (
     <TouchableOpacity
       style={[
         styles.menuItem,
-        isDestructive && styles.destructiveMenuItem,
+        { backgroundColor: colors.white },
+        isDestructive && { backgroundColor: colors.danger + "05" },
         isDisabled && styles.disabledMenuItem,
         !subtitle && styles.menuItemWithoutSubtitle,
         style,
@@ -46,8 +57,9 @@ const MenuItem = ({
       <View
         style={[
           styles.menuIconContainer,
-          isDestructive && styles.destructiveIconContainer,
-          isDisabled && styles.disabledIconContainer,
+          { backgroundColor: colors.primary + "15" },
+          isDestructive && { backgroundColor: colors.danger + "15" },
+          isDisabled && { backgroundColor: colors.textTertiary + "15" },
         ]}
       >
         <IconComponent
@@ -55,10 +67,10 @@ const MenuItem = ({
           size={22}
           color={
             isDisabled
-              ? Colors.textTertiary
+              ? colors.textTertiary
               : isDestructive
-                ? Colors.danger
-                : Colors.primary
+                ? colors.danger
+                : colors.primary
           }
         />
       </View>
@@ -66,8 +78,9 @@ const MenuItem = ({
         <Text
           style={[
             styles.menuTitle,
-            isDestructive && styles.destructiveText,
-            isDisabled && styles.disabledText,
+            { color: colors.textPrimary },
+            isDestructive && { color: colors.danger },
+            isDisabled && { color: colors.textTertiary },
             !subtitle && styles.menuTitleCentered,
           ]}
         >
@@ -75,7 +88,11 @@ const MenuItem = ({
         </Text>
         {subtitle && (
           <Text
-            style={[styles.menuSubtitle, isDisabled && styles.disabledText]}
+            style={[
+              styles.menuSubtitle,
+              { color: colors.textSecondary },
+              isDisabled && { color: colors.textTertiary },
+            ]}
           >
             {subtitle}
           </Text>
@@ -86,7 +103,7 @@ const MenuItem = ({
           <Ionicons
             name="chevron-forward"
             size={20}
-            color={Colors.textTertiary}
+            color={colors.textTertiary}
           />
         </View>
       )}
@@ -112,7 +129,7 @@ const BottomSheetModal = ({
 }: BottomSheetModalProps) => {
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-
+  const { colors } = useAppTheme();
   useEffect(() => {
     if (visible) {
       Animated.parallel([
@@ -157,7 +174,9 @@ const BottomSheetModal = ({
   const renderSection = (section: MenuSection, sectionIndex: number) => (
     <View key={section.id} style={[styles.menuSection, sectionStyle]}>
       {section.title && (
-        <Text style={styles.sectionTitle}>{section.title}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>
+          {section.title}
+        </Text>
       )}
       {section.data.map((item, itemIndex) =>
         renderCustomItem ? (
@@ -166,6 +185,7 @@ const BottomSheetModal = ({
           <MenuItem
             key={item.id}
             {...item}
+            colors={colors}
             onPress={() => handleAction(item)}
             style={itemStyle}
             showArrow={!item.isDisabled}
@@ -173,7 +193,13 @@ const BottomSheetModal = ({
         )
       )}
       {section.showDivider && sectionIndex < sections.length - 1 && (
-        <View style={[styles.menuDivider, dividerStyle]} />
+        <View
+          style={[
+            styles.menuDivider,
+            { backgroundColor: colors.borderLight },
+            dividerStyle,
+          ]}
+        />
       )}
     </View>
   );
@@ -194,7 +220,7 @@ const BottomSheetModal = ({
             styles.modalOverlay,
             {
               opacity: fadeAnim,
-              backgroundColor: Colors.transparentBlack50,
+              backgroundColor: colors.transparentBlack50,
             },
           ]}
         >
@@ -205,6 +231,8 @@ const BottomSheetModal = ({
                 {
                   transform: [{ translateY: slideAnim }],
                   maxHeight: height as number,
+                  backgroundColor: colors.white,
+                  shadowColor: colors.blackPure,
                 },
                 containerStyle,
               ]}
@@ -220,7 +248,14 @@ const BottomSheetModal = ({
 
               {/* Footer */}
               {renderFooter && (
-                <View style={styles.menuFooter}>{renderFooter()}</View>
+                <View
+                  style={[
+                    styles.menuFooter,
+                    { borderTopColor: colors.borderLight },
+                  ]}
+                >
+                  {renderFooter()}
+                </View>
               )}
             </Animated.View>
           </TouchableWithoutFeedback>
@@ -236,10 +271,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   menuContainer: {
-    backgroundColor: Colors.white,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    shadowColor: Colors.blackPure,
     shadowOffset: {
       width: 0,
       height: -4,
@@ -260,7 +293,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: Colors.textTertiary,
     marginLeft: 20,
     marginBottom: 8,
     fontFamily: "DMSans_600SemiBold",
@@ -275,13 +307,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginHorizontal: 8,
     marginVertical: 2,
-    backgroundColor: Colors.white,
   },
   menuItemWithoutSubtitle: {
     alignItems: "center",
-  },
-  destructiveMenuItem: {
-    backgroundColor: Colors.danger + "05",
   },
   disabledMenuItem: {
     opacity: 0.5,
@@ -290,16 +318,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.primary + "15",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 14,
-  },
-  destructiveIconContainer: {
-    backgroundColor: Colors.danger + "15",
-  },
-  disabledIconContainer: {
-    backgroundColor: Colors.textTertiary + "15",
   },
   menuTextContainer: {
     flex: 1,
@@ -308,7 +329,6 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     marginBottom: 2,
     fontFamily: "DMSans_600SemiBold",
   },
@@ -317,15 +337,8 @@ const styles = StyleSheet.create({
   },
   menuSubtitle: {
     fontSize: 13,
-    color: Colors.textSecondary,
     lineHeight: 18,
     fontFamily: "DMSans_400Regular",
-  },
-  destructiveText: {
-    color: Colors.danger,
-  },
-  disabledText: {
-    color: Colors.textTertiary,
   },
   menuArrow: {
     justifyContent: "center",
@@ -333,13 +346,11 @@ const styles = StyleSheet.create({
   },
   menuDivider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.borderLight,
     marginVertical: 12,
     marginHorizontal: 24,
   },
   menuFooter: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.borderLight,
     padding: 16,
   },
 });

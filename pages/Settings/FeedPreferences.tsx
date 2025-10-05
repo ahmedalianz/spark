@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Stack } from "expo-router";
@@ -17,6 +17,7 @@ type FeedSort = "algorithmic" | "chronological" | "following";
 type ContentLanguage = "all" | "english" | "arabic" | "french";
 
 export default function FeedPreferencesScreen() {
+  const { colors } = useAppTheme();
   const [feedSort, setFeedSort] = useState<FeedSort>("algorithmic");
   const [contentLanguage, setContentLanguage] =
     useState<ContentLanguage>("all");
@@ -43,7 +44,17 @@ export default function FeedPreferencesScreen() {
     onPress: () => void;
   }) => (
     <TouchableOpacity
-      style={[styles.sortOption, isSelected && styles.sortOptionSelected]}
+      style={[
+        styles.sortOption,
+        {
+          backgroundColor: colors.white,
+          borderColor: colors.borderLight,
+        },
+        isSelected && {
+          borderColor: colors.primary,
+          backgroundColor: colors.primary + "08",
+        },
+      ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -51,27 +62,36 @@ export default function FeedPreferencesScreen() {
         <View
           style={[
             styles.sortIconContainer,
-            isSelected && styles.sortIconContainerSelected,
+            { backgroundColor: colors.borderLighter },
+            isSelected && { backgroundColor: colors.primary + "15" },
           ]}
         >
           <Ionicons
             name={icon as any}
             size={24}
-            color={isSelected ? Colors.primary : Colors.textSecondary}
+            color={isSelected ? colors.primary : colors.textSecondary}
           />
         </View>
         <View style={styles.sortTextContainer}>
           <Text
-            style={[styles.sortTitle, isSelected && styles.sortTitleSelected]}
+            style={[
+              styles.sortTitle,
+              { color: colors.textPrimary },
+              isSelected && { color: colors.primary },
+            ]}
           >
             {title}
           </Text>
-          <Text style={styles.sortDescription}>{description}</Text>
+          <Text
+            style={[styles.sortDescription, { color: colors.textSecondary }]}
+          >
+            {description}
+          </Text>
         </View>
       </View>
       {isSelected && (
-        <View style={styles.checkCircle}>
-          <Ionicons name="checkmark" size={18} color={Colors.white} />
+        <View style={[styles.checkCircle, { backgroundColor: colors.primary }]}>
+          <Ionicons name="checkmark" size={18} color={colors.white} />
         </View>
       )}
     </TouchableOpacity>
@@ -89,14 +109,25 @@ export default function FeedPreferencesScreen() {
     onPress: () => void;
   }) => (
     <TouchableOpacity
-      style={[styles.languageChip, isSelected && styles.languageChipSelected]}
+      style={[
+        styles.languageChip,
+        {
+          backgroundColor: colors.white,
+          borderColor: colors.borderLight,
+        },
+        isSelected && {
+          backgroundColor: colors.primary,
+          borderColor: colors.primary,
+        },
+      ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <Text
         style={[
           styles.languageChipText,
-          isSelected && styles.languageChipTextSelected,
+          { color: colors.textSecondary },
+          isSelected && { color: colors.white },
         ]}
       >
         {label}
@@ -119,7 +150,7 @@ export default function FeedPreferencesScreen() {
     onChange: (value: boolean) => void;
     iconColor: string;
   }) => (
-    <View style={styles.toggleCard}>
+    <View style={[styles.toggleCard, { backgroundColor: colors.white }]}>
       <View style={styles.toggleContent}>
         <View
           style={[
@@ -130,8 +161,14 @@ export default function FeedPreferencesScreen() {
           <Ionicons name={icon as any} size={22} color={iconColor} />
         </View>
         <View style={styles.toggleTextContainer}>
-          <Text style={styles.toggleTitle}>{title}</Text>
-          <Text style={styles.toggleSubtitle}>{subtitle}</Text>
+          <Text style={[styles.toggleTitle, { color: colors.textPrimary }]}>
+            {title}
+          </Text>
+          <Text
+            style={[styles.toggleSubtitle, { color: colors.textSecondary }]}
+          >
+            {subtitle}
+          </Text>
         </View>
       </View>
       <Switch
@@ -140,8 +177,8 @@ export default function FeedPreferencesScreen() {
           onChange(val);
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }}
-        trackColor={{ false: Colors.borderLight, true: iconColor + "50" }}
-        thumbColor={value ? iconColor : Colors.white}
+        trackColor={{ false: colors.borderLight, true: iconColor + "50" }}
+        thumbColor={value ? iconColor : colors.white}
       />
     </View>
   );
@@ -152,17 +189,27 @@ export default function FeedPreferencesScreen() {
         options={{
           title: "Feed Preferences",
           headerStyle: {
-            backgroundColor: Colors.primary,
+            backgroundColor: colors.primary,
           },
-          headerTintColor: Colors.white,
+          headerTintColor: colors.white,
         }}
       />
 
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={[
+          styles.container,
+          { backgroundColor: colors.backgroundSecondary },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <Animated.View entering={FadeIn.duration(400)} style={styles.header}>
-          <Text style={styles.headerTitle}>Feed Preferences</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+            Feed Preferences
+          </Text>
+          <Text
+            style={[styles.headerSubtitle, { color: colors.textSecondary }]}
+          >
             Customize what you see in your feed
           </Text>
         </Animated.View>
@@ -172,8 +219,12 @@ export default function FeedPreferencesScreen() {
           entering={FadeInDown.delay(100).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Feed Sort</Text>
-          <Text style={styles.sectionDescription}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Feed Sort
+          </Text>
+          <Text
+            style={[styles.sectionDescription, { color: colors.textSecondary }]}
+          >
             Choose how posts are ordered in your feed
           </Text>
           <FeedSortOption
@@ -216,8 +267,12 @@ export default function FeedPreferencesScreen() {
           entering={FadeInDown.delay(200).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Content Language</Text>
-          <Text style={styles.sectionDescription}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Content Language
+          </Text>
+          <Text
+            style={[styles.sectionDescription, { color: colors.textSecondary }]}
+          >
             Select languages for your feed content
           </Text>
           <View style={styles.languageContainer}>
@@ -265,7 +320,9 @@ export default function FeedPreferencesScreen() {
           entering={FadeInDown.delay(300).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Content Visibility</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Content Visibility
+          </Text>
           <ToggleSetting
             icon="repeat-outline"
             title="Show Reposts"
@@ -305,7 +362,9 @@ export default function FeedPreferencesScreen() {
           entering={FadeInDown.delay(400).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Media Preferences</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Media Preferences
+          </Text>
           <ToggleSetting
             icon="play-circle-outline"
             title="Autoplay Videos"
@@ -321,7 +380,9 @@ export default function FeedPreferencesScreen() {
           entering={FadeInDown.delay(500).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Sensitive Content</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Sensitive Content
+          </Text>
           <ToggleSetting
             icon="warning-outline"
             title="Show Sensitive Content"
@@ -335,14 +396,14 @@ export default function FeedPreferencesScreen() {
         {/* Info Card */}
         <Animated.View
           entering={FadeInDown.delay(600).duration(400)}
-          style={styles.infoCard}
+          style={[styles.infoCard, { backgroundColor: colors.primary + "10" }]}
         >
           <Ionicons
             name="information-circle"
             size={24}
-            color={Colors.primary}
+            color={colors.primary}
           />
-          <Text style={styles.infoText}>
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
             These settings help personalize your feed. Changes may take a few
             moments to apply.
           </Text>
@@ -357,7 +418,6 @@ export default function FeedPreferencesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
   },
   header: {
     paddingHorizontal: 20,
@@ -367,13 +427,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
   section: {
@@ -383,29 +441,21 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 8,
   },
   sectionDescription: {
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     marginBottom: 16,
   },
 
   // Feed Sort Options
   sortOption: {
-    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 2,
-    borderColor: Colors.borderLight,
-  },
-  sortOptionSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary + "08",
   },
   sortOptionContent: {
     flexDirection: "row",
@@ -415,13 +465,9 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Colors.borderLighter,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
-  },
-  sortIconContainerSelected: {
-    backgroundColor: Colors.primary + "15",
   },
   sortTextContainer: {
     flex: 1,
@@ -429,16 +475,11 @@ const styles = StyleSheet.create({
   sortTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 4,
   },
-  sortTitleSelected: {
-    color: Colors.primary,
-  },
   sortDescription: {
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
   checkCircle: {
@@ -448,7 +489,6 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: Colors.primary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -463,22 +503,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
-    backgroundColor: Colors.white,
     borderWidth: 2,
-    borderColor: Colors.borderLight,
-  },
-  languageChipSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
   },
   languageChipText: {
     fontSize: 15,
     fontWeight: "600",
-    color: Colors.textSecondary,
     fontFamily: "DMSans_600SemiBold",
-  },
-  languageChipTextSelected: {
-    color: Colors.white,
   },
 
   // Toggle Settings
@@ -486,7 +516,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -510,19 +539,16 @@ const styles = StyleSheet.create({
   toggleTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 2,
   },
   toggleSubtitle: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
 
   // Info Card
   infoCard: {
-    backgroundColor: Colors.primary + "10",
     borderRadius: 12,
     padding: 16,
     flexDirection: "row",
@@ -533,7 +559,6 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     lineHeight: 20,
     marginLeft: 12,

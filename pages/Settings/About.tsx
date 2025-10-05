@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import {
@@ -15,7 +15,7 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 export default function AboutScreen() {
   const appVersion = "1.0.0";
   const buildNumber = "2024.10.01";
-
+  const { colors } = useAppTheme();
   const handleOpenLink = (url: string) => {
     Linking.openURL(url);
   };
@@ -34,7 +34,7 @@ export default function AboutScreen() {
     iconColor: string;
   }) => (
     <TouchableOpacity
-      style={styles.linkCard}
+      style={[styles.linkCard, { backgroundColor: colors.white }]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -48,11 +48,19 @@ export default function AboutScreen() {
           <Ionicons name={icon as any} size={22} color={iconColor} />
         </View>
         <View style={styles.linkTextContainer}>
-          <Text style={styles.linkTitle}>{title}</Text>
-          {subtitle && <Text style={styles.linkSubtitle}>{subtitle}</Text>}
+          <Text style={[styles.linkTitle, { color: colors.textPrimary }]}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text
+              style={[styles.linkSubtitle, { color: colors.textSecondary }]}
+            >
+              {subtitle}
+            </Text>
+          )}
         </View>
       </View>
-      <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
+      <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
     </TouchableOpacity>
   );
 
@@ -65,10 +73,20 @@ export default function AboutScreen() {
     role: string;
     image: string;
   }) => (
-    <View style={styles.teamMember}>
-      <Image source={{ uri: image }} style={styles.teamMemberImage} />
-      <Text style={styles.teamMemberName}>{name}</Text>
-      <Text style={styles.teamMemberRole}>{role}</Text>
+    <View style={[styles.teamMember, { backgroundColor: colors.white }]}>
+      <Image
+        source={{ uri: image }}
+        style={[
+          styles.teamMemberImage,
+          { backgroundColor: colors.borderLighter },
+        ]}
+      />
+      <Text style={[styles.teamMemberName, { color: colors.textPrimary }]}>
+        {name}
+      </Text>
+      <Text style={[styles.teamMemberRole, { color: colors.textSecondary }]}>
+        {role}
+      </Text>
     </View>
   );
 
@@ -78,26 +96,50 @@ export default function AboutScreen() {
         options={{
           title: "About Spark",
           headerStyle: {
-            backgroundColor: Colors.primary,
+            backgroundColor: colors.primary,
           },
-          headerTintColor: Colors.white,
+          headerTintColor: colors.white,
         }}
       />
 
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={[
+          styles.container,
+          { backgroundColor: colors.backgroundSecondary },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* App Icon & Info */}
         <Animated.View entering={FadeIn.duration(400)} style={styles.appHeader}>
           <View style={styles.appIconContainer}>
-            <View style={styles.appIcon}>
-              <Ionicons name="flash" size={48} color={Colors.white} />
+            <View
+              style={[
+                styles.appIcon,
+                {
+                  backgroundColor: colors.primary,
+                  shadowColor: colors.blackPure,
+                },
+              ]}
+            >
+              <Ionicons name="flash" size={48} color={colors.white} />
             </View>
           </View>
-          <Text style={styles.appName}>Spark</Text>
-          <Text style={styles.appTagline}>Connect, Share, Inspire</Text>
+          <Text style={[styles.appName, { color: colors.textPrimary }]}>
+            Spark
+          </Text>
+          <Text style={[styles.appTagline, { color: colors.textSecondary }]}>
+            Connect, Share, Inspire
+          </Text>
           <View style={styles.versionContainer}>
-            <Text style={styles.versionText}>Version {appVersion}</Text>
-            <Text style={styles.versionDot}>•</Text>
-            <Text style={styles.versionText}>Build {buildNumber}</Text>
+            <Text style={[styles.versionText, { color: colors.textTertiary }]}>
+              Version {appVersion}
+            </Text>
+            <Text style={[styles.versionDot, { color: colors.textTertiary }]}>
+              •
+            </Text>
+            <Text style={[styles.versionText, { color: colors.textTertiary }]}>
+              Build {buildNumber}
+            </Text>
           </View>
         </Animated.View>
 
@@ -106,9 +148,15 @@ export default function AboutScreen() {
           entering={FadeInDown.delay(100).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>About Spark</Text>
-          <View style={styles.descriptionCard}>
-            <Text style={styles.descriptionText}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            About Spark
+          </Text>
+          <View
+            style={[styles.descriptionCard, { backgroundColor: colors.white }]}
+          >
+            <Text
+              style={[styles.descriptionText, { color: colors.textSecondary }]}
+            >
               Spark is a modern social platform designed to help you connect
               with friends, share moments, and discover inspiring content. Built
               with privacy and user experience at its core.
@@ -121,7 +169,9 @@ export default function AboutScreen() {
           entering={FadeInDown.delay(200).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Legal & Policies</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Legal & Policies
+          </Text>
           <LinkCard
             icon="document-text"
             title="Terms of Service"
@@ -157,28 +207,54 @@ export default function AboutScreen() {
           entering={FadeInDown.delay(300).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Connect With Us</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Connect With Us
+          </Text>
           <View style={styles.socialContainer}>
             <TouchableOpacity
-              style={styles.socialButton}
+              style={[
+                styles.socialButton,
+                {
+                  backgroundColor: colors.white,
+                  shadowColor: colors.blackPure,
+                },
+              ]}
               onPress={() => handleOpenLink("https://twitter.com/spark")}
             >
               <Ionicons name="logo-twitter" size={24} color="#1DA1F2" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.socialButton}
+              style={[
+                styles.socialButton,
+                {
+                  backgroundColor: colors.white,
+                  shadowColor: colors.blackPure,
+                },
+              ]}
               onPress={() => handleOpenLink("https://facebook.com/spark")}
             >
               <Ionicons name="logo-facebook" size={24} color="#1877F2" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.socialButton}
+              style={[
+                styles.socialButton,
+                {
+                  backgroundColor: colors.white,
+                  shadowColor: colors.blackPure,
+                },
+              ]}
               onPress={() => handleOpenLink("https://instagram.com/spark")}
             >
               <Ionicons name="logo-instagram" size={24} color="#E4405F" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.socialButton}
+              style={[
+                styles.socialButton,
+                {
+                  backgroundColor: colors.white,
+                  shadowColor: colors.blackPure,
+                },
+              ]}
               onPress={() =>
                 handleOpenLink("https://linkedin.com/company/spark")
               }
@@ -193,7 +269,9 @@ export default function AboutScreen() {
           entering={FadeInDown.delay(400).duration(400)}
           style={styles.section}
         >
-          <Text style={styles.sectionTitle}>Meet the Team</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Meet the Team
+          </Text>
           <View style={styles.teamContainer}>
             <TeamMember
               name="Ahmed Ali"
@@ -223,8 +301,10 @@ export default function AboutScreen() {
           entering={FadeInDown.delay(500).duration(400)}
           style={styles.creditsCard}
         >
-          <Text style={styles.creditsText}>Made with ❤️ in Cairo, Egypt</Text>
-          <Text style={styles.creditsSubtext}>
+          <Text style={[styles.creditsText, { color: colors.textSecondary }]}>
+            Made with ❤️ in Cairo, Egypt
+          </Text>
+          <Text style={[styles.creditsSubtext, { color: colors.textTertiary }]}>
             © 2024 Spark Inc. All rights reserved.
           </Text>
         </Animated.View>
@@ -238,7 +318,6 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundSecondary,
   },
   appHeader: {
     alignItems: "center",
@@ -252,10 +331,8 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 24,
-    backgroundColor: Colors.primary,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: Colors.blackPure,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
@@ -264,13 +341,11 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 32,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 8,
   },
   appTagline: {
     fontSize: 16,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     marginBottom: 12,
   },
@@ -281,12 +356,10 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 14,
-    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
   versionDot: {
     fontSize: 14,
-    color: Colors.textTertiary,
   },
   section: {
     marginBottom: 32,
@@ -295,27 +368,23 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 16,
   },
 
   // Description
   descriptionCard: {
-    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 20,
   },
   descriptionText: {
     fontSize: 15,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     lineHeight: 22,
   },
 
   // Link Card
   linkCard: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -342,13 +411,11 @@ const styles = StyleSheet.create({
   linkTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 2,
   },
   linkSubtitle: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
 
@@ -362,10 +429,8 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.white,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: Colors.blackPure,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -381,7 +446,6 @@ const styles = StyleSheet.create({
   },
   teamMember: {
     width: "47%",
-    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 16,
     alignItems: "center",
@@ -390,20 +454,17 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.borderLighter,
     marginBottom: 12,
   },
   teamMemberName: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 4,
     textAlign: "center",
   },
   teamMemberRole: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     textAlign: "center",
   },
@@ -416,13 +477,11 @@ const styles = StyleSheet.create({
   },
   creditsText: {
     fontSize: 15,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_500Medium",
     marginBottom: 8,
   },
   creditsSubtext: {
     fontSize: 13,
-    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
 

@@ -1,6 +1,6 @@
 import { FormFields, ProfilePicture, Tips } from "@/components/edit-profile";
-import { Colors } from "@/constants/Colors";
 import useEditProfile from "@/controllers/useEditProfile";
+import useAppTheme from "@/hooks/useAppTheme";
 import { EditProfileProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -19,7 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const EditProfile = ({ biostring, linkstring, imageUrl }: EditProfileProps) => {
   const { top } = useSafeAreaInsets();
-
+  const { colors } = useAppTheme();
   const {
     isLoading,
     isOverLimit,
@@ -40,41 +40,66 @@ const EditProfile = ({ biostring, linkstring, imageUrl }: EditProfileProps) => {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={{
+        flex: 1,
+        backgroundColor: colors.backgroundLight,
+      }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <LinearGradient
-        colors={[Colors.primary, Colors.primaryDark]}
+        colors={[colors.primary, colors.primaryDark]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={[styles.header, { paddingTop: top + 10 }]}
       >
         <View style={styles.headerContent}>
           <TouchableOpacity
-            style={styles.headerButton}
+            style={[
+              styles.headerButton,
+              {
+                backgroundColor: colors.transparentWhite20,
+              },
+            ]}
             onPress={handleCancel}
             disabled={isLoading}
           >
-            <Ionicons name="close" size={24} color={Colors.white} />
-            <Text style={styles.headerButtonText}>Cancel</Text>
+            <Ionicons name="close" size={24} color={colors.white} />
+            <Text
+              style={[
+                styles.headerButtonText,
+                {
+                  color: colors.white,
+                },
+              ]}
+            >
+              Cancel
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.headerButton, styles.doneButton]}
+            style={[
+              styles.headerButton,
+              { backgroundColor: colors.transparentWhite30 },
+            ]}
             onPress={onDone}
             disabled={isLoading || isOverLimit}
           >
             {isLoading ? (
-              <ActivityIndicator color={Colors.white} size="small" />
+              <ActivityIndicator color={colors.white} size="small" />
             ) : (
-              <Ionicons name="checkmark" size={20} color={Colors.white} />
+              <Ionicons name="checkmark" size={20} color={colors.white} />
             )}
           </TouchableOpacity>
         </View>
       </LinearGradient>
 
       <ScrollView
-        style={styles.content}
+        style={[
+          styles.content,
+          {
+            backgroundColor: colors.white,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -83,6 +108,7 @@ const EditProfile = ({ biostring, linkstring, imageUrl }: EditProfileProps) => {
           selectImage={selectImage}
           selectedImage={selectedImage}
           imageUrl={imageUrl}
+          colors={colors}
         />
         <FormFields
           {...{
@@ -93,9 +119,10 @@ const EditProfile = ({ biostring, linkstring, imageUrl }: EditProfileProps) => {
             link,
             setBio,
             setLink,
+            colors,
           }}
         />
-        <Tips />
+        <Tips colors={colors} />
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
@@ -106,10 +133,6 @@ const EditProfile = ({ biostring, linkstring, imageUrl }: EditProfileProps) => {
 export default EditProfile;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.backgroundLight,
-  },
   header: {
     paddingBottom: 16,
   },
@@ -127,15 +150,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
-    backgroundColor: Colors.transparentWhite20,
-  },
-  doneButton: {
-    backgroundColor: Colors.transparentWhite30,
   },
   headerButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.white,
     fontFamily: "DMSans_500Medium",
   },
   doneButtonText: {
@@ -147,7 +165,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: Colors.white,
     marginTop: -16,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,

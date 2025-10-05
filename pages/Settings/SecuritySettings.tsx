@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
@@ -22,6 +22,7 @@ interface LoginSession {
 }
 
 const SecuritySettings = () => {
+  const { colors } = useAppTheme();
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(true);
   const [loginAlerts, setLoginAlerts] = useState(true);
@@ -132,7 +133,7 @@ const SecuritySettings = () => {
     subtitle,
     value,
     onChange,
-    iconColor = Colors.primary,
+    iconColor = colors.primary,
     badge,
   }: {
     icon: string;
@@ -143,7 +144,7 @@ const SecuritySettings = () => {
     iconColor?: string;
     badge?: string;
   }) => (
-    <View style={styles.toggleCard}>
+    <View style={[styles.toggleCard, { backgroundColor: colors.white }]}>
       <View style={styles.toggleContent}>
         <View
           style={[
@@ -155,9 +156,15 @@ const SecuritySettings = () => {
         </View>
         <View style={styles.toggleTextContainer}>
           <View style={styles.titleRow}>
-            <Text style={styles.toggleTitle}>{title}</Text>
+            <Text style={[styles.toggleTitle, { color: colors.textPrimary }]}>
+              {title}
+            </Text>
           </View>
-          <Text style={styles.toggleSubtitle}>{subtitle}</Text>
+          <Text
+            style={[styles.toggleSubtitle, { color: colors.textSecondary }]}
+          >
+            {subtitle}
+          </Text>
         </View>
       </View>
       <Switch
@@ -166,12 +173,14 @@ const SecuritySettings = () => {
           onChange(val);
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }}
-        trackColor={{ false: Colors.borderLight, true: iconColor + "50" }}
-        thumbColor={value ? iconColor : Colors.white}
+        trackColor={{ false: colors.borderLight, true: iconColor + "50" }}
+        thumbColor={value ? iconColor : colors.white}
       />
       {badge && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{badge}</Text>
+        <View style={[styles.badge, { backgroundColor: "#10B981" }]}>
+          <Text style={[styles.badgeText, { color: colors.white }]}>
+            {badge}
+          </Text>
         </View>
       )}
     </View>
@@ -182,7 +191,7 @@ const SecuritySettings = () => {
     title,
     subtitle,
     onPress,
-    iconColor = Colors.primary,
+    iconColor = colors.primary,
     showArrow = true,
   }: {
     icon: string;
@@ -193,7 +202,7 @@ const SecuritySettings = () => {
     showArrow?: boolean;
   }) => (
     <TouchableOpacity
-      style={styles.actionButton}
+      style={[styles.actionButton, { backgroundColor: colors.white }]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -207,15 +216,23 @@ const SecuritySettings = () => {
           <Ionicons name={icon as any} size={22} color={iconColor} />
         </View>
         <View style={styles.actionTextContainer}>
-          <Text style={styles.actionTitle}>{title}</Text>
-          {subtitle && <Text style={styles.actionSubtitle}>{subtitle}</Text>}
+          <Text style={[styles.actionTitle, { color: colors.textPrimary }]}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text
+              style={[styles.actionSubtitle, { color: colors.textSecondary }]}
+            >
+              {subtitle}
+            </Text>
+          )}
         </View>
       </View>
       {showArrow && (
         <Ionicons
           name="chevron-forward"
           size={20}
-          color={Colors.textTertiary}
+          color={colors.textTertiary}
         />
       )}
     </TouchableOpacity>
@@ -225,10 +242,19 @@ const SecuritySettings = () => {
     <View
       style={[
         styles.sessionCard,
-        session.isCurrent && styles.currentSessionCard,
+        {
+          backgroundColor: colors.white,
+          borderColor: colors.borderLight,
+        },
+        session.isCurrent && {
+          borderColor: colors.primary,
+          backgroundColor: colors.primary + "05",
+        },
       ]}
     >
-      <View style={styles.sessionIcon}>
+      <View
+        style={[styles.sessionIcon, { backgroundColor: colors.borderLighter }]}
+      >
         <Ionicons
           name={
             session.device.includes("iPhone") ||
@@ -240,15 +266,21 @@ const SecuritySettings = () => {
                 : "desktop"
           }
           size={24}
-          color={session.isCurrent ? Colors.primary : Colors.textSecondary}
+          color={session.isCurrent ? colors.primary : colors.textSecondary}
         />
       </View>
       <View style={styles.sessionInfo}>
         <View style={styles.sessionHeader}>
-          <Text style={styles.sessionDevice}>{session.device}</Text>
+          <Text style={[styles.sessionDevice, { color: colors.textPrimary }]}>
+            {session.device}
+          </Text>
           {session.isCurrent && (
-            <View style={styles.currentBadge}>
-              <Text style={styles.currentBadgeText}>Current</Text>
+            <View
+              style={[styles.currentBadge, { backgroundColor: colors.primary }]}
+            >
+              <Text style={[styles.currentBadgeText, { color: colors.white }]}>
+                Current
+              </Text>
             </View>
           )}
         </View>
@@ -256,11 +288,19 @@ const SecuritySettings = () => {
           <Ionicons
             name="location-outline"
             size={14}
-            color={Colors.textTertiary}
+            color={colors.textTertiary}
           />
-          <Text style={styles.sessionLocation}>{session.location}</Text>
-          <Text style={styles.sessionDot}>•</Text>
-          <Text style={styles.sessionTime}>{session.lastActive}</Text>
+          <Text
+            style={[styles.sessionLocation, { color: colors.textSecondary }]}
+          >
+            {session.location}
+          </Text>
+          <Text style={[styles.sessionDot, { color: colors.textTertiary }]}>
+            •
+          </Text>
+          <Text style={[styles.sessionTime, { color: colors.textTertiary }]}>
+            {session.lastActive}
+          </Text>
         </View>
       </View>
       {!session.isCurrent && (
@@ -268,18 +308,26 @@ const SecuritySettings = () => {
           style={styles.endSessionButton}
           onPress={() => handleEndSession(session.id, session.device)}
         >
-          <Ionicons name="close-circle" size={24} color={Colors.danger} />
+          <Ionicons name="close-circle" size={24} color={colors.danger} />
         </TouchableOpacity>
       )}
     </View>
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={[
+        styles.container,
+        { backgroundColor: colors.backgroundSecondary },
+      ]}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Header */}
       <Animated.View entering={FadeIn.duration(400)} style={styles.header}>
-        <Text style={styles.headerTitle}>Security</Text>
-        <Text style={styles.headerSubtitle}>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+          Security
+        </Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
           Keep your account safe and secure
         </Text>
       </Animated.View>
@@ -287,30 +335,40 @@ const SecuritySettings = () => {
       {/* Security Status Card */}
       <Animated.View
         entering={FadeInDown.delay(100).duration(400)}
-        style={styles.statusCard}
+        style={[
+          styles.statusCard,
+          { backgroundColor: colors.white, shadowColor: colors.blackPure },
+        ]}
       >
-        <View style={styles.statusIconContainer}>
+        <View
+          style={[
+            styles.statusIconContainer,
+            { backgroundColor: colors.borderLighter },
+          ]}
+        >
           <Ionicons
             name={twoFactorEnabled ? "shield-checkmark" : "shield-outline"}
             size={32}
             color={twoFactorEnabled ? "#10B981" : "#F97316"}
           />
         </View>
-        <Text style={styles.statusTitle}>
+        <Text style={[styles.statusTitle, { color: colors.textPrimary }]}>
           {twoFactorEnabled ? "Account is Secured" : "Enhance Your Security"}
         </Text>
-        <Text style={styles.statusSubtitle}>
+        <Text style={[styles.statusSubtitle, { color: colors.textSecondary }]}>
           {twoFactorEnabled
             ? "Two-factor authentication is active"
             : "Enable 2FA for better protection"}
         </Text>
         {!twoFactorEnabled && (
           <TouchableOpacity
-            style={styles.statusButton}
+            style={[styles.statusButton, { backgroundColor: colors.primary }]}
             onPress={handleSetup2FA}
           >
-            <Text style={styles.statusButtonText}>Enable 2FA</Text>
-            <Ionicons name="arrow-forward" size={18} color={Colors.white} />
+            <Text style={[styles.statusButtonText, { color: colors.white }]}>
+              Enable 2FA
+            </Text>
+            <Ionicons name="arrow-forward" size={18} color={colors.white} />
           </TouchableOpacity>
         )}
       </Animated.View>
@@ -320,7 +378,9 @@ const SecuritySettings = () => {
         entering={FadeInDown.delay(200).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Authentication</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Authentication
+        </Text>
         <SecurityToggle
           icon="shield-checkmark-outline"
           title="Two-Factor Authentication"
@@ -352,7 +412,9 @@ const SecuritySettings = () => {
         entering={FadeInDown.delay(300).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Security Alerts</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Security Alerts
+        </Text>
         <SecurityToggle
           icon="notifications-outline"
           title="Login Alerts"
@@ -369,12 +431,18 @@ const SecuritySettings = () => {
         style={styles.section}
       >
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Active Sessions</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Active Sessions
+          </Text>
           <TouchableOpacity onPress={handleEndAllSessions}>
-            <Text style={styles.endAllText}>End All</Text>
+            <Text style={[styles.endAllText, { color: colors.danger }]}>
+              End All
+            </Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.sectionDescription}>
+        <Text
+          style={[styles.sectionDescription, { color: colors.textSecondary }]}
+        >
           {"Manage devices where you're logged in"}
         </Text>
         <View style={styles.sessionsContainer}>
@@ -389,7 +457,9 @@ const SecuritySettings = () => {
         entering={FadeInDown.delay(500).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Additional Security</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Additional Security
+        </Text>
         <ActionButton
           icon="time-outline"
           title="Login History"
@@ -416,28 +486,41 @@ const SecuritySettings = () => {
       {/* Security Tips */}
       <Animated.View
         entering={FadeInDown.delay(600).duration(400)}
-        style={styles.tipsCard}
+        style={[
+          styles.tipsCard,
+          { backgroundColor: "#FEF3C7", borderColor: "#FDE68A" },
+        ]}
       >
         <View style={styles.tipsHeader}>
           <Ionicons name="bulb" size={24} color="#F59E0B" />
-          <Text style={styles.tipsTitle}>Security Tips</Text>
+          <Text style={[styles.tipsTitle, { color: colors.textPrimary }]}>
+            Security Tips
+          </Text>
         </View>
         <View style={styles.tipsList}>
           <View style={styles.tipItem}>
             <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-            <Text style={styles.tipText}>Use a strong, unique password</Text>
+            <Text style={[styles.tipText, { color: colors.textPrimary }]}>
+              Use a strong, unique password
+            </Text>
           </View>
           <View style={styles.tipItem}>
             <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-            <Text style={styles.tipText}>Enable two-factor authentication</Text>
+            <Text style={[styles.tipText, { color: colors.textPrimary }]}>
+              Enable two-factor authentication
+            </Text>
           </View>
           <View style={styles.tipItem}>
             <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-            <Text style={styles.tipText}>Review active sessions regularly</Text>
+            <Text style={[styles.tipText, { color: colors.textPrimary }]}>
+              Review active sessions regularly
+            </Text>
           </View>
           <View style={styles.tipItem}>
             <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-            <Text style={styles.tipText}>{"Don't share your password"}</Text>
+            <Text style={[styles.tipText, { color: colors.textPrimary }]}>
+              {"Don't share your password"}
+            </Text>
           </View>
         </View>
       </Animated.View>
@@ -452,7 +535,6 @@ export default SecuritySettings;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
   },
   header: {
     paddingHorizontal: 20,
@@ -462,13 +544,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
   section: {
@@ -484,31 +564,26 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
   },
   sectionDescription: {
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     marginBottom: 16,
   },
   endAllText: {
     fontSize: 15,
-    color: Colors.danger,
     fontWeight: "600",
     fontFamily: "DMSans_600SemiBold",
   },
 
   // Status Card
   statusCard: {
-    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 24,
     marginHorizontal: 20,
     marginBottom: 32,
     alignItems: "center",
-    shadowColor: Colors.blackPure,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -518,7 +593,6 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.borderLighter,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
@@ -526,14 +600,12 @@ const styles = StyleSheet.create({
   statusTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 8,
     textAlign: "center",
   },
   statusSubtitle: {
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     textAlign: "center",
     marginBottom: 16,
@@ -542,7 +614,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 24,
@@ -550,7 +621,6 @@ const styles = StyleSheet.create({
   statusButtonText: {
     fontSize: 15,
     fontWeight: "600",
-    color: Colors.white,
     fontFamily: "DMSans_600SemiBold",
   },
 
@@ -559,7 +629,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -589,16 +658,13 @@ const styles = StyleSheet.create({
   toggleTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
   },
   toggleSubtitle: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
   badge: {
-    backgroundColor: "#10B981",
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -610,13 +676,11 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 11,
     fontWeight: "600",
-    color: Colors.white,
     fontFamily: "DMSans_600SemiBold",
   },
 
   // Action Button
   actionButton: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -643,13 +707,11 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 2,
   },
   actionSubtitle: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
 
@@ -658,23 +720,16 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   sessionCard: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: Colors.borderLight,
-  },
-  currentSessionCard: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary + "05",
   },
   sessionIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Colors.borderLighter,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -691,11 +746,9 @@ const styles = StyleSheet.create({
   sessionDevice: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
   },
   currentBadge: {
-    backgroundColor: Colors.primary,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -703,7 +756,6 @@ const styles = StyleSheet.create({
   currentBadgeText: {
     fontSize: 11,
     fontWeight: "600",
-    color: Colors.white,
     fontFamily: "DMSans_600SemiBold",
   },
   sessionDetails: {
@@ -713,16 +765,13 @@ const styles = StyleSheet.create({
   },
   sessionLocation: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
   sessionDot: {
     fontSize: 13,
-    color: Colors.textTertiary,
   },
   sessionTime: {
     fontSize: 13,
-    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
   },
   endSessionButton: {
@@ -731,13 +780,11 @@ const styles = StyleSheet.create({
 
   // Tips Card
   tipsCard: {
-    backgroundColor: "#FEF3C7",
     borderRadius: 16,
     padding: 20,
     marginHorizontal: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#FDE68A",
   },
   tipsHeader: {
     flexDirection: "row",
@@ -748,7 +795,6 @@ const styles = StyleSheet.create({
   tipsTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
   },
   tipsList: {
@@ -761,7 +807,6 @@ const styles = StyleSheet.create({
   },
   tipText: {
     fontSize: 14,
-    color: Colors.textPrimary,
     fontFamily: "DMSans_400Regular",
     flex: 1,
   },

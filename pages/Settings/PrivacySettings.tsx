@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
@@ -17,6 +17,7 @@ type VisibilityOption = "public" | "friends" | "private";
 type MessagePermission = "everyone" | "following" | "none";
 
 const PrivacySettings = () => {
+  const { colors } = useAppTheme();
   const [profileVisibility, setProfileVisibility] =
     useState<VisibilityOption>("public");
   const [postVisibility, setPostVisibility] =
@@ -122,7 +123,9 @@ const PrivacySettings = () => {
     onChange: (value: VisibilityOption) => void;
   }) => (
     <View style={styles.selectorContainer}>
-      <Text style={styles.selectorTitle}>{title}</Text>
+      <Text style={[styles.selectorTitle, { color: colors.textPrimary }]}>
+        {title}
+      </Text>
       <View style={styles.optionsRow}>
         {visibilityOptions.map((option) => {
           const isSelected = value === option.value;
@@ -131,7 +134,14 @@ const PrivacySettings = () => {
               key={option.value}
               style={[
                 styles.optionCard,
-                isSelected && styles.optionCardSelected,
+                {
+                  backgroundColor: colors.white,
+                  borderColor: colors.borderLight,
+                },
+                isSelected && {
+                  borderColor: colors.primary,
+                  backgroundColor: colors.primary + "08",
+                },
               ]}
               onPress={() => onChange(option.value)}
               activeOpacity={0.7}
@@ -139,24 +149,33 @@ const PrivacySettings = () => {
               <View
                 style={[
                   styles.optionIconContainer,
-                  isSelected && styles.optionIconContainerSelected,
+                  { backgroundColor: colors.borderLighter },
+                  isSelected && { backgroundColor: colors.primary + "15" },
                 ]}
               >
                 <Ionicons
                   name={option.icon as any}
                   size={20}
-                  color={isSelected ? Colors.primary : Colors.textSecondary}
+                  color={isSelected ? colors.primary : colors.textSecondary}
                 />
               </View>
               <Text
                 style={[
                   styles.optionLabel,
-                  isSelected && styles.optionLabelSelected,
+                  { color: colors.textPrimary },
+                  isSelected && { color: colors.primary },
                 ]}
               >
                 {option.label}
               </Text>
-              <Text style={styles.optionDescription}>{option.description}</Text>
+              <Text
+                style={[
+                  styles.optionDescription,
+                  { color: colors.textTertiary },
+                ]}
+              >
+                {option.description}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -170,7 +189,7 @@ const PrivacySettings = () => {
     subtitle,
     value,
     onChange,
-    iconColor = Colors.primary,
+    iconColor = colors.primary,
   }: {
     icon: string;
     title: string;
@@ -179,7 +198,7 @@ const PrivacySettings = () => {
     onChange: (value: boolean) => void;
     iconColor?: string;
   }) => (
-    <View style={styles.toggleCard}>
+    <View style={[styles.toggleCard, { backgroundColor: colors.white }]}>
       <View style={styles.toggleContent}>
         <View
           style={[
@@ -190,8 +209,14 @@ const PrivacySettings = () => {
           <Ionicons name={icon as any} size={22} color={iconColor} />
         </View>
         <View style={styles.toggleTextContainer}>
-          <Text style={styles.toggleTitle}>{title}</Text>
-          <Text style={styles.toggleSubtitle}>{subtitle}</Text>
+          <Text style={[styles.toggleTitle, { color: colors.textPrimary }]}>
+            {title}
+          </Text>
+          <Text
+            style={[styles.toggleSubtitle, { color: colors.textSecondary }]}
+          >
+            {subtitle}
+          </Text>
         </View>
       </View>
       <Switch
@@ -200,8 +225,8 @@ const PrivacySettings = () => {
           onChange(val);
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }}
-        trackColor={{ false: Colors.borderLight, true: Colors.primary + "50" }}
-        thumbColor={value ? Colors.primary : Colors.white}
+        trackColor={{ false: colors.borderLight, true: colors.primary + "50" }}
+        thumbColor={value ? colors.primary : colors.white}
       />
     </View>
   );
@@ -211,7 +236,7 @@ const PrivacySettings = () => {
     title,
     subtitle,
     onPress,
-    iconColor = Colors.primary,
+    iconColor = colors.primary,
     isDestructive = false,
   }: {
     icon: string;
@@ -224,7 +249,8 @@ const PrivacySettings = () => {
     <TouchableOpacity
       style={[
         styles.actionButton,
-        isDestructive && styles.actionButtonDestructive,
+        { backgroundColor: colors.white },
+        isDestructive && { backgroundColor: colors.danger + "05" },
       ]}
       onPress={onPress}
       activeOpacity={0.7}
@@ -234,37 +260,52 @@ const PrivacySettings = () => {
           style={[
             styles.actionIconContainer,
             { backgroundColor: iconColor + "15" },
-            isDestructive && styles.actionIconContainerDestructive,
+            isDestructive && { backgroundColor: colors.danger + "15" },
           ]}
         >
           <Ionicons
             name={icon as any}
             size={22}
-            color={isDestructive ? Colors.danger : iconColor}
+            color={isDestructive ? colors.danger : iconColor}
           />
         </View>
         <View style={styles.actionTextContainer}>
           <Text
             style={[
               styles.actionTitle,
-              isDestructive && styles.actionTitleDestructive,
+              { color: colors.textPrimary },
+              isDestructive && { color: colors.danger },
             ]}
           >
             {title}
           </Text>
-          {subtitle && <Text style={styles.actionSubtitle}>{subtitle}</Text>}
+          {subtitle && (
+            <Text
+              style={[styles.actionSubtitle, { color: colors.textSecondary }]}
+            >
+              {subtitle}
+            </Text>
+          )}
         </View>
       </View>
-      <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
+      <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
     </TouchableOpacity>
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={[
+        styles.container,
+        { backgroundColor: colors.backgroundSecondary },
+      ]}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Header */}
       <Animated.View entering={FadeIn.duration(400)} style={styles.header}>
-        <Text style={styles.headerTitle}>Privacy & Safety</Text>
-        <Text style={styles.headerSubtitle}>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+          Privacy & Safety
+        </Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
           Control who can see your content and interact with you
         </Text>
       </Animated.View>
@@ -298,7 +339,9 @@ const PrivacySettings = () => {
         entering={FadeInDown.delay(300).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Message Permissions</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Message Permissions
+        </Text>
         <View style={styles.messageOptionsContainer}>
           {messageOptions.map((option) => {
             const isSelected = messagePermission === option.value;
@@ -307,7 +350,14 @@ const PrivacySettings = () => {
                 key={option.value}
                 style={[
                   styles.messageOption,
-                  isSelected && styles.messageOptionSelected,
+                  {
+                    backgroundColor: colors.white,
+                    borderColor: colors.borderLight,
+                  },
+                  isSelected && {
+                    borderColor: colors.primary,
+                    backgroundColor: colors.primary + "05",
+                  },
                 ]}
                 onPress={() => {
                   setMessagePermission(option.value);
@@ -319,21 +369,41 @@ const PrivacySettings = () => {
                   <Text
                     style={[
                       styles.messageOptionLabel,
-                      isSelected && styles.messageOptionLabelSelected,
+                      { color: colors.textPrimary },
+                      isSelected && { color: colors.primary },
                     ]}
                   >
                     {option.label}
                   </Text>
-                  <Text style={styles.messageOptionDescription}>
+                  <Text
+                    style={[
+                      styles.messageOptionDescription,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
                     {option.description}
                   </Text>
                 </View>
                 {isSelected && (
-                  <View style={styles.radioSelected}>
-                    <View style={styles.radioInner} />
+                  <View
+                    style={[
+                      styles.radioSelected,
+                      { borderColor: colors.primary },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.radioInner,
+                        { backgroundColor: colors.primary },
+                      ]}
+                    />
                   </View>
                 )}
-                {!isSelected && <View style={styles.radio} />}
+                {!isSelected && (
+                  <View
+                    style={[styles.radio, { borderColor: colors.borderLight }]}
+                  />
+                )}
               </TouchableOpacity>
             );
           })}
@@ -345,7 +415,9 @@ const PrivacySettings = () => {
         entering={FadeInDown.delay(400).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Activity Settings</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Activity Settings
+        </Text>
         <SettingToggle
           icon="eye-outline"
           title="Show Online Status"
@@ -381,7 +453,9 @@ const PrivacySettings = () => {
         entering={FadeInDown.delay(500).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Discovery</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Discovery
+        </Text>
         <SettingToggle
           icon="search-outline"
           title="Searchable Profile"
@@ -397,7 +471,9 @@ const PrivacySettings = () => {
         entering={FadeInDown.delay(600).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Data & Privacy</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Data & Privacy
+        </Text>
         <ActionButton
           icon="trash-outline"
           title="Clear Search History"
@@ -433,7 +509,9 @@ const PrivacySettings = () => {
         entering={FadeInDown.delay(700).duration(400)}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Danger Zone</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+          Danger Zone
+        </Text>
         <ActionButton
           icon="close-circle-outline"
           title="Deactivate Account"
@@ -471,12 +549,16 @@ const PrivacySettings = () => {
       {/* Info Card */}
       <Animated.View
         entering={FadeInDown.delay(800).duration(400)}
-        style={styles.infoCard}
+        style={[styles.infoCard, { backgroundColor: colors.primary + "10" }]}
       >
-        <Ionicons name="information-circle" size={24} color={Colors.primary} />
-        <Text style={styles.infoText}>
+        <Ionicons name="information-circle" size={24} color={colors.primary} />
+        <Text style={[styles.infoText, { color: colors.textSecondary }]}>
           Your privacy is important to us. Learn more about how we protect your
-          data in our <Text style={styles.infoLink}>Privacy Policy</Text>.
+          data in our{" "}
+          <Text style={[styles.infoLink, { color: colors.primary }]}>
+            Privacy Policy
+          </Text>
+          .
         </Text>
       </Animated.View>
 
@@ -490,7 +572,6 @@ export default PrivacySettings;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
   },
   header: {
     paddingHorizontal: 20,
@@ -500,13 +581,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     lineHeight: 22,
   },
@@ -517,7 +596,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 16,
   },
@@ -529,7 +607,6 @@ const styles = StyleSheet.create({
   selectorTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_700Bold",
     marginBottom: 16,
   },
@@ -539,42 +616,27 @@ const styles = StyleSheet.create({
   },
   optionCard: {
     flex: 1,
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 14,
     alignItems: "center",
     borderWidth: 2,
-    borderColor: Colors.borderLight,
-  },
-  optionCardSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary + "08",
   },
   optionIconContainer: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.borderLighter,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
   },
-  optionIconContainerSelected: {
-    backgroundColor: Colors.primary + "15",
-  },
   optionLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 2,
   },
-  optionLabelSelected: {
-    color: Colors.primary,
-  },
   optionDescription: {
     fontSize: 11,
-    color: Colors.textTertiary,
     fontFamily: "DMSans_400Regular",
     textAlign: "center",
   },
@@ -584,18 +646,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   messageOption: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderWidth: 2,
-    borderColor: Colors.borderLight,
-  },
-  messageOptionSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary + "05",
   },
   messageOptionContent: {
     flex: 1,
@@ -603,16 +659,11 @@ const styles = StyleSheet.create({
   messageOptionLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 2,
   },
-  messageOptionLabelSelected: {
-    color: Colors.primary,
-  },
   messageOptionDescription: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
   radio: {
@@ -620,14 +671,12 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.borderLight,
   },
   radioSelected: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.primary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -635,7 +684,6 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: Colors.primary,
   },
 
   // Toggle Styles
@@ -643,7 +691,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -667,28 +714,22 @@ const styles = StyleSheet.create({
   toggleTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 2,
   },
   toggleSubtitle: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
 
   // Action Button
   actionButton: {
-    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  actionButtonDestructive: {
-    backgroundColor: Colors.danger + "05",
   },
   actionContent: {
     flexDirection: "row",
@@ -703,31 +744,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 12,
   },
-  actionIconContainerDestructive: {
-    backgroundColor: Colors.danger + "15",
-  },
   actionTextContainer: {
     flex: 1,
   },
   actionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.textPrimary,
     fontFamily: "DMSans_600SemiBold",
     marginBottom: 2,
   },
-  actionTitleDestructive: {
-    color: Colors.danger,
-  },
   actionSubtitle: {
     fontSize: 13,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
   },
 
   // Info Card
   infoCard: {
-    backgroundColor: Colors.primary + "10",
     borderRadius: 12,
     padding: 16,
     flexDirection: "row",
@@ -738,13 +770,11 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: Colors.textSecondary,
     fontFamily: "DMSans_400Regular",
     lineHeight: 20,
     marginLeft: 12,
   },
   infoLink: {
-    color: Colors.primary,
     fontWeight: "600",
     fontFamily: "DMSans_600SemiBold",
   },
