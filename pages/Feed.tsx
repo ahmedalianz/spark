@@ -2,6 +2,7 @@ import { Post } from "@/components/feed-post";
 import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
+import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useIsFocused } from "@react-navigation/native";
@@ -38,6 +39,7 @@ import CreatePost from "./CreatePost";
 type FeedFilter = "all" | "following";
 
 const Feed = () => {
+  const { colors, theme } = useAppTheme();
   const [currentFilter, setCurrentFilter] = useState<FeedFilter>("all");
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -429,8 +431,8 @@ const Feed = () => {
   return (
     <>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.background}
+        barStyle={theme === "light" ? "dark-content" : "light-content"}
+        backgroundColor={colors.background}
         translucent={false}
       />
       <View style={styles.container}>

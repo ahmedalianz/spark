@@ -4,7 +4,7 @@
     "slug": "spark",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/spark.webp",
+    "icon": "./assets/images/spark.png",
     "scheme": "spark",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/spark.webp",
+        "foregroundImage": "./assets/images/spark.png",
         "backgroundColor": "#667eea"
       },
       "edgeToEdgeEnabled": true,

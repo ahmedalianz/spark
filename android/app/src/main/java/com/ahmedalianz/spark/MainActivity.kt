@@ -1,4 +1,4 @@
-package com.anonymous.spark
+package com.ahmedalianz.spark
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

@@ -88,9 +88,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.spark'
+    namespace 'com.ahmedalianz.spark'
     defaultConfig {
-        applicationId 'com.anonymous.spark'
+        applicationId 'com.ahmedalianz.spark'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
