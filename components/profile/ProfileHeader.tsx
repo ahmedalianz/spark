@@ -18,6 +18,7 @@ const ProfileHeader = ({
   isCurrentUserProfile,
   viewedUserInfo,
   colors,
+  top,
   signOutHandler,
 }: ProfileHeaderProps) => {
   const headerOpacity = scrollY.interpolate({
@@ -28,7 +29,7 @@ const ProfileHeader = ({
 
   const headerTranslateY = scrollY.interpolate({
     inputRange: [0, 100],
-    outputRange: [0, -20],
+    outputRange: [0, -20 + top / 2],
     extrapolate: "clamp",
   });
   return (
@@ -39,6 +40,7 @@ const ProfileHeader = ({
           opacity: headerOpacity,
           borderBottomColor: colors.transparentWhite20,
           transform: [{ translateY: headerTranslateY }],
+          paddingTop: top,
         },
         Platform.OS === "android" && { backgroundColor: colors.primary },
       ]}

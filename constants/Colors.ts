@@ -63,8 +63,8 @@ export const Colors = {
   transparentBlack70: "rgba(0, 0, 0, 0.7)",
 
   splashColor1: "#3a94d8ff",
-  splashColor2: "#c9cfe1ff",
-  splashColor3: "#6D28D9",
+  splashColor2: "#b8c6edff",
+  splashColor3: "#042561ff",
 };
 
 export const DarkColors = {

@@ -23,6 +23,7 @@ import useProfile from "@/controllers/useProfile";
 import useAppTheme from "@/hooks/useAppTheme";
 import { PostWithAuthorDetails } from "@/types";
 import { useCallback } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Profile({ userId }: { userId?: Id<"users"> }) {
   const {
@@ -42,7 +43,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
   } = useProfile({ userId });
 
   const { colors } = useAppTheme();
-
+  const { top } = useSafeAreaInsets();
   const renderEmptyComponent = useCallback(() => {
     return <ProfileEmpty activeTab={activeTab} colors={colors} />;
   }, [activeTab]);
@@ -80,7 +81,10 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
 
   return (
     <View
-      style={[styles.container, { backgroundColor: colors.backgroundLight }]}
+      style={[
+        styles.container,
+        { backgroundColor: colors.backgroundLight, paddingTop: top },
+      ]}
     >
       <ProfileHeader
         {...{
@@ -91,6 +95,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
           isCurrentUserProfile,
           viewedUserInfo,
           colors,
+          top,
         }}
       />
 
@@ -175,7 +180,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  // Tab Styles
   tabContainer: {
     flexDirection: "row",
     borderBottomWidth: 1,
@@ -184,7 +188,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "DMSans_400Regular",
   },
-  // Content Styles
   postWrapper: {
     marginHorizontal: 16,
     marginVertical: 6,

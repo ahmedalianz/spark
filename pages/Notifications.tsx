@@ -1,6 +1,6 @@
 import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
 import useAppTheme from "@/hooks/useAppTheme";
+import { NotificationType, NotificationWithDetails } from "@/types";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, usePaginatedQuery } from "convex/react";
@@ -25,94 +25,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const mockNotifications = [
-  {
-    _id: "notification_1" as Id<"notifications">,
-    _creationTime: Date.now() - 1000 * 60 * 5, // 5 minutes ago
-    userId: "user_current" as Id<"users">,
-    actorId: "user_john" as Id<"users">,
-    type: "like" as const,
-    postId: "post_123" as Id<"posts">,
-    message: "John Doe liked your post",
-    isRead: false,
-    createdAt: Date.now() - 1000 * 60 * 5,
-  },
-  {
-    _id: "notification_2" as Id<"notifications">,
-    _creationTime: Date.now() - 1000 * 60 * 30, // 30 minutes ago
-    userId: "user_current" as Id<"users">,
-    actorId: "user_jane" as Id<"users">,
-    type: "comment" as const,
-    postId: "post_456" as Id<"posts">,
-    commentId: "comment_789" as Id<"comments">,
-    message: 'Jane Smith commented on your post: "Great insights!"',
-    isRead: false,
-    createdAt: Date.now() - 1000 * 60 * 30,
-  },
-  {
-    _id: "notification_3" as Id<"notifications">,
-    _creationTime: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
-    userId: "user_current" as Id<"users">,
-    actorId: "user_mike" as Id<"users">,
-    type: "follow" as const,
-    message: "Mike Johnson started following you",
-    isRead: true,
-    createdAt: Date.now() - 1000 * 60 * 60 * 2,
-  },
-  {
-    _id: "notification_4" as Id<"notifications">,
-    _creationTime: Date.now() - 1000 * 60 * 60 * 4, // 4 hours ago
-    userId: "user_current" as Id<"users">,
-    actorId: "user_sarah" as Id<"users">,
-    type: "mention" as const,
-    postId: "post_789" as Id<"posts">,
-    message: "Sarah Wilson mentioned you in a post",
-    isRead: true,
-    createdAt: Date.now() - 1000 * 60 * 60 * 4,
-  },
-  {
-    _id: "notification_5" as Id<"notifications">,
-    _creationTime: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
-    userId: "user_current" as Id<"users">,
-    actorId: "user_alex" as Id<"users">,
-    type: "repost" as const,
-    postId: "post_101" as Id<"posts">,
-    message: "Alex Chen reposted your post",
-    isRead: true,
-    createdAt: Date.now() - 1000 * 60 * 60 * 24,
-  },
-  {
-    _id: "notification_6" as Id<"notifications">,
-    _creationTime: Date.now() - 1000 * 60 * 60 * 24 * 2, // 2 days ago
-    userId: "user_current" as Id<"users">,
-    actorId: null, // System notification
-    type: "like" as const,
-    message: "Your post received 10 likes today!",
-    isRead: false,
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2,
-  },
-];
-
-type NotificationType =
-  | "like"
-  | "comment"
-  | "reply"
-  | "follow"
-  | "mention"
-  | "post_share";
-
-type NotificationData = {
-  _id: Id<"notifications">;
-  _creationTime: number;
-  type: NotificationType;
-  message: string;
-  isRead: boolean;
-  fromUser: Doc<"users"> | null;
-  postId?: Id<"posts">;
-  commentId?: Id<"comments">;
-  replyId?: Id<"replies">;
-};
-
 const Notifications = () => {
   const { top } = useSafeAreaInsets();
   const router = useRouter();
@@ -120,20 +32,24 @@ const Notifications = () => {
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const { colors } = useAppTheme();
 
-  const { status, loadMore } = usePaginatedQuery(
+  const {
+    results: notifications,
+    status,
+    loadMore,
+  } = usePaginatedQuery(
     api.notifications.getNotifications,
     {},
-    { initialNumItems: 20 }
+    { initialNumItems: 12 }
   );
-  const notifications = mockNotifications;
   const markAsRead = useMutation(api.notifications.markNotificationAsRead);
   const markAllAsRead = useMutation(
     api.notifications.markAllNotificationsAsRead
   );
-
+  console.log({ notifications: notifications[1] });
   const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-  const handleNotificationPress = async (notification: NotificationData) => {
+  const handleNotificationPress = async (
+    notification: NotificationWithDetails
+  ) => {
     // Mark as read if unread
     if (!notification.isRead) {
       await markAsRead({ notificationId: notification._id });
@@ -144,20 +60,17 @@ const Notifications = () => {
       case "like":
       case "comment":
       case "reply":
+      case "mention":
+      case "repost":
         if (notification.postId) {
           router.push(`/(auth)/(modals)/post/${notification.postId}`);
         }
         break;
       case "follow":
-        if (notification.fromUser) {
+        if (notification?.author) {
           router.push(
-            `/(auth)/(modals)/feed-profile/${notification.fromUser._id}`
+            `/(auth)/(modals)/feed-profile/${notification?.author?._id}`
           );
-        }
-        break;
-      case "mention":
-        if (notification.postId) {
-          router.push(`/(auth)/(modals)/post/${notification.postId}`);
         }
         break;
     }
@@ -230,7 +143,7 @@ const Notifications = () => {
     item,
     index,
   }: {
-    item: NotificationData;
+    item: NotificationWithDetails;
     index: number;
   }) => (
     <Animated.View
@@ -256,12 +169,12 @@ const Notifications = () => {
       >
         <View style={styles.notificationLeft}>
           <View style={styles.avatarContainer}>
-            {item.fromUser ? (
+            {item?.author ? (
               <Image
                 source={{
                   uri:
-                    item.fromUser.imageUrl ||
-                    `https://ui-avatars.com/api/?name=${item.fromUser.first_name}+${item.fromUser.last_name}&background=random`,
+                    item?.author?.imageUrl ||
+                    `https://ui-avatars.com/api/?name=${item?.author?.first_name}+${item?.author?.last_name}&background=random`,
                 }}
                 style={styles.avatar}
               />

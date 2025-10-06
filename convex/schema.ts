@@ -32,12 +32,7 @@ export default defineSchema({
     authorId: v.id("users"),
     content: v.string(),
     mediaFiles: v.optional(v.array(v.string())),
-    type: v.union(
-      v.literal("post"),
-      v.literal("repost"),
-      v.literal("tagged"),
-      v.literal("quote")
-    ),
+    type: v.union(v.literal("post"), v.literal("repost"), v.literal("tagged")),
     originalPostId: v.optional(v.id("posts")), // For reposts/quotes
     likeCount: v.number(),
     repostCount: v.number(), // Added
@@ -109,17 +104,6 @@ export default defineSchema({
     .index("byUserAndReply", ["userId", "replyId"])
     .index("byUserAndType", ["userId", "type"]),
 
-  reposts: defineTable({
-    // Separate table for better tracking
-    userId: v.id("users"),
-    postId: v.id("posts"),
-    comment: v.optional(v.string()), // For quote reposts
-    createdAt: v.number(),
-  })
-    .index("byUser", ["userId"])
-    .index("byPost", ["postId"])
-    .index("byUserAndPost", ["userId", "postId"]),
-
   follows: defineTable({
     followerId: v.id("users"),
     followingId: v.id("users"),
@@ -131,7 +115,7 @@ export default defineSchema({
     .index("byFollowerAndFollowing", ["followerId", "followingId"]),
   notifications: defineTable({
     userId: v.id("users"),
-    actorId: v.optional(v.id("users")),
+    authorId: v.optional(v.id("users")),
     type: v.union(
       v.literal("like"),
       v.literal("comment"),
@@ -142,6 +126,7 @@ export default defineSchema({
       v.literal("repost")
     ),
     postId: v.optional(v.id("posts")),
+    originalPostId: v.optional(v.id("posts")),
     commentId: v.optional(v.id("comments")),
     replyId: v.optional(v.id("replies")),
     actionUrl: v.optional(v.string()),

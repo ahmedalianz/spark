@@ -127,6 +127,7 @@ export type ProfileHeaderProps = {
   viewedUserInfo: Doc<"users">;
   isCurrentUserProfile: boolean;
   colors: ColorsType;
+  top: number;
   signOutHandler: () => void;
 };
 
@@ -217,6 +218,20 @@ export type PostMenuModalProps = {
   author: string;
 };
 
+/* -------------------------------------------------------------------------- */
+/*                                   Notifications                            */
+/* -------------------------------------------------------------------------- */
+export type NotificationType =
+  | "system"
+  | "like"
+  | "comment"
+  | "reply"
+  | "repost"
+  | "follow"
+  | "mention"
+  | "post_share";
+
+export type NotificationWithDetails = EntityWithAuthor<Doc<"notifications">>;
 /* -------------------------------------------------------------------------- */
 /*                                   COMMENT                                  */
 /* -------------------------------------------------------------------------- */

@@ -7,7 +7,6 @@ import { getUserWithImage } from "./utils";
 export const getNotifications = query({
   args: {
     paginationOpts: paginationOptsValidator,
-    unreadOnly: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const currentUser = await getCurrentUserOrThrow(ctx);
@@ -16,29 +15,19 @@ export const getNotifications = query({
       .query("notifications")
       .withIndex("byUser", (q) => q.eq("userId", currentUser._id));
 
-    if (args.unreadOnly) {
-      query = query.filter((q) => q.eq(q.field("isRead"), false));
-    }
-
     const notifications = await query
       .order("desc")
       .paginate(args.paginationOpts);
 
     const notificationsWithDetails = await Promise.all(
       notifications.page.map(async (notification) => {
-        const [actor, post, comment] = await Promise.all([
-          notification.actorId
-            ? getUserWithImage(ctx, notification.actorId)
-            : null,
-          notification.postId ? ctx.db.get(notification.postId) : null,
-          notification.commentId ? ctx.db.get(notification.commentId) : null,
-        ]);
+        const author = notification.authorId
+          ? await getUserWithImage(ctx, notification.authorId)
+          : null;
 
         return {
           ...notification,
-          actor,
-          post,
-          comment,
+          author,
         };
       })
     );

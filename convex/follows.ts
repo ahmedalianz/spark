@@ -36,42 +36,64 @@ export const followUser = mutation({
       // Update counts
       await ctx.db.patch(currentUser._id, {
         followingsCount: Math.max(0, (currentUser.followingsCount || 0) - 1),
+        updatedAt: now,
       });
 
       await ctx.db.patch(args.userId, {
         followersCount: Math.max(0, (targetUser.followersCount || 0) - 1),
+        updatedAt: now,
       });
 
       return { followed: false };
     } else {
       // Follow
-
       await ctx.db.insert("follows", {
         followerId: currentUser._id,
         followingId: args.userId,
         createdAt: now,
       });
 
+      // Update counts with proper defaults
       await ctx.db.patch(currentUser._id, {
         followingsCount: (currentUser.followingsCount || 0) + 1,
+        updatedAt: now,
       });
 
-      // Send notification
-      await ctx.db.insert("notifications", {
-        userId: args.userId,
-        actorId: currentUser._id,
-        type: "follow",
-        message: `${currentUser.first_name} started following you`,
-        isRead: false,
-        createdAt: now,
+      await ctx.db.patch(args.userId, {
+        followersCount: (targetUser.followersCount || 0) + 1,
+        updatedAt: now,
       });
-      if (targetUser.pushToken) {
-        // await ctx.scheduler.runAfter(500, internal.push.sendPushNotification, {
-        //   pushToken: targetUser.pushToken,
-        //   title: "New follower",
-        //   body: `${currentUser.first_name} started following you`,
-        // });
+
+      // Check target user's notification settings before sending
+      const targetUserSettings = await ctx.db
+        .query("userSettings")
+        .withIndex("byUserId", (q) => q.eq("userId", args.userId))
+        .first();
+
+      const shouldNotifyFollow =
+        !targetUserSettings?.notifications?.push?.follows;
+
+      if (shouldNotifyFollow) {
+        // Send in-app notification
+        await ctx.db.insert("notifications", {
+          userId: args.userId,
+          authorId: currentUser._id,
+          type: "follow",
+          message: `${currentUser.first_name} started following you`,
+          isRead: false,
+          createdAt: now,
+        });
+
+        // Send push notification if enabled and push token exists
+        if (targetUser.pushToken && shouldNotifyFollow) {
+          // await ctx.scheduler.runAfter(500, internal.push.sendPushNotification, {
+          //   pushToken: targetUser.pushToken,
+          //   title: "New follower",
+          //   body: `${currentUser.first_name} started following you`,
+          // });
+        }
       }
+
       return { followed: true };
     }
   },

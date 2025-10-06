@@ -33,18 +33,62 @@ export const addComment = mutation({
         commentCount: post.commentCount + 1,
       });
 
-      // Send notification to post author
+      // 1. Send notification to POST AUTHOR (if not commenting on own post)
       if (post.authorId !== user._id) {
-        await ctx.db.insert("notifications", {
-          userId: post.authorId,
-          actorId: user._id,
-          type: "comment",
-          postId: args.postId,
-          commentId,
-          message: `${user.first_name} commented on your post`,
-          isRead: false,
-          createdAt: now,
-        });
+        // Check post author's notification settings
+        const postAuthorSettings = await ctx.db
+          .query("userSettings")
+          .withIndex("byUserId", (q) => q.eq("userId", post.authorId))
+          .first();
+
+        const shouldNotifyComment =
+          !postAuthorSettings?.notifications?.push?.comments;
+
+        if (shouldNotifyComment) {
+          await ctx.db.insert("notifications", {
+            userId: post.authorId,
+            authorId: user._id,
+            type: "comment",
+            postId: args.postId,
+            commentId,
+            message: `${user.first_name} commented on your post: "${args.content.length > 30 ? `${args.content.slice(0, 30)}...` : args.content}"`,
+            isRead: false,
+            createdAt: now,
+          });
+        }
+      }
+
+      // 2. Handle mentions in the comment content
+      if (mentions && mentions.length > 0) {
+        for (const mentionedUserId of mentions) {
+          // Don't notify if user mentioned themselves or the post author (already notified above)
+          if (
+            mentionedUserId !== user._id &&
+            mentionedUserId !== post.authorId
+          ) {
+            // Check mentioned user's notification settings
+            const mentionedUserSettings = await ctx.db
+              .query("userSettings")
+              .withIndex("byUserId", (q) => q.eq("userId", mentionedUserId))
+              .first();
+
+            const shouldNotifyMention =
+              !mentionedUserSettings?.notifications?.push?.mentions;
+
+            if (shouldNotifyMention) {
+              await ctx.db.insert("notifications", {
+                userId: mentionedUserId,
+                authorId: user._id,
+                type: "mention",
+                postId: args.postId,
+                commentId,
+                message: `${user.first_name} mentioned you in a comment: "${args.content.length > 30 ? `${args.content.slice(0, 30)}...` : args.content}"`,
+                isRead: false,
+                createdAt: now,
+              });
+            }
+          }
+        }
       }
     }
 
@@ -130,6 +174,31 @@ export const likeComment = mutation({
       await ctx.db.patch(args.commentId, {
         likeCount: comment.likeCount + 1,
       });
+
+      // Send notification to COMMENT AUTHOR (if not liking own comment)
+      if (comment.authorId !== user._id) {
+        // Check comment author's notification settings
+        const commentAuthorSettings = await ctx.db
+          .query("userSettings")
+          .withIndex("byUserId", (q) => q.eq("userId", comment.authorId))
+          .first();
+
+        const shouldNotifyLike =
+          !commentAuthorSettings?.notifications?.push?.likes;
+
+        if (shouldNotifyLike) {
+          await ctx.db.insert("notifications", {
+            userId: comment.authorId,
+            authorId: user._id,
+            type: "like",
+            postId: comment.postId,
+            commentId: args.commentId,
+            message: `${user.first_name} liked your comment`,
+            isRead: false,
+            createdAt: now,
+          });
+        }
+      }
 
       return { liked: true };
     }
