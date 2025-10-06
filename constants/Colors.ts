@@ -62,10 +62,9 @@ export const Colors = {
   transparentBlack50: "rgba(0, 0, 0, 0.5)",
   transparentBlack70: "rgba(0, 0, 0, 0.7)",
 
-  // Splash Colors
-  splashColor1: "#8B5CF6",
-  splashColor2: "#C4B5FD",
-  splashColor3: "#5B21B6",
+  splashColor1: "#3a94d8ff",
+  splashColor2: "#c9cfe1ff",
+  splashColor3: "#6D28D9",
 };
 
 export const DarkColors = {
@@ -132,11 +131,7 @@ export const DarkColors = {
   transparentBlack50: "rgba(249, 250, 251, 0.5)",
   transparentBlack70: "rgba(249, 250, 251, 0.7)",
 
-  // Splash Colors
-  // splashColor1: "#5B21B6",
-  // splashColor2: "#3730A3",
-  // splashColor3: "#312E81",
-  splashColor1: "#1a4a7a", // Darker blue
-  splashColor2: "#2a3a5a", // Darker purple-blue
-  splashColor3: "#0a1a3a", // Darker navy
+  splashColor1: "#3a94d8ff",
+  splashColor2: "#b8c6edff",
+  splashColor3: "#042561ff",
 };

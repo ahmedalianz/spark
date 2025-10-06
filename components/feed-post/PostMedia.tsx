@@ -3,15 +3,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import React from "react";
 import {
-  Dimensions,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const POST_MEDIA_WIDTH = 0.9;
 
 const PostMedia: React.FC<PostMediaProps> = ({
   mediaFiles,
@@ -19,181 +19,168 @@ const PostMedia: React.FC<PostMediaProps> = ({
   commentCount,
   colors,
 }) => {
-  if (!mediaFiles || mediaFiles.length === 0) return null;
-  const imageCount = mediaFiles.length;
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const containerWidth = SCREEN_WIDTH * POST_MEDIA_WIDTH;
 
+  if (!mediaFiles?.length) return null;
+
+  const imageCount = mediaFiles.length;
+  const imageIds = mediaFiles.join(",");
+
+  // Reusable Image Component
+  const PostImage = ({
+    imageUrl,
+    index,
+    style,
+  }: {
+    imageUrl: string;
+    index: number;
+    style: any;
+  }) => (
+    <Link
+      href={`/(auth)/(modals)/image-gallery?images=${imageIds}&initialIndex=${index}&likeCount=${likeCount}&commentCount=${commentCount}`}
+      asChild
+    >
+      <TouchableOpacity style={style}>
+        <Image
+          source={{ uri: imageUrl }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+    </Link>
+  );
+
+  // Single Image
   if (imageCount === 1) {
     return (
-      <Link
-        href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=0&likeCount=${likeCount}&commentCount=${commentCount}`}
-        asChild
-      >
-        <TouchableOpacity
-          style={[
-            styles.singleImageContainer,
-            { backgroundColor: colors.borderLighter },
-          ]}
-        >
-          <Image
-            source={{ uri: mediaFiles[0] }}
-            style={styles.singleImage}
-            resizeMode="cover"
-          />
-        </TouchableOpacity>
-      </Link>
-    );
-  }
-
-  // Two images - side by side
-  if (imageCount === 2) {
-    return (
-      <View style={styles.twoImagesContainer}>
-        {mediaFiles.map((imageUrl, index) => (
-          <Link
-            href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=${index}&likeCount=${likeCount}&commentCount=${commentCount}`}
-            key={index}
-            asChild
-          >
-            <TouchableOpacity
-              style={[
-                styles.halfImage,
-                { backgroundColor: colors.borderLighter },
-              ]}
-            >
-              <Image
-                source={{ uri: imageUrl }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
-          </Link>
-        ))}
+      <View style={[styles.container, { width: containerWidth }]}>
+        <PostImage
+          imageUrl={mediaFiles[0]}
+          index={0}
+          style={{
+            ...styles.singleImage,
+            backgroundColor: colors.borderLighter,
+          }}
+        />
       </View>
     );
   }
 
-  if (imageCount === 3) {
+  // Two Images
+  if (imageCount === 2) {
     return (
-      <View style={styles.threeImagesContainer}>
-        <Link
-          href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=0&likeCount=${likeCount}&commentCount=${commentCount}`}
-          asChild
-        >
-          <TouchableOpacity
-            style={[
-              styles.largeImage,
-              { backgroundColor: colors.borderLighter },
-            ]}
-          >
-            <Image
-              source={{ uri: mediaFiles[0] }}
-              style={styles.image}
-              resizeMode="cover"
+      <View style={[styles.container, { width: containerWidth }]}>
+        <View style={styles.twoImagesContainer}>
+          {mediaFiles.map((imageUrl, index) => (
+            <PostImage
+              key={imageUrl}
+              imageUrl={imageUrl}
+              index={index}
+              style={{
+                ...styles.halfImage,
+                backgroundColor: colors.borderLighter,
+              }}
             />
-          </TouchableOpacity>
-        </Link>
-        <View style={styles.rightColumn}>
-          {mediaFiles.slice(1, 3).map((imageUrl, index) => (
-            <Link
-              href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=${index + 1}&likeCount=${likeCount}&commentCount=${commentCount}`}
-              key={index}
-              asChild
-            >
-              <TouchableOpacity
-                style={[
-                  styles.smallImage,
-                  { backgroundColor: colors.borderLighter },
-                ]}
-              >
-                <Image
-                  source={{ uri: imageUrl }}
-                  style={styles.image}
-                  resizeMode="cover"
-                />
-              </TouchableOpacity>
-            </Link>
           ))}
         </View>
       </View>
     );
   }
 
-  // Four or more images - 2x2 grid with overlay on last image
-  return (
-    <View style={styles.gridContainer}>
-      {mediaFiles.slice(0, 4).map((imageUrl, index) => {
-        const isLastImage = index === 3;
-        const remainingCount = imageCount - 4;
-
-        return (
-          <Link
-            href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=${index}&likeCount=${likeCount}&commentCount=${commentCount}`}
-            key={index}
-            asChild
-          >
-            <TouchableOpacity
-              style={[
-                styles.gridImage,
-                { backgroundColor: colors.borderLighter },
-              ]}
-              key={index}
-            >
-              <Image
-                source={{ uri: imageUrl }}
-                style={styles.image}
-                resizeMode="cover"
+  // Three Images
+  if (imageCount === 3) {
+    return (
+      <View style={[styles.container, { width: containerWidth }]}>
+        <View style={styles.threeImagesContainer}>
+          <PostImage
+            imageUrl={mediaFiles[0]}
+            index={0}
+            style={{
+              ...styles.largeImage,
+              backgroundColor: colors.borderLighter,
+            }}
+          />
+          <View style={styles.rightColumn}>
+            {mediaFiles.slice(1, 3).map((imageUrl, index) => (
+              <PostImage
+                key={imageUrl}
+                imageUrl={imageUrl}
+                index={index + 1}
+                style={{
+                  ...styles.smallImage,
+                  backgroundColor: colors.borderLighter,
+                }}
               />
-              {isLastImage && remainingCount > 0 && (
-                <View style={styles.overlayContainer}>
-                  <LinearGradient
-                    colors={[
-                      colors.transparentBlack30,
-                      colors.transparentBlack70,
-                    ]}
-                    style={styles.overlay}
-                  >
-                    <Text style={[styles.overlayText, { color: colors.white }]}>
-                      +{remainingCount}
-                    </Text>
-                  </LinearGradient>
-                </View>
-              )}
-            </TouchableOpacity>
-          </Link>
-        );
-      })}
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // Four or more images
+  return (
+    <View style={[styles.container, { width: containerWidth }]}>
+      <View style={styles.gridContainer}>
+        {mediaFiles.slice(0, 4).map((imageUrl, index) => (
+          <View key={imageUrl} style={styles.gridImageWrapper}>
+            <PostImage
+              imageUrl={imageUrl}
+              index={index}
+              style={{
+                ...styles.gridImage,
+                backgroundColor: colors.borderLighter,
+              }}
+            />
+            {/* on last image and image count is greater than 4 */}
+            {index === 3 && imageCount > 4 && (
+              <View style={styles.overlayContainer}>
+                <LinearGradient
+                  colors={[
+                    colors.transparentBlack30,
+                    colors.transparentBlack70,
+                  ]}
+                  style={styles.overlay}
+                >
+                  <Text style={[styles.overlayText, { color: colors.white }]}>
+                    +{imageCount - 4}
+                  </Text>
+                </LinearGradient>
+              </View>
+            )}
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  singleImageContainer: {
-    width: "100%",
+  container: {
     borderRadius: 16,
     overflow: "hidden",
   },
   singleImage: {
-    width: SCREEN_WIDTH * 0.8,
-    height: 300,
+    width: "100%",
+    aspectRatio: 4 / 3,
+    borderRadius: 16,
+    overflow: "hidden",
   },
-
-  // Two Images
   twoImagesContainer: {
     flexDirection: "row",
     gap: 4,
-    height: 240,
+    aspectRatio: 2 / 1,
   },
   halfImage: {
     flex: 1,
     borderRadius: 12,
     overflow: "hidden",
   },
-
-  // Three Images
   threeImagesContainer: {
     flexDirection: "row",
     gap: 4,
-    height: 280,
+    aspectRatio: 4 / 3,
   },
   largeImage: {
     flex: 2,
@@ -209,27 +196,27 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: "hidden",
   },
-
-  // Four or More Images (Grid)
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 4,
-    height: 320,
+    aspectRatio: 1,
+  },
+  gridImageWrapper: {
+    width: "48%",
+    height: "48%",
+    position: "relative",
   },
   gridImage: {
-    width: SCREEN_WIDTH * 0.39,
-    height: "49.5%",
+    width: "100%",
+    height: "100%",
     borderRadius: 12,
     overflow: "hidden",
-    position: "relative",
   },
   image: {
     width: "100%",
     height: "100%",
   },
-
-  // Overlay for +N
   overlayContainer: {
     position: "absolute",
     top: 0,
@@ -245,7 +232,6 @@ const styles = StyleSheet.create({
   overlayText: {
     fontSize: 32,
     fontWeight: "700",
-    fontFamily: "DMSans_700Bold",
   },
 });
 
