@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import formatTimeAgo from "@/utils/formatTimeAgo";
@@ -14,7 +13,13 @@ import {
 
 import Animated, { FadeInUp, Layout } from "react-native-reanimated";
 
-const Replies = ({ parentCommentId }: { parentCommentId: Id<"comments"> }) => {
+const Replies = ({
+  parentCommentId,
+  colors,
+}: {
+  parentCommentId: Id<"comments">;
+  colors: any;
+}) => {
   const {
     results: replies,
     status,
@@ -37,10 +42,20 @@ const Replies = ({ parentCommentId }: { parentCommentId: Id<"comments"> }) => {
           style={styles.replyContainer}
         >
           {/* Reply connector line */}
-          <View style={styles.replyLine} />
+          <View
+            style={[styles.replyLine, { backgroundColor: colors.borderLight }]}
+          />
 
           {/* Reply content */}
-          <View style={styles.replyContent}>
+          <View
+            style={[
+              styles.replyContent,
+              {
+                backgroundColor: colors.backgroundLight,
+                borderColor: colors.borderLighter,
+              },
+            ]}
+          >
             <View style={styles.replyHeader}>
               <Image
                 source={{
@@ -52,14 +67,24 @@ const Replies = ({ parentCommentId }: { parentCommentId: Id<"comments"> }) => {
               />
               <View style={styles.replyHeaderContent}>
                 <View style={styles.replyUserRow}>
-                  <Text style={styles.replyUsername} numberOfLines={1}>
+                  <Text
+                    style={[
+                      styles.replyUsername,
+                      { color: colors.textSecondary },
+                    ]}
+                    numberOfLines={1}
+                  >
                     {reply.author?.first_name} {reply.author?.last_name}
                   </Text>
-                  <Text style={styles.replyTime}>
+                  <Text style={[styles.replyTime, { color: colors.textMuted }]}>
                     · {formatTimeAgo(reply._creationTime)}
                   </Text>
                 </View>
-                <Text style={styles.replyText}>{reply.content}</Text>
+                <Text
+                  style={[styles.replyText, { color: colors.textSecondary }]}
+                >
+                  {reply.content}
+                </Text>
               </View>
             </View>
           </View>
@@ -72,16 +97,24 @@ const Replies = ({ parentCommentId }: { parentCommentId: Id<"comments"> }) => {
           style={styles.loadMoreReplies}
           onPress={() => loadMore(5)}
         >
-          <View style={styles.replyLine} />
-          <Text style={styles.loadMoreText}>Load more replies</Text>
+          <View
+            style={[styles.replyLine, { backgroundColor: colors.borderLight }]}
+          />
+          <Text style={[styles.loadMoreText, { color: colors.primary }]}>
+            Load more replies
+          </Text>
         </TouchableOpacity>
       )}
 
       {status === "LoadingMore" && (
         <View style={styles.loadingMoreReplies}>
-          <View style={styles.replyLine} />
-          <ActivityIndicator size="small" color={Colors.primary} />
-          <Text style={styles.loadingText}>Loading more replies...</Text>
+          <View
+            style={[styles.replyLine, { backgroundColor: colors.borderLight }]}
+          />
+          <ActivityIndicator size="small" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textMuted }]}>
+            Loading more replies...
+          </Text>
         </View>
       )}
     </Animated.View>
@@ -99,17 +132,14 @@ const styles = StyleSheet.create({
   },
   replyLine: {
     width: 2,
-    backgroundColor: Colors.borderLight,
     marginRight: 12,
     alignSelf: "stretch",
   },
   replyContent: {
     flex: 1,
-    backgroundColor: Colors.backgroundLight,
     borderRadius: 10,
     padding: 10,
     borderWidth: 1,
-    borderColor: Colors.borderLighter,
   },
   replyHeader: {
     flexDirection: "row",
@@ -135,17 +165,14 @@ const styles = StyleSheet.create({
   replyUsername: {
     fontSize: 13,
     fontWeight: "600",
-    color: Colors.textSecondary,
     maxWidth: "60%",
   },
   replyTime: {
     fontSize: 11,
-    color: Colors.textMuted,
   },
   replyText: {
     fontSize: 13,
     lineHeight: 16,
-    color: Colors.textSecondary,
   },
   loadMoreReplies: {
     flexDirection: "row",
@@ -157,7 +184,6 @@ const styles = StyleSheet.create({
   },
   loadMoreText: {
     fontSize: 13,
-    color: Colors.primary,
     fontWeight: "500",
     marginLeft: 12,
   },
@@ -172,7 +198,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 12,
-    color: Colors.textMuted,
     marginLeft: 4,
   },
 });

@@ -1,14 +1,16 @@
-import { Colors } from "@/constants/Colors";
+import { ColorsType } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-const PostEmpty = () => {
+const PostEmpty = ({ colors }: { colors: ColorsType }) => {
   return (
     <View style={styles.emptyState}>
-      <Ionicons name="chatbubbles-outline" size={64} color={Colors.textMuted} />
-      <Text style={styles.emptyStateTitle}>No comments yet</Text>
-      <Text style={styles.emptyStateSubtitle}>
+      <Ionicons name="chatbubbles-outline" size={64} color={colors.textMuted} />
+      <Text style={[styles.emptyStateTitle, { color: colors.textSecondary }]}>
+        No comments yet
+      </Text>
+      <Text style={[styles.emptyStateSubtitle, { color: colors.textMuted }]}>
         Be the first to leave a comment!
       </Text>
     </View>
@@ -26,13 +28,11 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: Colors.textSecondary,
     marginTop: 12,
     marginBottom: 4,
   },
   emptyStateSubtitle: {
     fontSize: 14,
-    color: Colors.textMuted,
     textAlign: "center",
     lineHeight: 20,
   },

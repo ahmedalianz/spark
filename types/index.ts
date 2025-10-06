@@ -28,6 +28,7 @@ export type IconType = {
   color: string;
   size: number;
   focused: boolean;
+  colors: ColorsType;
 };
 
 export type TextSelection = {
@@ -242,18 +243,20 @@ export type CommentProps = {
   comment: CommentWithAuthor;
   index: number;
   commentInputRef: RefObject<TextInput | null>;
+  colors: ColorsType;
   setCommentText: (text: string) => void;
   setReplyingTo: (commentId: Id<"comments">) => void;
 };
 
 export type PostInputProps = {
   commentText: string;
-  setCommentText: (text: string) => void;
   isSubmittingComment: boolean;
   replyingTo: Id<"comments"> | undefined;
-  setReplyingTo: (id: Id<"comments"> | undefined) => void;
   commentInputRef: RefObject<TextInput | null>;
   animatedInputStyle: RegisteredStyle<ViewStyle>;
+  colors: ColorsType;
+  setCommentText: (text: string) => void;
+  setReplyingTo: (id: Id<"comments"> | undefined) => void;
   submitComment: () => void;
 };
 

@@ -1,12 +1,19 @@
-import { Colors } from "@/constants/Colors";
+import { ColorsType } from "@/types";
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
-const PostFooter = () => {
+const PostFooter = ({ colors }: { colors: ColorsType }) => {
   return (
     <View style={styles.loadingFooter}>
-      <ActivityIndicator size="small" color={Colors.primary} />
-      <Text style={styles.loadingText}>Loading more comments...</Text>
+      <ActivityIndicator size="small" color={colors.primary} />
+      <Text
+        style={{
+          fontSize: 13,
+          color: colors.textMuted,
+        }}
+      >
+        Loading more comments...
+      </Text>
     </View>
   );
 };
@@ -20,9 +27,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 16,
     gap: 8,
-  },
-  loadingText: {
-    fontSize: 13,
-    color: Colors.textMuted,
   },
 });

@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { PostInputProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -13,18 +12,35 @@ import Animated, { SlideInRight } from "react-native-reanimated";
 
 const PostInput = ({
   commentText,
-  setCommentText,
   isSubmittingComment,
   replyingTo,
-  setReplyingTo,
   commentInputRef,
   animatedInputStyle,
+  colors,
+  setCommentText,
+  setReplyingTo,
   submitComment,
 }: PostInputProps) => {
   return (
-    <View style={styles.inputContainer}>
+    <View
+      style={[
+        styles.inputContainer,
+        {
+          backgroundColor: colors.white,
+          borderTopColor: colors.borderLight,
+        },
+      ]}
+    >
       {replyingTo && (
-        <Animated.View entering={SlideInRight} style={styles.replyingIndicator}>
+        <Animated.View
+          entering={SlideInRight}
+          style={[
+            styles.replyingIndicator,
+            {
+              backgroundColor: colors.tintBlueLight,
+            },
+          ]}
+        >
           <TouchableOpacity
             onPress={() => {
               setReplyingTo(undefined);
@@ -32,10 +48,13 @@ const PostInput = ({
             }}
             style={styles.replayingContainer}
           >
-            <Text style={styles.replyingText} numberOfLines={1}>
+            <Text
+              style={[styles.replyingText, { color: colors.primary }]}
+              numberOfLines={1}
+            >
               Replying to comment
             </Text>
-            <Ionicons name="close" size={16} color={Colors.textMuted} />
+            <Ionicons name="close" size={16} color={colors.textMuted} />
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -44,9 +63,16 @@ const PostInput = ({
         <Animated.View style={[styles.inputWrapper, animatedInputStyle]}>
           <TextInput
             ref={commentInputRef}
-            style={styles.textInput}
+            style={[
+              styles.textInput,
+              {
+                borderColor: colors.borderLight,
+                color: colors.textSecondary,
+                backgroundColor: colors.backgroundLight,
+              },
+            ]}
             placeholder="Add a comment..."
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={commentText}
             onChangeText={setCommentText}
             multiline
@@ -58,16 +84,19 @@ const PostInput = ({
         <TouchableOpacity
           style={[
             styles.sendButton,
-            (!commentText.trim() || isSubmittingComment) &&
+            { backgroundColor: colors.primary },
+            (!commentText.trim() || isSubmittingComment) && [
               styles.sendButtonDisabled,
+              { backgroundColor: colors.textDisabled },
+            ],
           ]}
           onPress={submitComment}
           disabled={!commentText.trim() || isSubmittingComment}
         >
           {isSubmittingComment ? (
-            <ActivityIndicator size="small" color={Colors.white} />
+            <ActivityIndicator size="small" color={colors.white} />
           ) : (
-            <Ionicons name="send" size={16} color={Colors.white} />
+            <Ionicons name="send" size={16} color={colors.white} />
           )}
         </TouchableOpacity>
       </View>
@@ -77,9 +106,7 @@ const PostInput = ({
 
 const styles = StyleSheet.create({
   inputContainer: {
-    backgroundColor: Colors.white,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
     paddingHorizontal: 16,
     paddingTop: 12,
   },
@@ -87,16 +114,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: Colors.tintBlueLight,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 6,
     marginBottom: 8,
   },
-  replayingContainer: { flexDirection: "row", alignItems: "center" },
+  replayingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   replyingText: {
     fontSize: 12,
-    color: Colors.primary,
     fontWeight: "500",
     flex: 1,
   },
@@ -111,25 +139,22 @@ const styles = StyleSheet.create({
   },
   textInput: {
     borderWidth: 1,
-    borderColor: Colors.borderLight,
     borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 8,
     fontSize: 14,
     maxHeight: 80,
-    color: Colors.textSecondary,
-    backgroundColor: Colors.backgroundLight,
   },
   sendButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.primary,
     justifyContent: "center",
     alignItems: "center",
   },
   sendButtonDisabled: {
-    backgroundColor: Colors.textDisabled,
+    // backgroundColor handled inline
   },
 });
+
 export default PostInput;

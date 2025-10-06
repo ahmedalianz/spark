@@ -24,12 +24,7 @@ const Layout = () => {
     }),
   };
   return (
-    <Stack
-      screenOptions={{
-        contentStyle: { backgroundColor: Colors.white },
-        headerShadowVisible: false,
-      }}
-    >
+    <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="error" options={{ headerShown: false }} />
       <Stack.Screen

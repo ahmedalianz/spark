@@ -4,9 +4,9 @@ import {
   PostHeader,
   PostInput,
 } from "@/components/post/index";
-import { Colors } from "@/constants/Colors";
 import usePostScreen from "@/controllers/usePostScreen";
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import useAppTheme from "@/hooks/useAppTheme";
 import {
   ActivityIndicator,
   FlatList,
@@ -45,7 +45,7 @@ const Post = ({ postId }: CommentsProps) => {
     submitComment,
   } = usePostScreen({ postId });
   const { top } = useSafeAreaInsets();
-
+  const { colors } = useAppTheme();
   const renderComment: ListRenderItem<CommentWithAuthor> = ({
     item: comment,
     index,
@@ -58,25 +58,28 @@ const Post = ({ postId }: CommentsProps) => {
           comment,
           commentInputRef,
           index,
+          colors,
         }}
       />
     );
   };
 
-  const renderHeader = () => <PostHeader post={post} />;
+  const renderHeader = () => <PostHeader post={post} colors={colors} />;
 
   const renderFooter = () => {
     if (status !== "LoadingMore") return null;
-    return <PostFooter />;
+    return <PostFooter colors={colors} />;
   };
 
   const renderEmptyState = () => {
     if (status === "LoadingFirstPage") return <ActivityIndicator />;
-    return <PostEmpty />;
+    return <PostEmpty colors={colors} />;
   };
 
   return (
-    <View style={[styles.container, { paddingTop: top }]}>
+    <View
+      style={{ paddingTop: top, flex: 1, backgroundColor: colors.background }}
+    >
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -109,6 +112,7 @@ const Post = ({ postId }: CommentsProps) => {
             commentInputRef,
             animatedInputStyle,
             submitComment,
+            colors,
           }}
         />
       </KeyboardAvoidingView>
@@ -119,10 +123,6 @@ const Post = ({ postId }: CommentsProps) => {
 export default Post;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
   keyboardView: {
     flex: 1,
   },

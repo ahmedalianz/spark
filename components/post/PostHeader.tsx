@@ -1,11 +1,25 @@
-import { Colors } from "@/constants/Colors";
-import { PostWithAuthorDetails } from "@/types";
+import { ColorsType, PostWithAuthorDetails } from "@/types";
 import formatCount from "@/utils/formatCount";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import { Image, StyleSheet, Text, View } from "react-native";
-const PostHeader = ({ post }: { post: PostWithAuthorDetails }) => {
+
+const PostHeader = ({
+  post,
+  colors,
+}: {
+  post: PostWithAuthorDetails;
+  colors: ColorsType;
+}) => {
   return (
-    <View style={styles.postCard}>
+    <View
+      style={[
+        styles.postCard,
+        {
+          backgroundColor: colors.white,
+          shadowColor: colors.black,
+        },
+      ]}
+    >
       <View style={styles.postHeader}>
         <Image
           source={{
@@ -17,14 +31,18 @@ const PostHeader = ({ post }: { post: PostWithAuthorDetails }) => {
         />
         <View style={styles.postHeaderContent}>
           <View style={styles.postUserRow}>
-            <Text style={styles.postUsername}>
+            <Text
+              style={[styles.postUsername, { color: colors.textSecondary }]}
+            >
               {post?.author?.first_name} {post?.author?.last_name}
             </Text>
-            <Text style={styles.postTime}>
+            <Text style={[styles.postTime, { color: colors.textMuted }]}>
               · {formatTimeAgo(post?._creationTime || 0)}
             </Text>
           </View>
-          <Text style={styles.postContent}>{post?.content}</Text>
+          <Text style={[styles.postContent, { color: colors.textSecondary }]}>
+            {post?.content}
+          </Text>
 
           {post?.mediaFiles && post.mediaFiles.length > 0 && (
             <Image
@@ -36,12 +54,14 @@ const PostHeader = ({ post }: { post: PostWithAuthorDetails }) => {
         </View>
       </View>
 
-      <View style={styles.postStats}>
-        <Text style={styles.postStat}>
+      <View
+        style={[styles.postStats, { borderTopColor: colors.borderLighter }]}
+      >
+        <Text style={[styles.postStat, { color: colors.textTertiary }]}>
           {formatCount(post?.likeCount || 0)}{" "}
           {(post?.likeCount || 0) > 1 ? "likes" : "like"}
         </Text>
-        <Text style={styles.postStat}>
+        <Text style={[styles.postStat, { color: colors.textTertiary }]}>
           {formatCount(post?.commentCount || 0)}{" "}
           {(post?.commentCount || 0) > 1 ? "comments" : "comment"}
         </Text>
@@ -49,14 +69,13 @@ const PostHeader = ({ post }: { post: PostWithAuthorDetails }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   postCard: {
-    backgroundColor: Colors.white,
     marginHorizontal: 12,
     marginBottom: 16,
     borderRadius: 14,
     padding: 16,
-    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -86,16 +105,13 @@ const styles = StyleSheet.create({
   postUsername: {
     fontSize: 15,
     fontWeight: "600",
-    color: Colors.textSecondary,
   },
   postTime: {
     fontSize: 13,
-    color: Colors.textMuted,
   },
   postContent: {
     fontSize: 15,
     lineHeight: 20,
-    color: Colors.textSecondary,
   },
   postImage: {
     width: "100%",
@@ -108,12 +124,11 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLighter,
   },
   postStat: {
     fontSize: 13,
-    color: Colors.textTertiary,
     fontWeight: "500",
   },
 });
+
 export default PostHeader;

@@ -25,7 +25,6 @@ const PostMedia: React.FC<PostMediaProps> = ({
   if (!mediaFiles?.length) return null;
 
   const imageCount = mediaFiles.length;
-  const imageIds = mediaFiles.join(",");
 
   // Reusable Image Component
   const PostImage = ({
@@ -38,7 +37,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
     style: any;
   }) => (
     <Link
-      href={`/(auth)/(modals)/image-gallery?images=${imageIds}&initialIndex=${index}&likeCount=${likeCount}&commentCount=${commentCount}`}
+      href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=0&likeCount=${likeCount}&commentCount=${commentCount}`}
       asChild
     >
       <TouchableOpacity style={style}>

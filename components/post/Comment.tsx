@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import formatCount from "@/utils/formatCount";
@@ -19,6 +18,7 @@ const Comment = ({
   commentInputRef,
   setCommentText,
   setReplyingTo,
+  colors,
 }: CommentProps) => {
   const [showReplies, setShowReplies] = useState(false);
   const [expandedComment, setExpandedComment] = useState(false);
@@ -63,7 +63,13 @@ const Comment = ({
       <Animated.View
         entering={FadeInUp.delay(index * 20).springify()}
         layout={Layout.springify()}
-        style={styles.commentCard}
+        style={[
+          styles.commentCard,
+          {
+            backgroundColor: colors.white,
+            borderColor: colors.borderLighter,
+          },
+        ]}
       >
         {/* Comment Header */}
         <View style={styles.commentHeader}>
@@ -78,19 +84,27 @@ const Comment = ({
 
           <View style={styles.commentHeaderContent}>
             <View style={styles.commentUserRow}>
-              <Text style={styles.commentUsername} numberOfLines={1}>
+              <Text
+                style={[
+                  styles.commentUsername,
+                  { color: colors.textSecondary },
+                ]}
+                numberOfLines={1}
+              >
                 {comment.author?.first_name} {comment.author?.last_name}
               </Text>
-              <Text style={styles.commentTime}>
+              <Text style={[styles.commentTime, { color: colors.textMuted }]}>
                 · {formatTimeAgo(comment._creationTime)}
               </Text>
             </View>
 
-            <Text style={styles.commentText}>{displayContent}</Text>
+            <Text style={[styles.commentText, { color: colors.textSecondary }]}>
+              {displayContent}
+            </Text>
 
             {isLongComment && (
               <TouchableOpacity onPress={toggleCommentExpansion}>
-                <Text style={styles.readMoreText}>
+                <Text style={[styles.readMoreText, { color: colors.primary }]}>
                   {expandedComment ? "Show less" : "Read more"}
                 </Text>
               </TouchableOpacity>
@@ -108,13 +122,17 @@ const Comment = ({
               name={comment.userHasLiked ? "heart" : "heart-outline"}
               size={14}
               color={
-                comment.userHasLiked ? Colors.accentLike : Colors.textMuted
+                comment.userHasLiked ? colors.accentLike : colors.textMuted
               }
             />
             <Text
               style={[
                 styles.commentActionText,
-                comment.userHasLiked && styles.commentActionTextLiked,
+                { color: colors.textMuted },
+                comment.userHasLiked && [
+                  styles.commentActionTextLiked,
+                  { color: colors.accentLike },
+                ],
               ]}
             >
               {formatCount(comment.likeCount)}
@@ -130,9 +148,13 @@ const Comment = ({
             <Ionicons
               name="arrow-undo-outline"
               size={14}
-              color={Colors.textMuted}
+              color={colors.textMuted}
             />
-            <Text style={styles.commentActionText}>Reply</Text>
+            <Text
+              style={[styles.commentActionText, { color: colors.textMuted }]}
+            >
+              Reply
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -143,13 +165,18 @@ const Comment = ({
             onPress={toggleReplies}
           >
             <View style={styles.showRepliesContent}>
-              <View style={styles.replyConnector} />
+              <View
+                style={[
+                  styles.replyConnector,
+                  { backgroundColor: colors.borderLight },
+                ]}
+              />
               <Ionicons
                 name={showReplies ? "chevron-up" : "chevron-down"}
                 size={14}
-                color={Colors.primary}
+                color={colors.primary}
               />
-              <Text style={styles.showRepliesText}>
+              <Text style={[styles.showRepliesText, { color: colors.primary }]}>
                 {showReplies ? "Hide" : "Show"} {comment.replyCount}{" "}
                 {comment.replyCount === 1 ? "reply" : "replies"}
               </Text>
@@ -157,7 +184,7 @@ const Comment = ({
           </TouchableOpacity>
         )}
       </Animated.View>
-      {showReplies && <Replies parentCommentId={comment._id} />}
+      {showReplies && <Replies parentCommentId={comment._id} colors={colors} />}
     </>
   );
 };
@@ -166,13 +193,11 @@ export default Comment;
 
 const styles = StyleSheet.create({
   commentCard: {
-    backgroundColor: Colors.white,
     marginHorizontal: 12,
     marginBottom: 6,
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: Colors.borderLighter,
   },
   commentHeader: {
     flexDirection: "row",
@@ -198,17 +223,14 @@ const styles = StyleSheet.create({
   commentUsername: {
     fontSize: 14,
     fontWeight: "600",
-    color: Colors.textSecondary,
     maxWidth: "60%",
   },
   commentTime: {
     fontSize: 12,
-    color: Colors.textMuted,
   },
   commentText: {
     fontSize: 14,
     lineHeight: 18,
-    color: Colors.textSecondary,
   },
   commentFooter: {
     flexDirection: "row",
@@ -226,15 +248,13 @@ const styles = StyleSheet.create({
   },
   commentActionText: {
     fontSize: 12,
-    color: Colors.textMuted,
     fontWeight: "500",
   },
   commentActionTextLiked: {
-    color: Colors.accentLike,
+    // color handled inline
   },
   readMoreText: {
     fontSize: 12,
-    color: Colors.primary,
     fontWeight: "500",
     marginTop: 2,
   },
@@ -251,12 +271,10 @@ const styles = StyleSheet.create({
   replyConnector: {
     width: 2,
     height: 20,
-    backgroundColor: Colors.borderLight,
     marginRight: 4,
   },
   showRepliesText: {
     fontSize: 13,
-    color: Colors.primary,
     fontWeight: "600",
   },
 });

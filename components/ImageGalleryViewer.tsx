@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import useAppTheme from "@/hooks/useAppTheme";
 import formatCount from "@/utils/formatCount";
 import { Ionicons } from "@expo/vector-icons";
 import { ImageZoom } from "@likashefqet/react-native-image-zoom";
@@ -28,6 +28,7 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
   likeCount,
   commentCount,
 }) => {
+  const { colors } = useAppTheme();
   const imageArray = JSON.parse(decodeURIComponent(images || "[]"));
   const startIndex = parseInt(initialIndex || "0", 10);
   const likeCountNum = parseInt(likeCount || "0", 10);
@@ -64,8 +65,18 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
   );
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <View style={styles.container}>
+    <GestureHandlerRootView
+      style={{
+        flex: 1,
+        backgroundColor: colors.black,
+      }}
+    >
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.black,
+        }}
+      >
         <FlatList
           ref={flatListRef}
           data={imageArray}
@@ -88,7 +99,14 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
         {/* Image Counter */}
         {imageArray.length > 1 && (
           <View style={styles.counterContainer}>
-            <View style={styles.counterBadge}>
+            <View
+              style={[
+                styles.counterBadge,
+                {
+                  backgroundColor: colors.transparentBlack70,
+                },
+              ]}
+            >
               <Text style={styles.counterText}>
                 {currentIndex + 1} / {imageArray.length}
               </Text>
@@ -97,7 +115,14 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
         )}
 
         {/* Stats Overlay */}
-        <View style={styles.statsOverlay}>
+        <View
+          style={[
+            styles.statsOverlay,
+            {
+              backgroundColor: colors.transparentBlack70,
+            },
+          ]}
+        >
           <View style={styles.statItem}>
             <Ionicons name="heart-outline" size={16} color="white" />
             <Text style={styles.statText}>{formatCount(likeCountNum)}</Text>
@@ -114,7 +139,13 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
             {imageArray.map((_: string, index: number) => (
               <View
                 key={index}
-                style={[styles.dot, currentIndex === index && styles.activeDot]}
+                style={[
+                  styles.dot,
+                  {
+                    backgroundColor: colors.transparentWhite40,
+                  },
+                  currentIndex === index && styles.activeDot,
+                ]}
               />
             ))}
           </View>
@@ -127,10 +158,6 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
 export default ImageGalleryViewer;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.black,
-  },
   imageContainer: {
     width: SCREEN_WIDTH,
     height: "100%",
@@ -145,7 +172,6 @@ const styles = StyleSheet.create({
     right: 20,
   },
   counterBadge: {
-    backgroundColor: Colors.transparentBlack70,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -162,7 +188,6 @@ const styles = StyleSheet.create({
     left: 20,
     flexDirection: "row",
     gap: 16,
-    backgroundColor: Colors.transparentBlack70,
     padding: 12,
     borderRadius: 20,
   },
@@ -188,7 +213,6 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "rgba(255, 255, 255, 0.4)",
   },
   activeDot: {
     width: 20,

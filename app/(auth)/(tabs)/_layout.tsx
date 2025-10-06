@@ -98,7 +98,12 @@ const Layout = () => {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size, focused }) => (
-            <NotificationTabIcon color={color} size={size} focused={focused} />
+            <NotificationTabIcon
+              color={color}
+              size={size}
+              focused={focused}
+              colors={colors}
+            />
           ),
         }}
       />

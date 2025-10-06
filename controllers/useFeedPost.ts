@@ -11,7 +11,6 @@ export const useFeedPost = (post: PostWithAuthorDetails) => {
   const router = useRouter();
   const { likeCount, userHasLiked, author } = post;
 
-  const [localLikeCount, setLocalLikeCount] = useState(likeCount);
   const [isLiked, setIsLiked] = useState(!!userHasLiked);
   const [menuVisible, setMenuVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -20,10 +19,6 @@ export const useFeedPost = (post: PostWithAuthorDetails) => {
   const deletePost = useMutation(api.posts.deletePost);
 
   const handleLike = async () => {
-    const newIsLiked = !isLiked;
-    setIsLiked(newIsLiked);
-    setLocalLikeCount((prev) => (newIsLiked ? prev + 1 : prev - 1));
-
     Animated.sequence([
       Animated.timing(scaleAnim, {
         toValue: 1.2,
@@ -41,10 +36,9 @@ export const useFeedPost = (post: PostWithAuthorDetails) => {
 
     try {
       await likePost({ postId: post._id });
+      setIsLiked(!userHasLiked);
     } catch (error) {
-      // Revert on error
-      setIsLiked(!newIsLiked);
-      setLocalLikeCount(likeCount);
+      console.log(error);
     }
   };
 
@@ -151,7 +145,7 @@ export const useFeedPost = (post: PostWithAuthorDetails) => {
   };
 
   return {
-    localLikeCount,
+    likeCount,
     isLiked,
     menuVisible,
     scaleAnim,

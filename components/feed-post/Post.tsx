@@ -18,7 +18,7 @@ const Post: React.FC<PostProps> = ({ post, colors }) => {
   const { content, mediaFiles, commentCount, author } = post;
   const { userInfo } = useUserInfo();
   const {
-    localLikeCount,
+    likeCount,
     isLiked,
     menuVisible,
     scaleAnim,
@@ -45,21 +45,21 @@ const Post: React.FC<PostProps> = ({ post, colors }) => {
         </Text>
         <PostMedia
           mediaFiles={mediaFiles}
-          likeCount={localLikeCount}
+          likeCount={likeCount}
           commentCount={commentCount}
           colors={colors}
         />
       </View>
 
       <PostEngagement
-        likeCount={localLikeCount}
+        likeCount={likeCount}
         commentCount={commentCount}
         onCommentsPress={handleOpenComments}
         colors={colors}
       />
 
       <PostActions
-        likeCount={localLikeCount}
+        likeCount={likeCount}
         commentCount={commentCount}
         isLiked={isLiked}
         scaleAnim={scaleAnim}
