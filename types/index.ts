@@ -1,7 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import * as ImagePicker from "expo-image-picker";
-import { Router } from "expo-router";
 import { RefObject } from "react";
 import { Animated, RegisteredStyle, TextInput, ViewStyle } from "react-native";
 
@@ -121,31 +120,18 @@ export type EditProfileProps = {
   imageUrl: string;
 };
 
-export type ProfileHeaderProps = {
-  router: Router;
-  scrollY: Animated.Value;
-  userInfo: Doc<"users">;
-  viewedUserInfo: Doc<"users">;
-  isCurrentUserProfile: boolean;
-  colors: ColorsType;
-  top: number;
-  signOutHandler: () => void;
-};
-
 export type ProfileStatsProps = {
   userInfo: Doc<"users">;
   viewedUserInfo: Doc<"users">;
   isCurrentUserProfile: boolean;
   colors: ColorsType;
   isLoading: boolean;
-  signOutHandler: () => void;
 };
 
 export type UserInfoProps = {
   userInfo: Doc<"users">;
   isCurrentUserProfile: boolean;
   colors: ColorsType;
-  signOutHandler: () => void;
 };
 
 /* -------------------------------------------------------------------------- */

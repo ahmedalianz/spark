@@ -32,7 +32,12 @@ const Post: React.FC<PostProps> = ({ post, colors }) => {
   const isOwnPost = userInfo?._id === author._id;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.white }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.white, borderTopColor: colors.border },
+      ]}
+    >
       <PostHeader
         post={post}
         onMenuPress={() => setMenuVisible(true)}
@@ -85,8 +90,8 @@ export default memo(Post);
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 16,
-    borderRadius: 16,
     paddingHorizontal: 20,
+    borderTopWidth: 2,
   },
   content: {
     marginBottom: 12,

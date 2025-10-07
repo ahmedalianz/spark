@@ -13,9 +13,7 @@ import {
 import { Post } from "@/components/feed-post";
 import {
   ProfileEmpty,
-  ProfileFirstHeader,
   ProfileFooter,
-  ProfileHeader,
   ProfileStats,
 } from "@/components/profile";
 import TabButton from "@/components/TabButton";
@@ -37,7 +35,6 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
     status,
     viewedUserInfo,
     isCurrentUserProfile,
-    signOutHandler,
     setActiveTab,
     handleLoadMore,
   } = useProfile({ userId });
@@ -55,12 +52,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
   const renderItem = useCallback(
     ({ item }: { item: PostWithAuthorDetails }) => (
       <Link href={`/(auth)/(modals)/post/${item._id}`} asChild>
-        <TouchableOpacity
-          style={[
-            styles.postWrapper,
-            { backgroundColor: colors.white, shadowColor: colors.blackPure },
-          ]}
-        >
+        <TouchableOpacity>
           <Post post={item} colors={colors} />
         </TouchableOpacity>
       </Link>
@@ -83,22 +75,9 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
     <View
       style={[
         styles.container,
-        { backgroundColor: colors.backgroundLight, paddingTop: top },
+        { backgroundColor: colors.background, paddingTop: top },
       ]}
     >
-      <ProfileHeader
-        {...{
-          scrollY,
-          userInfo,
-          router,
-          signOutHandler,
-          isCurrentUserProfile,
-          viewedUserInfo,
-          colors,
-          top,
-        }}
-      />
-
       <FlatList
         data={posts}
         renderItem={renderItem}
@@ -114,18 +93,14 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
         ListEmptyComponent={
           status === "LoadingFirstPage" ? null : renderEmptyComponent
         }
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListFooterComponent={renderFooter}
         ListHeaderComponent={
           <>
-            <ProfileFirstHeader {...{ router, signOutHandler, colors }} />
-
             <ProfileStats
               isLoading={isLoading}
               userInfo={userInfo}
               isCurrentUserProfile={isCurrentUserProfile}
               viewedUserInfo={viewedUserInfo}
-              signOutHandler={signOutHandler}
               colors={colors}
             />
 
@@ -187,18 +162,6 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 14,
     fontFamily: "DMSans_400Regular",
-  },
-  postWrapper: {
-    marginHorizontal: 16,
-    marginVertical: 6,
-    borderRadius: 20,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  separator: {
-    height: 12,
   },
   firstPageLoading: {
     alignItems: "center",

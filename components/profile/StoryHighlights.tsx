@@ -1,3 +1,6 @@
+import { ColorsType } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -6,20 +9,16 @@ import {
   View,
 } from "react-native";
 
-import useAppTheme from "@/hooks/useAppTheme";
-import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-
-const StoryHighlights = () => {
-  const [showHighlights, setShowHighlights] = useState(true);
-  const { colors } = useAppTheme();
+const StoryHighlights = ({ colors }: { colors: ColorsType }) => {
+  const [showHighlights, setShowHighlights] = useState(false);
 
   const highlights = [
-    { id: "1", title: "Travel", image: "🌍", count: 5 },
-    { id: "2", title: "Work", image: "💼", count: 8 },
-    { id: "3", title: "Food", image: "🍕", count: 12 },
-    { id: "4", title: "Events", image: "🎉", count: 3 },
+    { id: "1", title: "Travel", emoji: "🌍", count: 5 },
+    { id: "2", title: "Work", emoji: "💼", count: 8 },
+    { id: "3", title: "Food", emoji: "🍕", count: 12 },
   ];
+
+  if (!showHighlights && highlights.length === 0) return null;
 
   return (
     <View
@@ -28,36 +27,39 @@ const StoryHighlights = () => {
         { borderTopColor: colors.borderLight },
       ]}
     >
-      <View style={styles.highlightsHeader}>
+      <TouchableOpacity
+        style={styles.highlightsHeader}
+        onPress={() => setShowHighlights(!showHighlights)}
+      >
         <Text style={[styles.highlightsTitle, { color: colors.textPrimary }]}>
           Highlights
         </Text>
-        <TouchableOpacity onPress={() => setShowHighlights(!showHighlights)}>
-          <Ionicons
-            name={showHighlights ? "chevron-up" : "chevron-down"}
-            size={20}
-            color={colors.textTertiary}
-          />
-        </TouchableOpacity>
-      </View>
+        <Ionicons
+          name={showHighlights ? "chevron-up" : "chevron-down"}
+          size={18}
+          color={colors.textTertiary}
+        />
+      </TouchableOpacity>
 
       {showHighlights && (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.highlightsList}
+          contentContainerStyle={styles.highlightsContent}
         >
           <TouchableOpacity style={styles.addHighlight}>
             <View
               style={[
-                styles.addHighlightCircle,
+                styles.highlightCircle,
                 {
                   backgroundColor: colors.backgroundLight,
                   borderColor: colors.borderLight,
+                  borderStyle: "dashed",
                 },
               ]}
             >
-              <Ionicons name="add" size={24} color={colors.textTertiary} />
+              <Ionicons name="add" size={20} color={colors.textTertiary} />
             </View>
             <Text
               style={[styles.highlightLabel, { color: colors.textSecondary }]}
@@ -71,22 +73,24 @@ const StoryHighlights = () => {
               <View
                 style={[
                   styles.highlightCircle,
-                  { backgroundColor: colors.primary },
+                  { backgroundColor: colors.primaryLight },
                 ]}
               >
-                <Text style={styles.highlightEmoji}>{highlight.image}</Text>
-                <View
-                  style={[
-                    styles.highlightBadge,
-                    { backgroundColor: colors.error },
-                  ]}
-                >
-                  <Text
-                    style={[styles.highlightCount, { color: colors.white }]}
+                <Text style={styles.highlightEmoji}>{highlight.emoji}</Text>
+                {highlight.count > 0 && (
+                  <View
+                    style={[
+                      styles.highlightBadge,
+                      { backgroundColor: colors.primary },
+                    ]}
                   >
-                    {highlight.count}
-                  </Text>
-                </View>
+                    <Text
+                      style={[styles.highlightCount, { color: colors.white }]}
+                    >
+                      {highlight.count}
+                    </Text>
+                  </View>
+                )}
               </View>
               <Text
                 style={[styles.highlightLabel, { color: colors.textSecondary }]}
@@ -105,70 +109,65 @@ export default StoryHighlights;
 
 const styles = StyleSheet.create({
   highlightsContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   highlightsHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   highlightsTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
     fontFamily: "DMSans_600SemiBold",
   },
   highlightsList: {
-    paddingVertical: 8,
+    paddingVertical: 4,
+  },
+  highlightsContent: {
+    paddingRight: 16,
   },
   addHighlight: {
     alignItems: "center",
-    marginRight: 20,
-  },
-  addHighlightCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 2,
-    borderStyle: "dashed",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
+    marginRight: 16,
   },
   highlightItem: {
     alignItems: "center",
-    marginRight: 20,
+    marginRight: 16,
   },
   highlightCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 6,
+    borderWidth: 1.5,
     position: "relative",
   },
   highlightEmoji: {
-    fontSize: 24,
+    fontSize: 20,
   },
   highlightBadge: {
     position: "absolute",
-    top: -4,
-    right: -4,
-    borderRadius: 10,
-    width: 20,
-    height: 20,
+    top: -2,
+    right: -2,
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 3,
   },
   highlightCount: {
-    fontSize: 10,
-    fontWeight: "600",
+    fontSize: 9,
+    fontWeight: "700",
   },
   highlightLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "DMSans_400Regular",
   },
 });

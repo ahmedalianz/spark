@@ -69,6 +69,12 @@ const Layout = () => {
         }}
       />
       <Stack.Screen
+        name="(settings)/menu"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="(settings)/appearance"
         options={{
           headerShown: false,

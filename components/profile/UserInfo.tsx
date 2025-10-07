@@ -1,6 +1,6 @@
 import { api } from "@/convex/_generated/api";
 import useFollowHandler from "@/hooks/useFollowHandler";
-import { MenuSection, UserInfoProps } from "@/types";
+import { UserInfoProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
@@ -20,13 +20,17 @@ const UserInfo = ({
   isCurrentUserProfile,
   userInfo,
   colors,
-  signOutHandler,
 }: UserInfoProps) => {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
   const [userMenuVisible, setUserMenuVisible] = useState(false);
+  const onClose = () => setUserMenuVisible(false);
 
+  const { handleFollowToggle, loading } = useFollowHandler();
+  const followStatus = useQuery(api.follows.checkFollowStatus, {
+    userId: userInfo?._id,
+  });
   const handleMenuAction = (action: string) => {
     console.log("Menu action:", action);
     // Handle different actions here
@@ -46,18 +50,17 @@ const UserInfo = ({
       // ... handle other actions
     }
   };
-
   useEffect(() => {
     if (userInfo) {
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 600,
+          duration: 500,
           useNativeDriver: true,
         }),
         Animated.timing(slideAnim, {
           toValue: 0,
-          duration: 600,
+          duration: 500,
           useNativeDriver: true,
         }),
       ]).start();
@@ -105,139 +108,6 @@ const UserInfo = ({
     },
   ];
 
-  const currentUserSections = [
-    {
-      id: "account",
-      title: "Account",
-      data: [
-        {
-          id: "edit-profile",
-          iconName: "person-outline",
-          title: "Edit Profile",
-          onPress: () => router.push(editProfileRoute),
-        },
-        {
-          id: "privacy",
-          iconName: "lock-closed-outline",
-          title: "Privacy & Safety",
-          subtitle: "Manage your privacy settings",
-          onPress: () => router.push("/(auth)/(settings)/privacy"),
-        },
-        {
-          id: "security",
-          iconName: "shield-checkmark-outline",
-          title: "Security",
-          subtitle: "Two-factor authentication, login history",
-          onPress: () => router.push("/(auth)/(settings)/security"),
-        },
-        {
-          id: "blocked-users",
-          iconName: "ban-outline",
-          title: "Blocked Users",
-          subtitle: "Manage blocked accounts",
-          onPress: () => router.push("/(auth)/(settings)/blocked-users"),
-        },
-      ],
-    },
-    {
-      id: "preferences",
-      title: "Preferences",
-      showDivider: true,
-      data: [
-        {
-          id: "notifications",
-          iconName: "notifications-outline",
-          title: "Notifications",
-          subtitle: "Push, email, and in-app notifications",
-          onPress: () => router.push("/(auth)/(settings)/notifications"),
-        },
-        {
-          id: "feed-preferences",
-          iconName: "newspaper-outline",
-          title: "Feed Preferences",
-          subtitle: "Algorithm, content languages",
-          onPress: () => router.push("/(auth)/(settings)/feed-preferences"),
-        },
-        {
-          id: "appearance",
-          iconName: "color-palette-outline",
-          title: "Appearance",
-          subtitle: "Theme, font size, reduce motion",
-          onPress: () => router.push("/(auth)/(settings)/appearance"),
-        },
-        {
-          id: "accessibility",
-          iconName: "accessibility-outline",
-          title: "Accessibility",
-          subtitle: "Alt text, keyboard shortcuts",
-          onPress: () => router.push("/(auth)/(settings)/accessibility"),
-        },
-      ],
-    },
-    {
-      id: "content",
-      title: "Content & Media",
-      showDivider: true,
-      data: [
-        {
-          id: "saved-posts",
-          iconName: "bookmark-outline",
-          title: "Saved Posts",
-          subtitle: "Your bookmarked content",
-          onPress: () => router.push("/(auth)/(settings)/saved-posts"),
-        },
-        {
-          id: "drafts",
-          iconName: "document-outline",
-          title: "Drafts",
-          subtitle: "Your unpublished posts",
-          onPress: () => router.push("/(auth)/(settings)/drafts"),
-        },
-      ],
-    },
-    {
-      id: "support",
-      title: "Support & About",
-      showDivider: true,
-      data: [
-        {
-          id: "help",
-          iconName: "help-circle-outline",
-          title: "Help & Support",
-          onPress: () => router.push("/(auth)/(settings)/help"),
-        },
-        {
-          id: "data-export",
-          iconName: "download-outline",
-          title: "Data Export",
-          subtitle: "Download your data",
-          onPress: () => router.push("/(auth)/(settings)/data-export"),
-        },
-        {
-          id: "about",
-          iconName: "information-circle-outline",
-          title: "About Spark",
-          subtitle: "Version 1.0.0",
-          onPress: () => router.push("/(auth)/(settings)/about"),
-        },
-        {
-          id: "logout",
-          iconName: "log-out-outline",
-          title: "Log Out",
-          isDestructive: true,
-          onPress: signOutHandler,
-        },
-      ],
-    },
-  ];
-
-  const [userMenu, setUserMenu] = useState<MenuSection[]>(currentUserSections);
-  const onClose = () => setUserMenuVisible(false);
-  const { handleFollowToggle, loading } = useFollowHandler();
-  const followStatus = useQuery(api.follows.checkFollowStatus, {
-    userId: userInfo?._id,
-  });
-
   return (
     <Animated.View
       style={[
@@ -248,19 +118,8 @@ const UserInfo = ({
         },
       ]}
     >
-      {/* Profile Header */}
+      {/*  Profile Header */}
       <View style={styles.profileHeader}>
-        <View style={styles.profileInfo}>
-          <View style={styles.nameContainer}>
-            <Text style={[styles.name, { color: colors.black }]}>
-              {userInfo?.first_name} {userInfo?.last_name}
-            </Text>
-          </View>
-          <Text style={[styles.email, { color: colors.textTertiary }]}>
-            {userInfo?.email}
-          </Text>
-        </View>
-
         <View style={styles.avatarContainer}>
           <LinearGradient
             colors={[colors.primary, colors.primaryDark]}
@@ -272,76 +131,72 @@ const UserInfo = ({
             />
           </LinearGradient>
         </View>
+
+        <View style={styles.profileInfo}>
+          <View style={styles.nameRow}>
+            <Text style={[styles.name, { color: colors.black }]}>
+              {userInfo?.first_name} {userInfo?.last_name}
+            </Text>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => router.push("/(auth)/(settings)/menu")}
+            >
+              <Ionicons
+                name="settings-outline"
+                size={22}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+          </View>
+          <Text style={[styles.email, { color: colors.textTertiary }]}>
+            {userInfo?.email}
+          </Text>
+        </View>
       </View>
 
-      {/* Bio Section */}
+      {/*  Bio Section */}
       <View style={styles.bioSection}>
-        <Text style={[styles.bio, { color: colors.textSecondary }]}>
-          {userInfo?.bio || "✨ No bio yet - the mystery adds to the charm"}
+        <Text
+          style={[styles.bio, { color: colors.textSecondary }]}
+          numberOfLines={2}
+        >
+          {userInfo?.bio || "✨ No bio yet"}
         </Text>
 
         {userInfo?.websiteUrl && (
           <TouchableOpacity style={styles.websiteContainer}>
-            <Ionicons name="link-outline" size={16} color={colors.primary} />
-            <Text style={[styles.websiteText, { color: colors.primary }]}>
-              {userInfo.websiteUrl}
+            <Ionicons name="link-outline" size={14} color={colors.primary} />
+            <Text
+              style={[styles.websiteText, { color: colors.primary }]}
+              numberOfLines={1}
+            >
+              {userInfo.websiteUrl.replace(/^https?:\/\//, "")}
             </Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Action Buttons */}
-      <View
-        style={[styles.actionSection, { borderTopColor: colors.borderLighter }]}
-      >
+      {/*  Action Buttons */}
+      <View style={styles.actionSection}>
         {isCurrentUserProfile ? (
           <View style={styles.buttonRow}>
             <Link href={editProfileRoute} asChild>
               <TouchableOpacity style={styles.primaryButton}>
                 <LinearGradient
                   colors={[colors.primary, colors.primaryDark]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
                   style={styles.buttonGradient}
                 >
                   <Ionicons
                     name="create-outline"
-                    size={18}
+                    size={16}
                     color={colors.white}
                   />
-                  <Text
-                    style={[styles.primaryButtonText, { color: colors.white }]}
-                  >
+                  <Text style={[styles.buttonText, { color: colors.white }]}>
                     Edit Profile
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
             </Link>
-
-            <TouchableOpacity
-              style={[
-                styles.secondaryButton,
-                {
-                  backgroundColor: colors.tintBlueLight,
-                  borderColor: colors.tintBlue,
-                },
-              ]}
-              onPress={() => {
-                setUserMenu(currentUserSections);
-                setUserMenuVisible(true);
-              }}
-            >
-              <Ionicons
-                name="settings-outline"
-                size={18}
-                color={colors.primary}
-              />
-              <Text
-                style={[styles.secondaryButtonText, { color: colors.primary }]}
-              >
-                Settings
-              </Text>
-            </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.buttonRow}>
@@ -352,19 +207,19 @@ const UserInfo = ({
             >
               <LinearGradient
                 colors={[colors.primary, colors.primaryDark]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
                 style={styles.buttonGradient}
               >
                 <Ionicons
-                  name="person-add-outline"
-                  size={18}
+                  name={
+                    followStatus?.isFollowing
+                      ? "person-remove"
+                      : "person-add-outline"
+                  }
+                  size={16}
                   color={colors.white}
                 />
-                <Text
-                  style={[styles.primaryButtonText, { color: colors.white }]}
-                >
-                  {followStatus?.isFollowing ? "Unfollow" : "Follow"}
+                <Text style={[styles.buttonText, { color: colors.white }]}>
+                  {followStatus?.isFollowing ? "Following" : "Follow"}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -380,32 +235,20 @@ const UserInfo = ({
             >
               <Ionicons
                 name="chatbubble-outline"
-                size={18}
+                size={16}
                 color={colors.primary}
               />
-              <Text
-                style={[styles.secondaryButtonText, { color: colors.primary }]}
-              >
+              <Text style={[styles.buttonText, { color: colors.primary }]}>
                 Message
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
-              style={[
-                styles.iconOnlyButton,
-                {
-                  backgroundColor: colors.tintBlueLight,
-                  borderColor: colors.tintBlue,
-                },
-              ]}
-              onPress={() => {
-                setUserMenu(otherUserSections);
-                setUserMenuVisible(true);
-              }}
+              style={styles.moreButton}
+              onPress={() => setUserMenuVisible(true)}
             >
               <Ionicons
-                name="ellipsis-horizontal"
-                size={20}
+                name="ellipsis-horizontal-circle-outline"
+                size={25}
                 color={colors.primary}
               />
             </TouchableOpacity>
@@ -415,7 +258,7 @@ const UserInfo = ({
       <BottomSheetModal
         visible={userMenuVisible}
         onClose={onClose}
-        sections={userMenu}
+        sections={otherUserSections}
         height="90%"
       />
     </Animated.View>
@@ -424,113 +267,112 @@ const UserInfo = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
   },
   profileHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
-    justifyContent: "space-between",
-    marginBottom: 20,
+    gap: 12,
+    marginBottom: 16,
   },
   profileInfo: {
     flex: 1,
-    marginRight: 16,
   },
-  nameContainer: {
+  nameRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 4,
+    justifyContent: "space-between",
+    marginBottom: 2,
   },
   name: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "700",
     fontFamily: "DMSans_700Bold",
+    flex: 1,
+  },
+  menuButton: {
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
   },
   email: {
-    fontSize: 15,
-    marginBottom: 16,
+    fontSize: 14,
     fontFamily: "DMSans_400Regular",
   },
   avatarContainer: {
     position: "relative",
   },
   avatarGradient: {
-    padding: 3,
-    borderRadius: 40,
+    padding: 2,
+    borderRadius: 32,
   },
   avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   },
   bioSection: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   bio: {
-    fontSize: 16,
-    lineHeight: 22,
-    marginBottom: 12,
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 8,
     fontFamily: "DMSans_400Regular",
   },
   websiteContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 4,
   },
   websiteText: {
-    fontSize: 15,
+    fontSize: 13,
     fontFamily: "DMSans_500Medium",
+    flex: 1,
   },
   actionSection: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: 20,
+    marginBottom: 8,
   },
   buttonRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
   },
   primaryButton: {
     flex: 1,
-    borderRadius: 25,
+    borderRadius: 20,
     overflow: "hidden",
   },
   buttonGradient: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 10,
-    gap: 4,
-  },
-  primaryButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "DMSans_500Medium",
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    gap: 6,
   },
   secondaryButton: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 20,
     borderWidth: 1.5,
-    gap: 4,
+    gap: 6,
   },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "DMSans_500Medium",
-  },
-  iconOnlyButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 1.5,
+  moreButton: {
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  buttonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    fontFamily: "DMSans_600SemiBold",
   },
 });
 

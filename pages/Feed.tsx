@@ -5,7 +5,7 @@ import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useIsFocused } from "@react-navigation/native";
-import { usePaginatedQuery, useQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import * as Haptics from "expo-haptics";
 import { Link, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -13,7 +13,6 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  Platform,
   RefreshControl,
   StatusBar,
   StyleSheet,
@@ -55,8 +54,6 @@ const Feed = () => {
   const isFocused = useIsFocused();
   const searchInputRef = useRef<TextInput>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
-  const unreadCount =
-    useQuery(api.notifications.getUnreadNotificationCount) || 0;
   const isRefreshingValue = useSharedValue(0);
 
   // Main feed posts query
@@ -209,24 +206,19 @@ const Feed = () => {
   }));
 
   const renderPost = ({ item }: { item: Doc<"posts"> }) => (
-    <Animated.View
-      entering={Platform.OS === "ios" ? undefined : undefined}
-      style={[styles.postContainer, { backgroundColor: colors.white }]}
-    >
-      <Link href={`/(auth)/(modals)/post/${item._id}`} asChild>
-        <TouchableOpacity activeOpacity={0.95}>
-          <Post
-            post={
-              item as Doc<"posts"> & {
-                author: Doc<"users">;
-                userHasLiked: boolean;
-              }
+    <Link href={`/(auth)/(modals)/post/${item._id}`} asChild>
+      <TouchableOpacity>
+        <Post
+          post={
+            item as Doc<"posts"> & {
+              author: Doc<"users">;
+              userHasLiked: boolean;
             }
-            colors={colors}
-          />
-        </TouchableOpacity>
-      </Link>
-    </Animated.View>
+          }
+          colors={colors}
+        />
+      </TouchableOpacity>
+    </Link>
   );
 
   const renderFilterTabs = () => (
@@ -293,7 +285,11 @@ const Feed = () => {
       <View style={styles.topBar}>
         <Animated.View style={pullRefreshStyle}>
           <Image
-            source={require("@/assets/images/spark-empty.webp")}
+            source={
+              barStyleColors === "light-content"
+                ? require("@/assets/images/spark.webp")
+                : require("@/assets/images/spark-empty.webp")
+            }
             style={styles.logo}
           />
         </Animated.View>
@@ -319,21 +315,13 @@ const Feed = () => {
               styles.headerButton,
               { backgroundColor: colors.backgroundLight },
             ]}
-            onPress={() => router.push("/(auth)/(tabs)/notifications")}
+            onPress={() => router.push("/(auth)/(settings)/menu")}
           >
             <Ionicons
-              name="notifications-outline"
+              name="settings-outline"
               size={24}
               color={colors.textSecondary}
             />
-            {unreadCount > 0 && (
-              <View
-                style={[
-                  styles.notificationBadge,
-                  { backgroundColor: colors.accentLike },
-                ]}
-              />
-            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -497,7 +485,6 @@ const Feed = () => {
           ListHeaderComponent={renderHeader}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={renderEmptyState}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
           contentContainerStyle={[
             styles.scrollContent,
             { paddingTop: top, paddingBottom: tabBarHeight + 20 },
@@ -547,6 +534,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 50,
     height: 50,
+    borderRadius: 50,
   },
   headerActions: {
     flexDirection: "row",
@@ -630,15 +618,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
-  postContainer: {
-    marginHorizontal: 16,
-    marginBottom: 2,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  separator: {
-    height: 8,
-  },
+
   footerLoader: {
     flexDirection: "row",
     alignItems: "center",

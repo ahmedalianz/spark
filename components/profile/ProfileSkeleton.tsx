@@ -6,6 +6,12 @@ export default function ProfileSkeleton({ colors }: { colors: ColorsType }) {
   return (
     <View style={styles.loadingMainContainer}>
       <View style={styles.loadingContainer}>
+        <View
+          style={[
+            styles.loadingAvatar,
+            { backgroundColor: colors.borderLighter },
+          ]}
+        />
         <View style={styles.loadingContent}>
           <View
             style={[
@@ -19,20 +25,9 @@ export default function ProfileSkeleton({ colors }: { colors: ColorsType }) {
               { backgroundColor: colors.borderLighter },
             ]}
           />
-          <View
-            style={[
-              styles.loadingLine,
-              { width: "60%", backgroundColor: colors.borderLighter },
-            ]}
-          />
         </View>
-        <View
-          style={[
-            styles.loadingAvatar,
-            { backgroundColor: colors.borderLighter },
-          ]}
-        />
       </View>
+
       <View
         style={[
           styles.loadingBioLine,
@@ -53,6 +48,50 @@ export default function ProfileSkeleton({ colors }: { colors: ColorsType }) {
           ]}
         />
       </View>
+      <View style={styles.textsContainer}>
+        <View style={styles.loadingTextItem}>
+          <View
+            style={[
+              styles.loadingText,
+              { backgroundColor: colors.borderLighter },
+            ]}
+          />
+          <View
+            style={[
+              styles.loadingText,
+              { backgroundColor: colors.borderLighter },
+            ]}
+          />
+        </View>
+        <View style={styles.loadingTextItem}>
+          <View
+            style={[
+              styles.loadingText,
+              { backgroundColor: colors.borderLighter },
+            ]}
+          />
+          <View
+            style={[
+              styles.loadingText,
+              { backgroundColor: colors.borderLighter },
+            ]}
+          />
+        </View>
+        <View style={styles.loadingTextItem}>
+          <View
+            style={[
+              styles.loadingText,
+              { backgroundColor: colors.borderLighter },
+            ]}
+          />
+          <View
+            style={[
+              styles.loadingText,
+              { backgroundColor: colors.borderLighter },
+            ]}
+          />
+        </View>
+      </View>
     </View>
   );
 }
@@ -65,6 +104,7 @@ const styles = StyleSheet.create({
   loadingContainer: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 10,
   },
   loadingAvatar: {
     width: 72,
@@ -88,11 +128,26 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: "row",
     gap: 12,
-    marginTop: 60,
+    marginTop: 20,
   },
   loadingButton: {
     height: 45,
     borderRadius: 12,
     width: "48%",
+  },
+  textsContainer: {
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "red",
+    gap: 8,
+  },
+  loadingTextItem: {
+    flexGrow: 1,
+    gap: 8,
+  },
+  loadingText: {
+    height: 16,
+    borderRadius: 8,
   },
 });

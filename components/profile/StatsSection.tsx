@@ -1,5 +1,3 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { ColorsType } from "@/types";
@@ -7,6 +5,7 @@ import formatCount from "@/utils/formatCount";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "convex/react";
 import { useRouter } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const StatsSection = ({
   userInfo,
@@ -21,65 +20,51 @@ const StatsSection = ({
   const mutualFollowers = useQuery(api.users.getMutualFollowers, {
     userId: viewedUserId,
   });
+
   const joinedDate = new Date(userInfo?.createdAt).toLocaleDateString("en-US", {
+    month: "short",
     year: "numeric",
-    month: "long",
   });
+
+  const stats = [
+    { value: userInfo?.postsCount, label: "Posts" },
+    { value: formatCount(userInfo?.followersCount), label: "Followers" },
+    { value: formatCount(userInfo?.followingsCount), label: "Following" },
+  ];
 
   return (
     <View style={styles.statsContainer}>
+      {/* Stats Row */}
       <View style={styles.statsRow}>
-        <View style={styles.statButton}>
-          <Text style={[styles.statNumber, { color: colors.textPrimary }]}>
-            {userInfo?.postsCount}
-          </Text>
-          <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
-            Posts
-          </Text>
-        </View>
-
-        <TouchableOpacity
-          style={styles.statButton}
-          onPress={() => router.push("/(auth)/(tabs)/followers")}
-        >
-          <Text style={[styles.statNumber, { color: colors.textPrimary }]}>
-            {formatCount(userInfo?.followersCount)}
-          </Text>
-          <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
-            Followers
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.statButton}
-          onPress={() => router.push("/(auth)/(tabs)/followers")}
-        >
-          <Text style={[styles.statNumber, { color: colors.textPrimary }]}>
-            {formatCount(userInfo?.followingsCount)}
-          </Text>
-          <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
-            Following
-          </Text>
-        </TouchableOpacity>
+        {stats.map((stat, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.statItem}
+            onPress={() => index > 0 && router.push("/(auth)/(tabs)/followers")}
+          >
+            <Text style={[styles.statNumber, { color: colors.textPrimary }]}>
+              {stat.value}
+            </Text>
+            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
+              {stat.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      {/* Profile Info Cards */}
+      {/* Compact Info Cards */}
       <View style={styles.infoCards}>
         <View
           style={[styles.infoCard, { backgroundColor: colors.backgroundLight }]}
         >
-          <View style={styles.infoCardContent}>
-            <Ionicons
-              name="calendar-outline"
-              size={16}
-              color={colors.textTertiary}
-            />
-            <Text
-              style={[styles.infoCardText, { color: colors.textSecondary }]}
-            >
-              Joined {joinedDate}
-            </Text>
-          </View>
+          <Ionicons
+            name="calendar-outline"
+            size={14}
+            color={colors.textTertiary}
+          />
+          <Text style={[styles.infoCardText, { color: colors.textSecondary }]}>
+            Joined {joinedDate}
+          </Text>
         </View>
 
         {mutualFollowers && mutualFollowers.length > 0 && (
@@ -89,20 +74,13 @@ const StatsSection = ({
               { backgroundColor: colors.backgroundLight },
             ]}
           >
-            <View style={styles.infoCardContent}>
-              <Ionicons
-                name="people-outline"
-                size={16}
-                color={colors.primary}
-              />
-              <Text
-                style={[styles.infoCardText, { color: colors.textSecondary }]}
-              >
-                Followed by {mutualFollowers?.[0]?.first_name}
-                {mutualFollowers.length > 1 &&
-                  ` +${mutualFollowers.length - 1} others`}
-              </Text>
-            </View>
+            <Ionicons name="people-outline" size={14} color={colors.primary} />
+            <Text
+              style={[styles.infoCardText, { color: colors.textSecondary }]}
+            >
+              {mutualFollowers.length} mutual follower
+              {mutualFollowers.length > 1 ? "s" : ""}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -114,42 +92,44 @@ export default StatsSection;
 
 const styles = StyleSheet.create({
   statsContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
   },
   statsRow: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 16,
+    marginBottom: 12,
   },
-  statButton: {
+  statItem: {
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: 4,
+    flex: 1,
   },
   statNumber: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
     fontFamily: "DMSans_700Bold",
+    marginBottom: 2,
   },
   statLabel: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 11,
     fontFamily: "DMSans_400Regular",
   },
   infoCards: {
+    flexDirection: "row",
     gap: 8,
   },
   infoCard: {
-    borderRadius: 12,
-    padding: 12,
-  },
-  infoCardContent: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
+    borderRadius: 10,
+    padding: 10,
   },
   infoCardText: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: "DMSans_400Regular",
+    flex: 1,
   },
 });
