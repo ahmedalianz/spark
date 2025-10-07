@@ -61,129 +61,125 @@ const Comment = ({
   return (
     <>
       <Animated.View
-        entering={FadeInUp.delay(index * 20).springify()}
-        layout={Layout.springify()}
+        entering={FadeInUp.delay(index * 20)}
+        layout={Layout.duration(200)}
         style={[
-          styles.commentCard,
+          styles.commentContainer,
           {
-            backgroundColor: colors.white,
-            borderColor: colors.borderLighter,
+            backgroundColor: colors.background,
+            borderBottomColor: colors.border,
           },
         ]}
       >
-        {/* Comment Header */}
-        <View style={styles.commentHeader}>
+        {/* Comment Content */}
+        <View style={styles.commentMain}>
           <Image
             source={{
               uri:
                 comment.author?.imageUrl ||
                 `https://ui-avatars.com/api/?name=${comment.author?.first_name}+${comment.author?.last_name}&background=random`,
             }}
-            style={styles.commentAvatar}
+            style={styles.avatar}
           />
 
-          <View style={styles.commentHeaderContent}>
-            <View style={styles.commentUserRow}>
+          <View style={styles.commentContent}>
+            <View style={styles.commentHeader}>
               <Text
-                style={[
-                  styles.commentUsername,
-                  { color: colors.textSecondary },
-                ]}
+                style={[styles.authorName, { color: colors.textPrimary }]}
                 numberOfLines={1}
               >
                 {comment.author?.first_name} {comment.author?.last_name}
               </Text>
-              <Text style={[styles.commentTime, { color: colors.textMuted }]}>
-                · {formatTimeAgo(comment._creationTime)}
+              <Text
+                style={[styles.commentTime, { color: colors.textTertiary }]}
+              >
+                {formatTimeAgo(comment._creationTime)}
               </Text>
             </View>
 
-            <Text style={[styles.commentText, { color: colors.textSecondary }]}>
+            <Text style={[styles.commentText, { color: colors.textPrimary }]}>
               {displayContent}
             </Text>
 
-            {isLongComment && (
-              <TouchableOpacity onPress={toggleCommentExpansion}>
-                <Text style={[styles.readMoreText, { color: colors.primary }]}>
-                  {expandedComment ? "Show less" : "Read more"}
+            {/* Actions Row */}
+            <View style={styles.actionsRow}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleCommentLike(comment._id)}
+              >
+                <Ionicons
+                  name={comment.userHasLiked ? "heart" : "heart-outline"}
+                  size={14}
+                  color={
+                    comment.userHasLiked
+                      ? colors.accentLike
+                      : colors.iconSecondary
+                  }
+                />
+                <Text
+                  style={[
+                    styles.actionText,
+                    { color: colors.textTertiary },
+                    comment.userHasLiked && { color: colors.accentLike },
+                  ]}
+                >
+                  {formatCount(comment.likeCount)}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() =>
+                  handleReply(comment._id, comment.author?.first_name || "User")
+                }
+              >
+                <Ionicons
+                  name="chatbubble-outline"
+                  size={14}
+                  color={colors.iconSecondary}
+                />
+                <Text
+                  style={[styles.actionText, { color: colors.textTertiary }]}
+                >
+                  Reply
+                </Text>
+              </TouchableOpacity>
+
+              {isLongComment && (
+                <TouchableOpacity onPress={toggleCommentExpansion}>
+                  <Text
+                    style={[styles.readMoreText, { color: colors.primary }]}
+                  >
+                    {expandedComment ? "Show less" : "Read more"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Replies Toggle */}
+            {hasReplies && (
+              <TouchableOpacity
+                style={styles.repliesToggle}
+                onPress={toggleReplies}
+              >
+                <View
+                  style={[styles.replyLine, { backgroundColor: colors.border }]}
+                />
+                <Ionicons
+                  name={showReplies ? "chevron-up" : "chevron-down"}
+                  size={14}
+                  color={colors.primary}
+                />
+                <Text style={[styles.repliesText, { color: colors.primary }]}>
+                  {showReplies ? "Hide" : "Show"} {comment.replyCount}{" "}
+                  {comment.replyCount === 1 ? "reply" : "replies"}
                 </Text>
               </TouchableOpacity>
             )}
           </View>
         </View>
-
-        {/* Comment Footer */}
-        <View style={styles.commentFooter}>
-          <TouchableOpacity
-            style={styles.commentAction}
-            onPress={() => handleCommentLike(comment._id)}
-          >
-            <Ionicons
-              name={comment.userHasLiked ? "heart" : "heart-outline"}
-              size={14}
-              color={
-                comment.userHasLiked ? colors.accentLike : colors.textMuted
-              }
-            />
-            <Text
-              style={[
-                styles.commentActionText,
-                { color: colors.textMuted },
-                comment.userHasLiked && [
-                  styles.commentActionTextLiked,
-                  { color: colors.accentLike },
-                ],
-              ]}
-            >
-              {formatCount(comment.likeCount)}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.commentAction}
-            onPress={() =>
-              handleReply(comment._id, comment.author?.first_name || "User")
-            }
-          >
-            <Ionicons
-              name="arrow-undo-outline"
-              size={14}
-              color={colors.textMuted}
-            />
-            <Text
-              style={[styles.commentActionText, { color: colors.textMuted }]}
-            >
-              Reply
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Show Replies Toggle */}
-        {hasReplies && (
-          <TouchableOpacity
-            style={styles.showRepliesButton}
-            onPress={toggleReplies}
-          >
-            <View style={styles.showRepliesContent}>
-              <View
-                style={[
-                  styles.replyConnector,
-                  { backgroundColor: colors.borderLight },
-                ]}
-              />
-              <Ionicons
-                name={showReplies ? "chevron-up" : "chevron-down"}
-                size={14}
-                color={colors.primary}
-              />
-              <Text style={[styles.showRepliesText, { color: colors.primary }]}>
-                {showReplies ? "Hide" : "Show"} {comment.replyCount}{" "}
-                {comment.replyCount === 1 ? "reply" : "replies"}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
       </Animated.View>
+
       {showReplies && <Replies parentCommentId={comment._id} colors={colors} />}
     </>
   );
@@ -192,89 +188,75 @@ const Comment = ({
 export default Comment;
 
 const styles = StyleSheet.create({
-  commentCard: {
-    marginHorizontal: 12,
-    marginBottom: 6,
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
+  commentContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  commentMain: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 12,
+  },
+  commentContent: {
+    flex: 1,
   },
   commentHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 8,
-    gap: 10,
-  },
-  commentAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-  },
-  commentHeaderContent: {
-    flex: 1,
-    gap: 4,
-  },
-  commentUserRow: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    flexWrap: "wrap",
+    marginBottom: 4,
+    gap: 8,
   },
-  commentUsername: {
+  authorName: {
     fontSize: 14,
     fontWeight: "600",
-    maxWidth: "60%",
+    fontFamily: "DMSans_600SemiBold",
   },
   commentTime: {
     fontSize: 12,
+    fontFamily: "DMSans_400Regular",
   },
   commentText: {
     fontSize: 14,
     lineHeight: 18,
+    fontFamily: "DMSans_400Regular",
+    marginBottom: 8,
   },
-  commentFooter: {
+  actionsRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    marginTop: 4,
   },
-  commentAction: {
+  actionButton: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 6,
   },
-  commentActionText: {
+  actionText: {
     fontSize: 12,
-    fontWeight: "500",
-  },
-  commentActionTextLiked: {
-    // color handled inline
+    fontFamily: "DMSans_500Medium",
   },
   readMoreText: {
     fontSize: 12,
-    fontWeight: "500",
-    marginTop: 2,
+    fontFamily: "DMSans_500Medium",
   },
-  showRepliesButton: {
-    marginTop: 8,
-    paddingVertical: 6,
-  },
-  showRepliesContent: {
+  repliesToggle: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingLeft: 4,
+    marginTop: 8,
+    gap: 6,
   },
-  replyConnector: {
+  replyLine: {
     width: 2,
-    height: 20,
-    marginRight: 4,
+    height: 16,
   },
-  showRepliesText: {
-    fontSize: 13,
-    fontWeight: "600",
+  repliesText: {
+    fontSize: 12,
+    fontFamily: "DMSans_600SemiBold",
   },
 });

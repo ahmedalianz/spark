@@ -1,41 +1,35 @@
 export const Colors = {
-  // Primary Colors - Modern Purple
   primary: "#8B5CF6",
   primaryDark: "#7C3AED",
   primaryDarker: "#6D28D9",
   primaryLight: "#A78BFA",
+  primaryTint: "#F5F3FF", // NEW: Light purple tint for active states
 
-  // Neutral Colors
   white: "#FFFFFF",
-  black: "#1F2937",
-  blackDark: "#111827",
+  black: "#111827",
   blackPure: "#000000",
-  background: "#FAFAFA",
-  backgroundLight: "#F9FAFB",
-  backgroundCard: "#F3F4F6",
-  backgroundSecondary: "#F8F9FA",
+  background: "#FFFFFF",
+  backgroundSecondary: "#F8F9FA", // Slightly darker for card backgrounds
+  backgroundTertiary: "#F3F4F6", // NEW: For input backgrounds, borders
+  backgroundMuted: "#F9FAFB", // NEW: For very subtle backgrounds
 
-  // Text Colors
-  textPrimary: "#1F2937",
+  // Text Colors - Better hierarchy
+  textPrimary: "#111827",
   textSecondary: "#374151",
   textTertiary: "#6B7280",
-  textQuaternary: "#9CA3AF",
-  textMuted: "#D1D5DB",
-  textDisabled: "#E5E7EB",
+  textMuted: "#9CA3AF",
+  textDisabled: "#D1D5DB",
 
-  // Border & Divider Colors
-  border: "#D1D5DB",
-  borderLight: "#E5E7EB",
-  borderLighter: "#F3F4F6",
+  // Border & Divider Colors - Better definition
+  border: "#E5E7EB", // Main borders
+  borderLight: "#F3F4F6", // Lighter borders
+  borderAccent: "#D1D5DB", // NEW: For focused/active borders
   borderDisabled: "#9CA3AF",
-  borderSecondary: "#F3F4F6",
-  borderTertiary: "#F9FAFB",
-  borderBackground: "#E5E7EB",
 
   // Semantic Colors
   accentLike: "#EC4899",
-  iconContainer: "#F9FAFB",
-  iconBackground: "#F3F4F6",
+  iconPrimary: "#374151", // NEW: Default icon color
+  iconSecondary: "#6B7280", // NEW: Secondary icon color
   success: "#10B981",
   warning: "#F59E0B",
   info: "#3B82F6",
@@ -74,38 +68,34 @@ export const DarkColors = {
   primaryDark: "#7C3AED",
   primaryDarker: "#6D28D9",
   primaryLight: "#A78BFA",
+  primaryTint: "#1E1B4B", // NEW: Dark purple tint
 
   // Neutral Colors
   white: "#0F0F15",
   black: "#F9FAFB",
-  blackDark: "#FFFFFF",
   blackPure: "#FFFFFF",
   background: "#111827",
-  backgroundLight: "#1F2937",
-  backgroundCard: "#374151",
   backgroundSecondary: "#1A1F2E",
+  backgroundTertiary: "#374151", // NEW: For input backgrounds
+  backgroundMuted: "#1F2937", // NEW: For subtle backgrounds
 
   // Text Colors
   textPrimary: "#F9FAFB",
   textSecondary: "#E5E7EB",
   textTertiary: "#D1D5DB",
-  textQuaternary: "#9CA3AF",
-  textMuted: "#6B7280",
+  textMuted: "#9CA3AF",
   textDisabled: "#4B5563",
 
   // Border Colors
   border: "#374151",
-  borderLight: "#4B5563",
-  borderLighter: "#6B7280",
+  borderLight: "#1F2937",
+  borderAccent: "#4B5563", // NEW: For focused borders
   borderDisabled: "#374151",
-  borderSecondary: "#1F2937",
-  borderTertiary: "#111827",
-  borderBackground: "#1F2937",
 
   // Semantic Colors
   accentLike: "#F472B6",
-  iconContainer: "#1F2937",
-  iconBackground: "#374151",
+  iconPrimary: "#E5E7EB", // NEW: Default icon color
+  iconSecondary: "#9CA3AF", // NEW: Secondary icon color
   success: "#34D399",
   warning: "#FBBF24",
   info: "#60A5FA",

@@ -118,7 +118,7 @@ const UserInfo = ({
         },
       ]}
     >
-      {/*  Profile Header */}
+      {/* Profile Header */}
       <View style={styles.profileHeader}>
         <View style={styles.avatarContainer}>
           <LinearGradient
@@ -127,26 +127,29 @@ const UserInfo = ({
           >
             <Image
               source={{ uri: userInfo?.imageUrl as string }}
-              style={[styles.avatar, { backgroundColor: colors.borderLighter }]}
+              style={styles.avatar}
             />
           </LinearGradient>
         </View>
 
         <View style={styles.profileInfo}>
           <View style={styles.nameRow}>
-            <Text style={[styles.name, { color: colors.black }]}>
+            <Text style={[styles.name, { color: colors.textPrimary }]}>
+              {" "}
               {userInfo?.first_name} {userInfo?.last_name}
             </Text>
-            <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => router.push("/(auth)/(settings)/menu")}
-            >
-              <Ionicons
-                name="settings-outline"
-                size={22}
-                color={colors.textSecondary}
-              />
-            </TouchableOpacity>
+            {isCurrentUserProfile && (
+              <TouchableOpacity
+                style={styles.menuButton}
+                onPress={() => router.push("/(auth)/(settings)/menu")}
+              >
+                <Ionicons
+                  name="settings-outline"
+                  size={22}
+                  color={colors.iconPrimary}
+                />
+              </TouchableOpacity>
+            )}
           </View>
           <Text style={[styles.email, { color: colors.textTertiary }]}>
             {userInfo?.email}
@@ -154,7 +157,7 @@ const UserInfo = ({
         </View>
       </View>
 
-      {/*  Bio Section */}
+      {/* Bio Section */}
       <View style={styles.bioSection}>
         <Text
           style={[styles.bio, { color: colors.textSecondary }]}
@@ -176,7 +179,7 @@ const UserInfo = ({
         )}
       </View>
 
-      {/*  Action Buttons */}
+      {/* Action Buttons */}
       <View style={styles.actionSection}>
         {isCurrentUserProfile ? (
           <View style={styles.buttonRow}>
@@ -228,28 +231,32 @@ const UserInfo = ({
               style={[
                 styles.secondaryButton,
                 {
-                  backgroundColor: colors.tintBlueLight,
-                  borderColor: colors.tintBlue,
+                  backgroundColor: colors.backgroundTertiary,
+                  borderColor: colors.border,
                 },
               ]}
             >
               <Ionicons
                 name="chatbubble-outline"
                 size={16}
-                color={colors.primary}
+                color={colors.iconPrimary}
               />
-              <Text style={[styles.buttonText, { color: colors.primary }]}>
+              <Text style={[styles.buttonText, { color: colors.textPrimary }]}>
+                {" "}
                 Message
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.moreButton}
+              style={[
+                styles.moreButton,
+                { backgroundColor: colors.backgroundTertiary },
+              ]}
               onPress={() => setUserMenuVisible(true)}
             >
               <Ionicons
-                name="ellipsis-horizontal-circle-outline"
-                size={25}
-                color={colors.primary}
+                name="ellipsis-horizontal"
+                size={20}
+                color={colors.iconPrimary}
               />
             </TouchableOpacity>
           </View>
@@ -292,10 +299,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuButton: {
-    width: 28,
-    height: 28,
+    width: 32,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 16,
   },
   email: {
     fontSize: 14,
@@ -338,9 +346,10 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     gap: 10,
+    alignItems: "center",
   },
   primaryButton: {
-    flex: 1,
+    flex: 2,
     borderRadius: 20,
     overflow: "hidden",
   },
@@ -353,7 +362,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   secondaryButton: {
-    flex: 1,
+    flex: 2,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -364,10 +373,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   moreButton: {
-    flexDirection: "row",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 12,
   },
   buttonText: {
     fontSize: 14,

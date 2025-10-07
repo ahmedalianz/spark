@@ -9,7 +9,6 @@ import {
   View,
 } from "react-native";
 import Animated, { SlideInRight } from "react-native-reanimated";
-
 const PostInput = ({
   commentText,
   isSubmittingComment,
@@ -26,8 +25,8 @@ const PostInput = ({
       style={[
         styles.inputContainer,
         {
-          backgroundColor: colors.white,
-          borderTopColor: colors.borderLight,
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
         },
       ]}
     >
@@ -37,7 +36,7 @@ const PostInput = ({
           style={[
             styles.replyingIndicator,
             {
-              backgroundColor: colors.tintBlueLight,
+              backgroundColor: colors.primaryTint,
             },
           ]}
         >
@@ -46,7 +45,7 @@ const PostInput = ({
               setReplyingTo(undefined);
               setCommentText("");
             }}
-            style={styles.replayingContainer}
+            style={styles.replyingContainer}
           >
             <Text
               style={[styles.replyingText, { color: colors.primary }]}
@@ -54,7 +53,8 @@ const PostInput = ({
             >
               Replying to comment
             </Text>
-            <Ionicons name="close" size={16} color={colors.textMuted} />
+            <Ionicons name="close" size={16} color={colors.iconSecondary} />{" "}
+            {/* CHANGED: from textMuted to iconSecondary */}
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -66,13 +66,13 @@ const PostInput = ({
             style={[
               styles.textInput,
               {
-                borderColor: colors.borderLight,
-                color: colors.textSecondary,
-                backgroundColor: colors.backgroundLight,
+                borderColor: colors.border,
+                color: colors.textPrimary,
+                backgroundColor: colors.backgroundTertiary,
               },
             ]}
             placeholder="Add a comment..."
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={colors.textTertiary}
             value={commentText}
             onChangeText={setCommentText}
             multiline
@@ -85,10 +85,9 @@ const PostInput = ({
           style={[
             styles.sendButton,
             { backgroundColor: colors.primary },
-            (!commentText.trim() || isSubmittingComment) && [
-              styles.sendButtonDisabled,
-              { backgroundColor: colors.textDisabled },
-            ],
+            (!commentText.trim() || isSubmittingComment) && {
+              backgroundColor: colors.textDisabled,
+            },
           ]}
           onPress={submitComment}
           disabled={!commentText.trim() || isSubmittingComment}
@@ -109,51 +108,54 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     paddingHorizontal: 16,
     paddingTop: 12,
+    paddingBottom: 16,
   },
   replyingIndicator: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
     marginBottom: 8,
   },
-  replayingContainer: {
+  replyingContainer: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
   },
   replyingText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "500",
+    fontFamily: "DMSans_500Medium",
     flex: 1,
+    marginRight: 8,
   },
   inputRow: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+    alignItems: "flex-end",
+    gap: 12,
   },
   inputWrapper: {
     flex: 1,
-    minHeight: 36,
+    minHeight: 40,
   },
   textInput: {
     borderWidth: 1,
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    fontSize: 14,
-    maxHeight: 80,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 15,
+    maxHeight: 100,
+    fontFamily: "DMSans_400Regular",
   },
   sendButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-  },
-  sendButtonDisabled: {
-    // backgroundColor handled inline
+    marginBottom: 2,
   },
 });
 

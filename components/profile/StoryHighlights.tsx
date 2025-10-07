@@ -22,10 +22,7 @@ const StoryHighlights = ({ colors }: { colors: ColorsType }) => {
 
   return (
     <View
-      style={[
-        styles.highlightsContainer,
-        { borderTopColor: colors.borderLight },
-      ]}
+      style={[styles.highlightsContainer, { borderTopColor: colors.border }]}
     >
       <TouchableOpacity
         style={styles.highlightsHeader}
@@ -37,7 +34,7 @@ const StoryHighlights = ({ colors }: { colors: ColorsType }) => {
         <Ionicons
           name={showHighlights ? "chevron-up" : "chevron-down"}
           size={18}
-          color={colors.textTertiary}
+          color={colors.iconSecondary}
         />
       </TouchableOpacity>
 
@@ -53,13 +50,13 @@ const StoryHighlights = ({ colors }: { colors: ColorsType }) => {
               style={[
                 styles.highlightCircle,
                 {
-                  backgroundColor: colors.backgroundLight,
-                  borderColor: colors.borderLight,
+                  backgroundColor: colors.backgroundMuted,
+                  borderColor: colors.border,
                   borderStyle: "dashed",
                 },
               ]}
             >
-              <Ionicons name="add" size={20} color={colors.textTertiary} />
+              <Ionicons name="add" size={20} color={colors.iconSecondary} />
             </View>
             <Text
               style={[styles.highlightLabel, { color: colors.textSecondary }]}
@@ -73,7 +70,7 @@ const StoryHighlights = ({ colors }: { colors: ColorsType }) => {
               <View
                 style={[
                   styles.highlightCircle,
-                  { backgroundColor: colors.primaryLight },
+                  { backgroundColor: colors.backgroundMuted, borderWidth: 1 },
                 ]}
               >
                 <Text style={styles.highlightEmoji}>{highlight.emoji}</Text>

@@ -10,7 +10,6 @@ import { Alert, Animated } from "react-native";
 export const useFeedPost = (post: PostWithAuthorDetails) => {
   const router = useRouter();
   const { likeCount, userHasLiked, author } = post;
-
   const [isLiked, setIsLiked] = useState(!!userHasLiked);
   const [menuVisible, setMenuVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;

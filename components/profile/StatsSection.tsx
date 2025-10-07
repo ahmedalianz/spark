@@ -55,12 +55,12 @@ const StatsSection = ({
       {/* Compact Info Cards */}
       <View style={styles.infoCards}>
         <View
-          style={[styles.infoCard, { backgroundColor: colors.backgroundLight }]}
+          style={[styles.infoCard, { backgroundColor: colors.backgroundMuted }]}
         >
           <Ionicons
             name="calendar-outline"
             size={14}
-            color={colors.textTertiary}
+            color={colors.iconSecondary}
           />
           <Text style={[styles.infoCardText, { color: colors.textSecondary }]}>
             Joined {joinedDate}
@@ -69,15 +69,10 @@ const StatsSection = ({
 
         {mutualFollowers && mutualFollowers.length > 0 && (
           <TouchableOpacity
-            style={[
-              styles.infoCard,
-              { backgroundColor: colors.backgroundLight },
-            ]}
+            style={[styles.infoCard, { backgroundColor: colors.primaryTint }]}
           >
             <Ionicons name="people-outline" size={14} color={colors.primary} />
-            <Text
-              style={[styles.infoCardText, { color: colors.textSecondary }]}
-            >
+            <Text style={[styles.infoCardText, { color: colors.textPrimary }]}>
               {mutualFollowers.length} mutual follower
               {mutualFollowers.length > 1 ? "s" : ""}
             </Text>

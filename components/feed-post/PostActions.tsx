@@ -26,7 +26,7 @@ const PostActions: React.FC<PostActionsProps> = ({
         <TouchableOpacity
           style={[
             styles.actionButton,
-            isLiked && { backgroundColor: colors.borderSecondary },
+            isLiked && { backgroundColor: colors.borderLight },
           ]}
           onPress={onLike}
         >

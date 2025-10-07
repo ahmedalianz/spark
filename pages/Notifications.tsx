@@ -155,11 +155,10 @@ const Notifications = () => {
         style={[
           styles.notificationCard,
           {
-            backgroundColor: colors.white,
-            shadowColor: colors.blackPure,
+            backgroundColor: colors.backgroundSecondary,
           },
           !item.isRead && {
-            backgroundColor: colors.tintBlueLight,
+            backgroundColor: colors.primaryTint,
             borderLeftWidth: 3,
             borderLeftColor: colors.primary,
           },
@@ -182,13 +181,13 @@ const Notifications = () => {
               <View
                 style={[
                   styles.systemAvatar,
-                  { backgroundColor: colors.tintBlueLight },
+                  { backgroundColor: colors.backgroundTertiary },
                 ]}
               >
                 <Ionicons
                   name="notifications"
                   size={20}
-                  color={colors.primary}
+                  color={colors.iconPrimary}
                 />
               </View>
             )}
@@ -197,7 +196,7 @@ const Notifications = () => {
               style={[
                 styles.notificationIcon,
                 {
-                  backgroundColor: colors.white,
+                  backgroundColor: colors.background,
                   shadowColor: colors.blackPure,
                 },
               ]}
@@ -209,14 +208,13 @@ const Notifications = () => {
 
         <View style={styles.notificationContent}>
           <Text
-            style={[
-              styles.notificationMessage,
-              { color: colors.textSecondary },
-            ]}
+            style={[styles.notificationMessage, { color: colors.textPrimary }]}
           >
             {item.message}
           </Text>
-          <Text style={[styles.notificationTime, { color: colors.textMuted }]}>
+          <Text
+            style={[styles.notificationTime, { color: colors.textTertiary }]}
+          >
             {formatTimeAgo(item._creationTime)}
           </Text>
         </View>
@@ -237,20 +235,20 @@ const Notifications = () => {
       style={[
         styles.header,
         {
-          backgroundColor: colors.white,
-          borderBottomColor: colors.borderLighter,
+          backgroundColor: colors.background,
+          borderBottomColor: colors.border,
         },
       ]}
     >
       <View style={styles.headerTop}>
-        <Text style={[styles.headerTitle, { color: colors.textSecondary }]}>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
           Notifications
         </Text>
         {unreadCount > 0 && (
           <TouchableOpacity
             style={[
               styles.markAllButton,
-              { backgroundColor: colors.tintBlueLight },
+              { backgroundColor: colors.primaryTint },
             ]}
             onPress={handleMarkAllAsRead}
           >
@@ -275,8 +273,8 @@ const Notifications = () => {
           <Text
             style={[
               styles.filterTabText,
-              { color: colors.textMuted },
-              filter === "all" && { color: colors.textSecondary },
+              { color: colors.textTertiary },
+              filter === "all" && { color: colors.textPrimary },
             ]}
           >
             All
@@ -296,8 +294,8 @@ const Notifications = () => {
           <Text
             style={[
               styles.filterTabText,
-              { color: colors.textMuted },
-              filter === "unread" && { color: colors.textSecondary },
+              { color: colors.textTertiary },
+              filter === "unread" && { color: colors.textPrimary },
             ]}
           >
             Unread
@@ -315,7 +313,7 @@ const Notifications = () => {
       <View
         style={[
           styles.emptyIconContainer,
-          { backgroundColor: colors.backgroundLight },
+          { backgroundColor: colors.backgroundMuted },
         ]}
       >
         <Ionicons
@@ -324,12 +322,12 @@ const Notifications = () => {
           color={colors.textMuted}
         />
       </View>
-      <Text style={[styles.emptyStateTitle, { color: colors.textSecondary }]}>
+      <Text style={[styles.emptyStateTitle, { color: colors.textPrimary }]}>
         {filter === "unread"
           ? "No unread notifications"
           : "No notifications yet"}
       </Text>
-      <Text style={[styles.emptyStateSubtitle, { color: colors.textMuted }]}>
+      <Text style={[styles.emptyStateSubtitle, { color: colors.textTertiary }]}>
         {filter === "unread"
           ? "All caught up! Check back later for new notifications."
           : "We'll notify you when something happens with your posts and interactions."}
@@ -342,7 +340,7 @@ const Notifications = () => {
     return (
       <View style={styles.loadingFooter}>
         <ActivityIndicator size="small" color={colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.textMuted }]}>
+        <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
           Loading more notifications...
         </Text>
       </View>
@@ -353,7 +351,7 @@ const Notifications = () => {
     <View
       style={[
         styles.container,
-        { paddingTop: top, backgroundColor: colors.background },
+        { paddingTop: top, backgroundColor: colors.backgroundSecondary },
       ]}
     >
       <FlatList
@@ -378,7 +376,7 @@ const Notifications = () => {
             onRefresh={onRefresh}
             tintColor={colors.primary}
             colors={[colors.primary]}
-            progressBackgroundColor={colors.white}
+            progressBackgroundColor={colors.backgroundMuted}
           />
         }
       />
@@ -387,11 +385,11 @@ const Notifications = () => {
         <View
           style={[
             styles.loadingOverlay,
-            { backgroundColor: colors.background },
+            { backgroundColor: colors.backgroundMuted },
           ]}
         >
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.textMuted }]}>
+          <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
             Loading notifications...
           </Text>
         </View>
@@ -458,10 +456,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     alignItems: "flex-start",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
   },
 
   // Avatar and Icon

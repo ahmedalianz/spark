@@ -32,73 +32,63 @@ const Replies = ({
 
   return (
     <Animated.View
-      entering={FadeInUp.duration(300)}
-      layout={Layout.springify()}
+      entering={FadeInUp.duration(200)}
+      layout={Layout.duration(200)}
     >
       {replies.map((reply, replyIndex: number) => (
         <Animated.View
           key={reply._id}
-          entering={FadeInUp.delay(replyIndex * 30).springify()}
+          entering={FadeInUp.delay(replyIndex * 20)}
           style={styles.replyContainer}
         >
-          {/* Reply connector line */}
-          <View
-            style={[styles.replyLine, { backgroundColor: colors.borderLight }]}
-          />
-
-          {/* Reply content */}
-          <View
-            style={[
-              styles.replyContent,
-              {
-                backgroundColor: colors.backgroundLight,
-                borderColor: colors.borderLighter,
-              },
-            ]}
-          >
-            <View style={styles.replyHeader}>
-              <Image
-                source={{
-                  uri:
-                    reply.author?.imageUrl ||
-                    `https://ui-avatars.com/api/?name=${reply.author?.first_name}+${reply.author?.last_name}&background=random`,
-                }}
-                style={styles.replyAvatar}
-              />
-              <View style={styles.replyHeaderContent}>
-                <View style={styles.replyUserRow}>
-                  <Text
-                    style={[
-                      styles.replyUsername,
-                      { color: colors.textSecondary },
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {reply.author?.first_name} {reply.author?.last_name}
-                  </Text>
-                  <Text style={[styles.replyTime, { color: colors.textMuted }]}>
-                    · {formatTimeAgo(reply._creationTime)}
-                  </Text>
-                </View>
+          <View style={styles.replyMain}>
+            <View
+              style={[
+                styles.replyLine,
+                { backgroundColor: colors.borderPrimary },
+              ]}
+            />
+            <Image
+              source={{
+                uri:
+                  reply.author?.imageUrl ||
+                  `https://ui-avatars.com/api/?name=${reply.author?.first_name}+${reply.author?.last_name}&background=random`,
+              }}
+              style={styles.avatar}
+            />
+            <View style={styles.replyContent}>
+              <View style={styles.replyHeader}>
                 <Text
-                  style={[styles.replyText, { color: colors.textSecondary }]}
+                  style={[styles.authorName, { color: colors.textPrimary }]}
+                  numberOfLines={1}
                 >
-                  {reply.content}
+                  {reply.author?.first_name} {reply.author?.last_name}
+                </Text>
+                <Text
+                  style={[styles.replyTime, { color: colors.textTertiary }]}
+                >
+                  {formatTimeAgo(reply._creationTime)}
                 </Text>
               </View>
+              <Text style={[styles.replyText, { color: colors.textPrimary }]}>
+                {reply.content}
+              </Text>
             </View>
           </View>
         </Animated.View>
       ))}
 
-      {/* Load more replies if available */}
+      {/* Load more replies */}
       {status === "CanLoadMore" && (
         <TouchableOpacity
-          style={styles.loadMoreReplies}
+          style={styles.loadMoreContainer}
           onPress={() => loadMore(5)}
         >
           <View
-            style={[styles.replyLine, { backgroundColor: colors.borderLight }]}
+            style={[
+              styles.replyLine,
+              { backgroundColor: colors.borderPrimary },
+            ]}
           />
           <Text style={[styles.loadMoreText, { color: colors.primary }]}>
             Load more replies
@@ -107,13 +97,16 @@ const Replies = ({
       )}
 
       {status === "LoadingMore" && (
-        <View style={styles.loadingMoreReplies}>
+        <View style={styles.loadingContainer}>
           <View
-            style={[styles.replyLine, { backgroundColor: colors.borderLight }]}
+            style={[
+              styles.replyLine,
+              { backgroundColor: colors.borderPrimary },
+            ]}
           />
           <ActivityIndicator size="small" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.textMuted }]}>
-            Loading more replies...
+          <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
+            Loading replies...
           </Text>
         </View>
       )}
@@ -125,79 +118,70 @@ export default Replies;
 
 const styles = StyleSheet.create({
   replyContainer: {
+    paddingLeft: 44, // avatar width (32) + margin (12)
+    paddingRight: 16,
+    paddingVertical: 8,
+  },
+  replyMain: {
     flexDirection: "row",
-    marginHorizontal: 12,
-    marginBottom: 4,
-    paddingLeft: 38, // Align with comment content
+    alignItems: "flex-start",
   },
   replyLine: {
     width: 2,
+    height: "100%",
     marginRight: 12,
-    alignSelf: "stretch",
+  },
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    marginRight: 12,
   },
   replyContent: {
     flex: 1,
-    borderRadius: 10,
-    padding: 10,
-    borderWidth: 1,
   },
   replyHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 6,
+    alignItems: "center",
+    marginBottom: 2,
     gap: 8,
   },
-  replyAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  replyHeaderContent: {
-    flex: 1,
-    gap: 3,
-  },
-  replyUserRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-    flexWrap: "wrap",
-  },
-  replyUsername: {
+  authorName: {
     fontSize: 13,
     fontWeight: "600",
-    maxWidth: "60%",
+    fontFamily: "DMSans_600SemiBold",
   },
   replyTime: {
     fontSize: 11,
+    fontFamily: "DMSans_400Regular",
   },
   replyText: {
     fontSize: 13,
     lineHeight: 16,
+    fontFamily: "DMSans_400Regular",
   },
-  loadMoreReplies: {
+  loadMoreContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: 12,
-    marginBottom: 4,
-    paddingLeft: 38,
-    paddingVertical: 8,
+    paddingLeft: 44,
+    paddingRight: 16,
+    paddingVertical: 12,
   },
   loadMoreText: {
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: "DMSans_500Medium",
     marginLeft: 12,
   },
-  loadingMoreReplies: {
+  loadingContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: 12,
-    marginBottom: 4,
-    paddingLeft: 38,
-    paddingVertical: 8,
+    paddingLeft: 44,
+    paddingRight: 16,
+    paddingVertical: 12,
     gap: 8,
   },
   loadingText: {
     fontSize: 12,
-    marginLeft: 4,
+    fontFamily: "DMSans_400Regular",
   },
 });

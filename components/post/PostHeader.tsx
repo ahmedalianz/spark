@@ -11,59 +11,48 @@ const PostHeader = ({
   colors: ColorsType;
 }) => {
   return (
-    <View
-      style={[
-        styles.postCard,
-        {
-          backgroundColor: colors.white,
-          shadowColor: colors.black,
-        },
-      ]}
-    >
-      <View style={styles.postHeader}>
+    <View style={styles.postContainer}>
+      {/* Author Row */}
+      <View style={styles.authorRow}>
         <Image
           source={{
             uri:
               post?.author?.imageUrl ||
               `https://ui-avatars.com/api/?name=${post?.author?.first_name}+${post?.author?.last_name}&background=random`,
           }}
-          style={styles.postAvatar}
+          style={styles.avatar}
         />
-        <View style={styles.postHeaderContent}>
-          <View style={styles.postUserRow}>
-            <Text
-              style={[styles.postUsername, { color: colors.textSecondary }]}
-            >
-              {post?.author?.first_name} {post?.author?.last_name}
-            </Text>
-            <Text style={[styles.postTime, { color: colors.textMuted }]}>
-              · {formatTimeAgo(post?._creationTime || 0)}
-            </Text>
-          </View>
-          <Text style={[styles.postContent, { color: colors.textSecondary }]}>
-            {post?.content}
+        <View style={styles.authorInfo}>
+          <Text style={[styles.authorName, { color: colors.textPrimary }]}>
+            {post?.author?.first_name} {post?.author?.last_name}
           </Text>
-
-          {post?.mediaFiles && post.mediaFiles.length > 0 && (
-            <Image
-              source={{ uri: post.mediaFiles[0] }}
-              style={styles.postImage}
-              resizeMode="cover"
-            />
-          )}
+          <Text style={[styles.postTime, { color: colors.textTertiary }]}>
+            {formatTimeAgo(post?._creationTime || 0)}
+          </Text>
         </View>
       </View>
 
-      <View
-        style={[styles.postStats, { borderTopColor: colors.borderLighter }]}
-      >
-        <Text style={[styles.postStat, { color: colors.textTertiary }]}>
-          {formatCount(post?.likeCount || 0)}{" "}
-          {(post?.likeCount || 0) > 1 ? "likes" : "like"}
+      {/* Post Content */}
+      <Text style={[styles.postContent, { color: colors.textPrimary }]}>
+        {post?.content}
+      </Text>
+
+      {/* Media */}
+      {post?.mediaFiles && post.mediaFiles.length > 0 && (
+        <Image
+          source={{ uri: post.mediaFiles[0] }}
+          style={styles.postImage}
+          resizeMode="cover"
+        />
+      )}
+
+      {/* Stats */}
+      <View style={[styles.statsContainer, { borderTopColor: colors.border }]}>
+        <Text style={[styles.stat, { color: colors.textSecondary }]}>
+          {formatCount(post?.likeCount || 0)} likes
         </Text>
-        <Text style={[styles.postStat, { color: colors.textTertiary }]}>
-          {formatCount(post?.commentCount || 0)}{" "}
-          {(post?.commentCount || 0) > 1 ? "comments" : "comment"}
+        <Text style={[styles.stat, { color: colors.textSecondary }]}>
+          {formatCount(post?.commentCount || 0)} comments
         </Text>
       </View>
     </View>
@@ -71,63 +60,57 @@ const PostHeader = ({
 };
 
 const styles = StyleSheet.create({
-  postCard: {
-    marginHorizontal: 12,
-    marginBottom: 16,
-    borderRadius: 14,
-    padding: 16,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+  postContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0,0,0,0.05)",
   },
-  postHeader: {
+  authorRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     marginBottom: 12,
-    gap: 12,
   },
-  postAvatar: {
+  avatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
+    marginRight: 12,
   },
-  postHeaderContent: {
+  authorInfo: {
     flex: 1,
-    gap: 6,
   },
-  postUserRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    flexWrap: "wrap",
-  },
-  postUsername: {
+  authorName: {
     fontSize: 15,
     fontWeight: "600",
+    fontFamily: "DMSans_600SemiBold",
+    marginBottom: 2,
   },
   postTime: {
     fontSize: 13,
+    fontFamily: "DMSans_400Regular",
   },
   postContent: {
     fontSize: 15,
     lineHeight: 20,
+    fontFamily: "DMSans_400Regular",
+    marginBottom: 12,
   },
   postImage: {
     width: "100%",
-    height: 180,
-    borderRadius: 10,
-    marginTop: 8,
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 12,
   },
-  postStats: {
+  statsContainer: {
     flexDirection: "row",
     gap: 16,
     paddingTop: 12,
     borderTopWidth: 1,
   },
-  postStat: {
+  stat: {
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: "DMSans_500Medium",
   },
 });
 

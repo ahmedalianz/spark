@@ -31,15 +31,15 @@ const QuickActions = ({ colors }: { colors: ColorsType }) => {
               style={[
                 styles.quickActionSecondary,
                 {
-                  backgroundColor: colors.tintBlueLight,
-                  borderColor: colors.tintBlue,
+                  backgroundColor: colors.backgroundTertiary,
+                  borderColor: colors.border,
                 },
               ]}
             >
               <Ionicons
                 name={action.icon as any}
                 size={18}
-                color={colors.primary}
+                color={colors.iconPrimary}
               />
             </View>
           )}

@@ -78,7 +78,7 @@ const FollowersFollowing = (
         styles.container,
         {
           paddingTop: top,
-          backgroundColor: colors.background,
+          backgroundColor: colors.backgroundSecondary,
         },
       ]}
     >
@@ -86,7 +86,7 @@ const FollowersFollowing = (
         style={[
           styles.tabContainer,
           {
-            backgroundColor: colors.white,
+            backgroundColor: colors.background,
             borderBottomColor: colors.border,
           },
         ]}
@@ -111,9 +111,7 @@ const FollowersFollowing = (
         style={[
           styles.searchContainer,
           {
-            backgroundColor: colors.white,
-            shadowColor: colors.blackPure,
-            borderColor: colors.borderLighter,
+            backgroundColor: colors.backgroundTertiary,
           },
         ]}
       >
@@ -185,13 +183,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
     paddingHorizontal: 12,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
   },
   searchInput: {
     flex: 1,
@@ -199,7 +191,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   listContentContainer: {
-    paddingTop: 8,
     paddingBottom: 20,
   },
 });

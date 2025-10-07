@@ -20,9 +20,7 @@ const Login = () => {
   } = useLogin();
   const { colors } = useAppTheme();
   return (
-    <View
-      style={[styles.container, { backgroundColor: colors.backgroundLight }]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"
@@ -50,7 +48,7 @@ const Login = () => {
       >
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
-          <Text style={[styles.title, { color: colors.blackDark }]}>
+          <Text style={[styles.title, { color: colors.blackPure }]}>
             Welcome to Spark
           </Text>
           <Text style={[styles.subtitle, { color: colors.textTertiary }]}>
@@ -66,7 +64,6 @@ const Login = () => {
               styles.loginButton,
               {
                 backgroundColor: colors.white,
-                shadowColor: colors.blackPure,
                 borderTopColor: colors.transparentBlack04,
                 borderBottomColor: colors.transparentBlack04,
                 borderRightColor: colors.transparentBlack04,
@@ -81,7 +78,7 @@ const Login = () => {
               <View
                 style={[
                   styles.iconWrapper,
-                  { backgroundColor: colors.iconContainer },
+                  { backgroundColor: colors.iconPrimary },
                 ]}
               >
                 <Image
@@ -91,15 +88,12 @@ const Login = () => {
               </View>
               <View style={styles.textContainer}>
                 <Text
-                  style={[styles.loginButtonText, { color: colors.blackDark }]}
+                  style={[styles.loginButtonText, { color: colors.blackPure }]}
                 >
                   Continue with Facebook
                 </Text>
                 <Text
-                  style={[
-                    styles.buttonSubtext,
-                    { color: colors.textQuaternary },
-                  ]}
+                  style={[styles.buttonSubtext, { color: colors.textTertiary }]}
                 >
                   Quick setup with your Facebook profile
                 </Text>
@@ -120,7 +114,6 @@ const Login = () => {
               styles.loginButton,
               {
                 backgroundColor: colors.white,
-                shadowColor: colors.blackPure,
                 borderTopColor: colors.transparentBlack04,
                 borderBottomColor: colors.transparentBlack04,
                 borderRightColor: colors.transparentBlack04,
@@ -135,7 +128,7 @@ const Login = () => {
               <View
                 style={[
                   styles.iconWrapper,
-                  { backgroundColor: colors.iconContainer },
+                  { backgroundColor: colors.iconPrimary },
                 ]}
               >
                 <Image
@@ -145,15 +138,12 @@ const Login = () => {
               </View>
               <View style={styles.textContainer}>
                 <Text
-                  style={[styles.loginButtonText, { color: colors.blackDark }]}
+                  style={[styles.loginButtonText, { color: colors.blackPure }]}
                 >
                   Continue with Google
                 </Text>
                 <Text
-                  style={[
-                    styles.buttonSubtext,
-                    { color: colors.textQuaternary },
-                  ]}
+                  style={[styles.buttonSubtext, { color: colors.textTertiary }]}
                 >
                   Sign in securely with Google
                 </Text>
@@ -173,12 +163,11 @@ const Login = () => {
             style={[
               styles.loginButton,
               {
-                backgroundColor: colors.iconContainer,
-                shadowColor: colors.blackPure,
+                backgroundColor: colors.backgroundMuted,
                 borderColor: colors.transparentBlack08,
               },
               styles.guestButton,
-              { borderLeftColor: colors.iconBackground },
+              { borderLeftColor: colors.iconSecondary },
             ]}
             onPress={handleGuestLogin}
             activeOpacity={0.85}
@@ -188,7 +177,7 @@ const Login = () => {
                 style={[
                   styles.iconWrapper,
                   styles.guestIconWrapper,
-                  { backgroundColor: colors.iconBackground },
+                  { backgroundColor: colors.backgroundSecondary },
                 ]}
               >
                 <Ionicons
@@ -199,15 +188,12 @@ const Login = () => {
               </View>
               <View style={styles.textContainer}>
                 <Text
-                  style={[styles.loginButtonText, { color: colors.blackDark }]}
+                  style={[styles.loginButtonText, { color: colors.blackPure }]}
                 >
                   Browse as Guest
                 </Text>
                 <Text
-                  style={[
-                    styles.buttonSubtext,
-                    { color: colors.textQuaternary },
-                  ]}
+                  style={[styles.buttonSubtext, { color: colors.textTertiary }]}
                 >
                   Explore without an account
                 </Text>
@@ -228,7 +214,7 @@ const Login = () => {
             onPress={triggerError}
             style={[
               styles.switchButton,
-              { backgroundColor: colors.borderTertiary },
+              { backgroundColor: colors.backgroundMuted },
             ]}
           >
             <Ionicons
@@ -246,20 +232,15 @@ const Login = () => {
             </Text>
           </TouchableOpacity>
 
-          <View
-            style={[
-              styles.divider,
-              { backgroundColor: colors.borderBackground },
-            ]}
-          />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           <Text style={[styles.legalText, { color: colors.textMuted }]}>
             By continuing, you agree to our{" "}
-            <Text style={[styles.linkText, { color: colors.blackDark }]}>
+            <Text style={[styles.linkText, { color: colors.blackPure }]}>
               Terms
             </Text>{" "}
             and{" "}
-            <Text style={[styles.linkText, { color: colors.blackDark }]}>
+            <Text style={[styles.linkText, { color: colors.blackPure }]}>
               Privacy Policy
             </Text>
           </Text>
@@ -324,20 +305,17 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderRadius: 16,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+
     borderWidth: 1,
   },
   facebookButton: {
-    borderLeftWidth: 3,
+    borderLeftWidth: 1,
   },
   googleButton: {
-    borderLeftWidth: 3,
+    borderLeftWidth: 1,
   },
   guestButton: {
-    borderLeftWidth: 3,
+    borderLeftWidth: 1,
   },
   loginButtonContent: {
     flexDirection: "row",

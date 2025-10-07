@@ -18,8 +18,8 @@ const Follower = ({
       style={[
         styles.userItem,
         {
-          backgroundColor: colors.white,
-          borderBottomColor: colors.borderLighter,
+          backgroundColor: colors.background,
+          borderBottomColor: colors.border,
         },
       ]}
     >

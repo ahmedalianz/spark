@@ -44,7 +44,6 @@ const MenuItem = ({
     <TouchableOpacity
       style={[
         styles.menuItem,
-        { backgroundColor: colors.white },
         isDestructive && { backgroundColor: colors.danger + "05" },
         isDisabled && styles.disabledMenuItem,
         !subtitle && styles.menuItemWithoutSubtitle,
@@ -231,8 +230,7 @@ const BottomSheetModal = ({
                 {
                   transform: [{ translateY: slideAnim }],
                   maxHeight: height as number,
-                  backgroundColor: colors.white,
-                  shadowColor: colors.blackPure,
+                  backgroundColor: colors.backgroundSecondary,
                 },
                 containerStyle,
               ]}
@@ -273,13 +271,6 @@ const styles = StyleSheet.create({
   menuContainer: {
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 24,
   },
 
   menuScrollView: {

@@ -35,7 +35,10 @@ const Post: React.FC<PostProps> = ({ post, colors }) => {
     <View
       style={[
         styles.container,
-        { backgroundColor: colors.white, borderTopColor: colors.border },
+        {
+          backgroundColor: colors.backgroundSecondary,
+          borderTopColor: colors.border,
+        },
       ]}
     >
       <PostHeader
@@ -45,7 +48,7 @@ const Post: React.FC<PostProps> = ({ post, colors }) => {
       />
 
       <View style={styles.content}>
-        <Text style={[styles.contentText, { color: colors.black }]}>
+        <Text style={[styles.contentText, { color: colors.textPrimary }]}>
           {content}
         </Text>
         <PostMedia

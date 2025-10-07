@@ -110,7 +110,7 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
                 style={[
                   styles.tabContainer,
                   {
-                    backgroundColor: colors.white,
+                    backgroundColor: colors.backgroundLight,
                     borderBottomColor: colors.borderLight,
                   },
                 ]}

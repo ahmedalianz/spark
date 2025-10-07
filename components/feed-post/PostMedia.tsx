@@ -57,10 +57,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
         <PostImage
           imageUrl={mediaFiles[0]}
           index={0}
-          style={{
-            ...styles.singleImage,
-            backgroundColor: colors.borderLighter,
-          }}
+          style={styles.singleImage}
         />
       </View>
     );
@@ -76,10 +73,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
               key={imageUrl}
               imageUrl={imageUrl}
               index={index}
-              style={{
-                ...styles.halfImage,
-                backgroundColor: colors.borderLighter,
-              }}
+              style={styles.halfImage}
             />
           ))}
         </View>
@@ -95,10 +89,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
           <PostImage
             imageUrl={mediaFiles[0]}
             index={0}
-            style={{
-              ...styles.largeImage,
-              backgroundColor: colors.borderLighter,
-            }}
+            style={styles.largeImage}
           />
           <View style={styles.rightColumn}>
             {mediaFiles.slice(1, 3).map((imageUrl, index) => (
@@ -106,10 +97,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
                 key={imageUrl}
                 imageUrl={imageUrl}
                 index={index + 1}
-                style={{
-                  ...styles.smallImage,
-                  backgroundColor: colors.borderLighter,
-                }}
+                style={styles.smallImage}
               />
             ))}
           </View>
@@ -127,10 +115,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
             <PostImage
               imageUrl={imageUrl}
               index={index}
-              style={{
-                ...styles.gridImage,
-                backgroundColor: colors.borderLighter,
-              }}
+              style={styles.gridImage}
             />
             {/* on last image and image count is greater than 4 */}
             {index === 3 && imageCount > 4 && (

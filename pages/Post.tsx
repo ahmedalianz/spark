@@ -78,7 +78,11 @@ const Post = ({ postId }: CommentsProps) => {
 
   return (
     <View
-      style={{ paddingTop: top, flex: 1, backgroundColor: colors.background }}
+      style={{
+        paddingTop: top,
+        flex: 1,
+        backgroundColor: colors.background,
+      }}
     >
       <KeyboardAvoidingView
         style={styles.keyboardView}
@@ -127,7 +131,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingVertical: 12,
+    paddingVertical: 8,
     flexGrow: 1,
   },
 });

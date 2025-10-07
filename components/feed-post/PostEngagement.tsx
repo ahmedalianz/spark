@@ -12,7 +12,7 @@ const PostEngagement: React.FC<PostEngagementProps> = ({
   if (likeCount <= 0 && commentCount <= 0) return null;
 
   return (
-    <View style={[styles.statsBar, { borderColor: colors.borderLighter }]}>
+    <View style={[styles.statsBar, { borderColor: colors.border }]}>
       <View style={styles.statsRow}>
         {likeCount > 0 && (
           <Text style={[styles.statText, { color: colors.textTertiary }]}>

@@ -22,7 +22,7 @@ const CreateTabIcon = ({
     style={[
       styles.createIconContainer,
       {
-        backgroundColor: colors.backgroundCard,
+        backgroundColor: colors.backgroundSecondary,
       },
     ]}
   >
@@ -43,7 +43,9 @@ const Layout = () => {
         tabBarActiveTintColor: colors.primary,
         tabBarStyle: {
           backgroundColor: colors.background,
-          borderTopColor: colors.borderLight,
+          borderTopColor: colors.border,
+          shadowColor: colors.blackPure,
+          elevation: 2,
         },
       }}
     >

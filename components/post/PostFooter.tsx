@@ -6,12 +6,7 @@ const PostFooter = ({ colors }: { colors: ColorsType }) => {
   return (
     <View style={styles.loadingFooter}>
       <ActivityIndicator size="small" color={colors.primary} />
-      <Text
-        style={{
-          fontSize: 13,
-          color: colors.textMuted,
-        }}
-      >
+      <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
         Loading more comments...
       </Text>
     </View>
@@ -25,7 +20,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    gap: 8,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 13,
+    fontFamily: "DMSans_400Regular",
   },
 });
