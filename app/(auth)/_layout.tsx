@@ -30,6 +30,7 @@ const Layout = () => {
       <Stack.Screen
         name="(modals)/create-post"
         options={{
+          headerShown: false,
           ...commonProps,
         }}
       />

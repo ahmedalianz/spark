@@ -9,8 +9,8 @@ export const Colors = {
   black: "#1F2937",
   blackPure: "#000000",
   background: "#FFFFFF",
-  backgroundSecondary: "#F9FAFB", // Slightly darker for card backgrounds
-  backgroundTertiary: "#F3F4F6", // NEW: For input backgrounds, borders
+  backgroundSecondary: "#F3F4F6", // Slightly darker for card backgrounds
+  backgroundTertiary: "#E5E7EB", // NEW: For input backgrounds, borders
   backgroundMuted: "#F9FAFB", // NEW: For very subtle backgrounds
 
   // Text Colors - Better hierarchy

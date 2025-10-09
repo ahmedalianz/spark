@@ -66,7 +66,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
           style={[
             styles.contentCard,
             {
-              backgroundColor: colors.white,
+              backgroundColor: colors.backgroundSecondary,
             },
           ]}
         >
