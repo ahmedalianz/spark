@@ -105,6 +105,7 @@ const InputField = ({
 const styles = StyleSheet.create({
   fieldContainer: {
     marginBottom: 4,
+    flex: 1,
   },
   labelRow: {
     flexDirection: "row",

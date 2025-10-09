@@ -21,7 +21,7 @@ const TabButton = ({
     <TouchableOpacity
       style={[
         styles.tabButton,
-        activeTab === tab && { backgroundColor: colors.tintBlueLight },
+        activeTab === tab && { backgroundColor: colors.tintBlue },
       ]}
       onPress={() => setActiveTab(tab as any)}
     >

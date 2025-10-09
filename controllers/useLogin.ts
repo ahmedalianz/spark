@@ -35,17 +35,10 @@ const useLogin = () => {
     router.push("/(public)/create-account");
   };
 
-  const triggerError = () => {
-    console.log("Switch account pressed");
-    // TODO: Implement account switching logic
-    alert("Account switching feature coming soon!");
-  };
-
   return {
     handleFacebookLogin,
     handleGoogleLogin,
     handleCreateAccount,
-    triggerError,
   };
 };
 

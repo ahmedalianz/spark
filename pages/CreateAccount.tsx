@@ -3,7 +3,6 @@ import {
   FormGuidance,
   InputField,
 } from "@/components/create-account";
-import ProfilePicture from "@/components/ProfilePicture";
 import useCreateAccount from "@/controllers/useCreateAccount";
 import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,11 +26,10 @@ const CreateAccount = () => {
     isLoading,
     showPassword,
     showConfirmPassword,
-    selectedImage,
     formData,
+    scrollRef,
     errors,
     onDone,
-    selectImage,
     handleFieldChange,
     toggleConfirmPasswordVisibility,
     togglePasswordVisibility,
@@ -49,6 +47,7 @@ const CreateAccount = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
+          ref={scrollRef}
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
@@ -66,26 +65,30 @@ const CreateAccount = () => {
             </Text>
           </View>
 
-          {/* Avatar Upload */}
-          <ProfilePicture
-            selectedImage={selectedImage}
-            selectImage={selectImage}
-            colors={colors}
-            isLoading={isLoading}
-          />
-
           {/* Form Fields */}
           <View style={styles.formSection}>
-            <InputField
-              label="Full Name"
-              value={formData?.name}
-              onChangeText={(value) => handleFieldChange("name", value)}
-              placeholder="Enter your full name"
-              error={errors.name}
-              icon="person-outline"
-              colors={colors}
-              autoCapitalize="words"
-            />
+            <View style={styles.namesContainer}>
+              <InputField
+                label="First Name"
+                value={formData?.firstName}
+                onChangeText={(value) => handleFieldChange("firstName", value)}
+                placeholder="First Name"
+                error={errors.firstName}
+                icon="person-outline"
+                colors={colors}
+                autoCapitalize="words"
+              />
+              <InputField
+                label="Last Name"
+                value={formData?.lastName}
+                onChangeText={(value) => handleFieldChange("lastName", value)}
+                placeholder="Last Name"
+                error={errors.lastName}
+                icon="person-outline"
+                colors={colors}
+                autoCapitalize="words"
+              />
+            </View>
 
             <InputField
               label="Email Address"
@@ -107,6 +110,7 @@ const CreateAccount = () => {
               error={errors.password}
               icon="lock-closed-outline"
               colors={colors}
+              autoCapitalize="none"
               secureTextEntry={!showPassword}
               rightIcon={
                 <TouchableOpacity onPress={togglePasswordVisibility}>
@@ -128,6 +132,7 @@ const CreateAccount = () => {
               placeholder="Confirm your password"
               error={errors.confirmPassword}
               icon="lock-closed-outline"
+              autoCapitalize="none"
               colors={colors}
               secureTextEntry={!showConfirmPassword}
               rightIcon={
@@ -198,6 +203,10 @@ const styles = StyleSheet.create({
   formSection: {
     gap: 20,
     marginBottom: 24,
+  },
+  namesContainer: {
+    flexDirection: "row",
+    gap: 4,
   },
   buttonContainer: {
     paddingHorizontal: 24,

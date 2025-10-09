@@ -113,7 +113,6 @@ const Feed = () => {
   const displayStatus = searchQuery.length > 1 ? searchStatus : filterStatus;
 
   const onLoadMore = useCallback(async () => {
-    console.log({ displayStatus });
     if (
       displayStatus === "LoadingFirstPage" ||
       displayStatus === "LoadingMore" ||

@@ -135,7 +135,6 @@ const UserInfo = ({
         <View style={styles.profileInfo}>
           <View style={styles.nameRow}>
             <Text style={[styles.name, { color: colors.textPrimary }]}>
-              {" "}
               {userInfo?.first_name} {userInfo?.last_name}
             </Text>
             {isCurrentUserProfile && (
@@ -163,7 +162,7 @@ const UserInfo = ({
           style={[styles.bio, { color: colors.textSecondary }]}
           numberOfLines={2}
         >
-          {userInfo?.bio || "✨ No bio yet"}
+          {userInfo?.bio || "✨ No bio yet - the mystery adds to the charm."}
         </Text>
       </View>
 
@@ -278,7 +277,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 2,
   },
   name: {
     fontSize: 20,

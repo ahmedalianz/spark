@@ -18,7 +18,7 @@ export const validateName = (
   // Allow letters, spaces, hyphens, and apostrophes
   const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
   if (!nameRegex.test(name)) {
-    return `${fieldName} can only contain letters, spaces, hyphens, and apostrophes`;
+    return `${fieldName} can only contain letters, spaces, hyphens, and apostrophes.`;
   }
 };
 
@@ -63,9 +63,24 @@ export const validatePassword = (password: string): string | undefined => {
     return "Password is too long";
   }
 
+  // Check for at least one uppercase letter
+  if (!/(?=.*[A-Z])/.test(password)) {
+    return "Password must contain at least one uppercase letter";
+  }
+
   // Check for at least one lowercase letter
   if (!/(?=.*[a-z])/.test(password)) {
     return "Password must contain at least one lowercase letter";
+  }
+
+  // Check for at least one number
+  if (!/(?=.*\d)/.test(password)) {
+    return "Password must contain at least one number";
+  }
+
+  // Check for at least one special character
+  if (!/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password)) {
+    return "Password must contain at least one special character";
   }
 
   return undefined;
@@ -74,25 +89,41 @@ export const validateConfirmPassword = (
   password: string,
   passwordConfirm: string
 ): string | undefined => {
-  validatePoliteWords(password, "Password");
+  validatePoliteWords(passwordConfirm, "Password");
 
-  if (!password) {
+  if (!passwordConfirm) {
     return "Password Confirmation is required";
   }
 
-  if (password.length < 8) {
+  if (passwordConfirm.length < 8) {
     return "Password must be at least 8 characters";
   }
 
-  if (password.length > 128) {
+  if (passwordConfirm.length > 128) {
     return "Password is too long";
   }
   if (password !== passwordConfirm) {
     return "Passwords do not match";
   }
+
+  // Check for at least one uppercase letter
+  if (!/(?=.*[A-Z])/.test(passwordConfirm)) {
+    return "Password must contain at least one uppercase letter";
+  }
+
   // Check for at least one lowercase letter
-  if (!/(?=.*[a-z])/.test(password)) {
+  if (!/(?=.*[a-z])/.test(passwordConfirm)) {
     return "Password must contain at least one lowercase letter";
+  }
+
+  // Check for at least one number
+  if (!/(?=.*\d)/.test(passwordConfirm)) {
+    return "Password must contain at least one number";
+  }
+
+  // Check for at least one special character
+  if (!/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(passwordConfirm)) {
+    return "Password must contain at least one special character";
   }
 
   return undefined;
@@ -128,12 +159,10 @@ export const validatePoliteWords = (
     "whore",
     "porn",
     "pornhub",
-    "pornhub",
   ];
 
-  const lowerCaseBio = text.toLowerCase();
   for (const word of inappropriateWords) {
-    if (lowerCaseBio.includes(word)) {
+    if (text.toLowerCase().includes(word)) {
       return `${fieldName} contains inappropriate content`;
     }
   }

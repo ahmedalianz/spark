@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { ProfilePictureProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
@@ -56,7 +57,7 @@ const ProfilePicture = ({
             <Image
               source={
                 !selectedImage?.uri && !imageUrl
-                  ? require("../assets/images/spark-full.webp")
+                  ? require("../assets/images/spark.webp")
                   : {
                       uri:
                         selectedImage?.uri ||
@@ -77,9 +78,17 @@ const ProfilePicture = ({
               },
             ]}
           >
-            <BlurView intensity={50} tint="dark" style={styles.overlayBlur}>
-              <Ionicons name="camera" size={24} color={colors.textPrimary} />
-              <Text style={[styles.overlayText, { color: colors.textPrimary }]}>
+            <BlurView
+              tint="dark"
+              style={[
+                styles.overlayBlur,
+                Platform.OS === "android" && {
+                  backgroundColor: Colors.transparentBlack30,
+                },
+              ]}
+            >
+              <Ionicons name="camera" size={24} color={colors.black} />
+              <Text style={[styles.overlayText, { color: colors.black }]}>
                 {imageUrl?.length ? "Change Photo" : "Select Photo"}
               </Text>
             </BlurView>

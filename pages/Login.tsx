@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import useLogin from "@/controllers/useLogin";
 import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,12 +13,8 @@ import {
 } from "react-native";
 
 const Login = () => {
-  const {
-    handleFacebookLogin,
-    handleGoogleLogin,
-    handleCreateAccount,
-    triggerError,
-  } = useLogin();
+  const { handleFacebookLogin, handleGoogleLogin, handleCreateAccount } =
+    useLogin();
   const { colors, barStyleColors } = useAppTheme();
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -36,7 +33,7 @@ const Login = () => {
         <View
           style={[
             styles.imageOverlay,
-            { backgroundColor: colors.transparentBlack15 },
+            { backgroundColor: Colors.transparentBlack15 },
           ]}
         />
       </View>
@@ -63,7 +60,7 @@ const Login = () => {
             style={[
               styles.loginButton,
               {
-                backgroundColor: colors.white,
+                backgroundColor: colors.backgroundSecondary,
                 borderTopColor: colors.transparentBlack04,
                 borderBottomColor: colors.transparentBlack04,
                 borderRightColor: colors.transparentBlack04,
@@ -113,7 +110,7 @@ const Login = () => {
             style={[
               styles.loginButton,
               {
-                backgroundColor: colors.white,
+                backgroundColor: colors.backgroundSecondary,
                 borderTopColor: colors.transparentBlack04,
                 borderBottomColor: colors.transparentBlack04,
                 borderRightColor: colors.transparentBlack04,
@@ -163,7 +160,7 @@ const Login = () => {
             style={[
               styles.loginButton,
               {
-                backgroundColor: colors.backgroundMuted,
+                backgroundColor: colors.backgroundSecondary,
                 borderColor: colors.transparentBlack08,
               },
               styles.createAccountButton,
@@ -176,7 +173,7 @@ const Login = () => {
               <View
                 style={[
                   styles.iconWrapper,
-                  { backgroundColor: colors.primaryTint },
+                  { backgroundColor: colors.iconPrimary },
                 ]}
               >
                 <Ionicons
@@ -209,30 +206,7 @@ const Login = () => {
         </View>
 
         <View style={styles.footerSection}>
-          <TouchableOpacity
-            onPress={triggerError}
-            style={[
-              styles.switchButton,
-              { backgroundColor: colors.backgroundMuted },
-            ]}
-          >
-            <Ionicons
-              name="swap-horizontal-outline"
-              size={16}
-              color={colors.textTertiary}
-            />
-            <Text
-              style={[
-                styles.switchAccountButtonText,
-                { color: colors.textTertiary },
-              ]}
-            >
-              Switch Account
-            </Text>
-          </TouchableOpacity>
-
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
           <Text style={[styles.legalText, { color: colors.textMuted }]}>
             By continuing, you agree to our{" "}
             <Text style={[styles.linkText, { color: colors.blackPure }]}>
@@ -355,18 +329,6 @@ const styles = StyleSheet.create({
   footerSection: {
     alignItems: "center",
     gap: 20,
-  },
-  switchButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-  },
-  switchAccountButtonText: {
-    fontSize: 14,
-    fontFamily: "DMSans_500Medium",
   },
   divider: {
     width: 40,
