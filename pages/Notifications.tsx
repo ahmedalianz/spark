@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useMutation, usePaginatedQuery } from "convex/react";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -45,7 +45,11 @@ const Notifications = () => {
   const markAllAsRead = useMutation(
     api.notifications.markAllNotificationsAsRead
   );
-  console.log({ notifications: notifications[1] });
+  const displayedNotifications = useMemo(
+    () =>
+      filter === "all" ? notifications : notifications.filter((n) => !n.isRead),
+    [notifications, filter]
+  );
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const handleNotificationPress = async (
     notification: NotificationWithDetails
@@ -355,7 +359,7 @@ const Notifications = () => {
       ]}
     >
       <FlatList
-        data={notifications}
+        data={displayedNotifications}
         renderItem={renderNotification}
         keyExtractor={(item) => item._id}
         ListHeaderComponent={renderHeader}

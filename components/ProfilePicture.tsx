@@ -54,12 +54,18 @@ const ProfilePicture = ({
             style={styles.imageGradient}
           >
             <Image
-              source={{
-                uri: selectedImage?.uri || decodeURIComponent(imageUrl || ""),
-              }}
+              source={
+                !selectedImage?.uri && !imageUrl
+                  ? require("../assets/images/spark-full.webp")
+                  : {
+                      uri:
+                        selectedImage?.uri ||
+                        decodeURIComponent(imageUrl || ""),
+                    }
+              }
               style={[
                 styles.profileImage,
-                { backgroundColor: colors.borderLighter },
+                { borderColor: colors.backgroundSecondary },
               ]}
             />
           </LinearGradient>
@@ -74,17 +80,15 @@ const ProfilePicture = ({
             <BlurView intensity={50} tint="dark" style={styles.overlayBlur}>
               <Ionicons name="camera" size={24} color={colors.textPrimary} />
               <Text style={[styles.overlayText, { color: colors.textPrimary }]}>
-                Change Photo
+                {imageUrl?.length ? "Change Photo" : "Select Photo"}
               </Text>
             </BlurView>
           </View>
         </Animated.View>
       </TouchableOpacity>
-      {selectedImage && (
-        <Text style={[styles.imageHint, { color: colors.primary }]}>
-          New photo selected
-        </Text>
-      )}
+      <Text style={[styles.imageHint, { color: colors.primary }]}>
+        {selectedImage ? "Photo selected" : "Tap to add profile photo"}
+      </Text>
     </View>
   );
 };

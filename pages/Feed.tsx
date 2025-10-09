@@ -8,11 +8,12 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { usePaginatedQuery } from "convex/react";
 import * as Haptics from "expo-haptics";
 import { Link, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
+  FlatList,
   Image,
+  ListRenderItem,
   RefreshControl,
   StatusBar,
   StyleSheet,
@@ -34,15 +35,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type FeedFilter = "all" | "following";
 
+type PostWithAuthor = Doc<"posts"> & {
+  author: Doc<"users">;
+  userHasLiked: boolean;
+  userHasReposted?: boolean;
+  userHasBookmarked?: boolean;
+};
+
 const Feed = () => {
   const { colors, barStyleColors } = useAppTheme();
   const [currentFilter, setCurrentFilter] = useState<FeedFilter>("all");
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [searchResults, setSearchResults] = useState<Doc<"posts">[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
   const { top } = useSafeAreaInsets();
   const { userInfo } = useUserInfo();
@@ -50,117 +56,139 @@ const Feed = () => {
   const tabBarHeight = useBottomTabBarHeight();
   const searchInputRef = useRef<TextInput>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const flatListRef = useRef<FlatList<PostWithAuthor>>(null);
   const isRefreshingValue = useSharedValue(0);
-
   // Main feed posts query
   const {
     results: feedPosts,
-    status,
+    status: filterStatus,
     loadMore,
   } = usePaginatedQuery(
     api.posts.getFeedPosts,
     { filter: currentFilter },
-    { initialNumItems: 10 }
+    { initialNumItems: 4 }
   );
-  //TODO: Search query - only runs when searching
-  const searchQueryResult = usePaginatedQuery(
+
+  // Search query with debounced value
+  const {
+    results: searchResults,
+    status: searchStatus,
+    loadMore: loadMoreSearch,
+  } = usePaginatedQuery(
     api.posts.searchPosts,
-    searchQuery.length > 0 ? { query: searchQuery.trim() } : "skip",
-    { initialNumItems: 20 }
+    debouncedSearchQuery.length > 1
+      ? {
+          query: debouncedSearchQuery.trim(),
+          filters: {
+            type: "post",
+            visibility: "public",
+          },
+        }
+      : "skip",
+    { initialNumItems: 15 }
   );
 
-  // Handle search with debouncing
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-
+  // Debounce search query
+  useEffect(() => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    if (query.trim().length > 0) {
-      setIsSearching(true);
-      searchTimeoutRef.current = setTimeout(() => {
-        setIsSearching(false);
-      }, 1000);
-    } else {
-      setIsSearching(false);
-      setSearchResults([]);
-    }
-  }, []);
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
 
-  // Update search results when query completes
-  useEffect(() => {
-    if (searchQueryResult.results) {
-      setSearchResults(searchQueryResult.results);
-      setIsSearching(false);
-    }
-  }, [searchQueryResult.results]);
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
+
+  // Determine which data to display
+  const displayPosts = useMemo(() => {
+    return searchQuery.length > 1 ? searchResults : feedPosts;
+  }, [searchQuery, searchResults, feedPosts]);
+
+  const displayStatus = searchQuery.length > 1 ? searchStatus : filterStatus;
 
   const onLoadMore = useCallback(async () => {
-    if (status === "LoadingMore" || loadingMore) return;
-
-    setLoadingMore(true);
-    Haptics.selectionAsync();
+    console.log({ displayStatus });
+    if (
+      displayStatus === "LoadingFirstPage" ||
+      displayStatus === "LoadingMore" ||
+      displayStatus === "Exhausted"
+    )
+      return;
 
     try {
-      if (searchQuery.length > 0) {
-        await searchQueryResult.loadMore(10);
+      if (searchQuery.length > 1) {
+        await loadMoreSearch(10);
       } else {
-        await loadMore(5);
+        await loadMore(4);
       }
     } catch (error) {
       console.error("Load more error:", error);
-    } finally {
-      setLoadingMore(false);
     }
-  }, [loadMore, searchQueryResult.loadMore, status, loadingMore, searchQuery]);
+  }, [loadMore, loadMoreSearch, displayStatus, searchQuery]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     isRefreshingValue.value = withSpring(1);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-    } catch (error) {
-      Alert.alert("Error", "Failed to refresh feed");
-    } finally {
-      setRefreshing(false);
-      isRefreshingValue.value = withSpring(0);
-    }
-  }, []);
-
-  const handleFilterChange = (filter: FeedFilter) => {
-    if (filter === currentFilter) return;
-
-    setCurrentFilter(filter);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    // Clear search when changing filters
+    isRefreshingValue.value = withSpring(0);
     if (searchQuery) {
       setSearchQuery("");
       setShowSearch(false);
     }
-  };
+    setRefreshing(false);
+  }, [isRefreshingValue, searchQuery]);
 
-  const toggleSearch = () => {
-    setShowSearch(!showSearch);
-    if (!showSearch) {
+  const handleFilterChange = useCallback(
+    (filter: FeedFilter) => {
+      if (filter === currentFilter) return;
+
+      setCurrentFilter(filter);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      // Scroll to top when changing filters
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+
+      // Clear search when changing filters
+      if (searchQuery) {
+        setSearchQuery("");
+        setDebouncedSearchQuery("");
+        setShowSearch(false);
+      }
+    },
+    [currentFilter, searchQuery]
+  );
+
+  const toggleSearch = useCallback(() => {
+    const newShowSearch = !showSearch;
+    setShowSearch(newShowSearch);
+
+    if (newShowSearch) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
     } else {
       setSearchQuery("");
-      setSearchResults([]);
+      setDebouncedSearchQuery("");
     }
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
 
-  // Determine which data to display
-  const displayPosts = searchQuery.length > 0 ? searchResults : feedPosts;
-  const displayStatus =
-    searchQuery.length > 0 ? searchQueryResult.status : status;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, [showSearch]);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+    setDebouncedSearchQuery("");
+    searchInputRef.current?.focus();
+  }, []);
 
   // Animated styles
-
   const pullRefreshStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -171,208 +199,200 @@ const Feed = () => {
           Extrapolate.CLAMP
         ),
       },
+      {
+        rotate: `${interpolate(
+          isRefreshingValue.value,
+          [0, 1],
+          [0, 360],
+          Extrapolate.CLAMP
+        )}deg`,
+      },
     ],
   }));
 
-  const renderPost = ({ item }: { item: Doc<"posts"> }) => (
-    <Link href={`/(auth)/(modals)/post/${item._id}`} asChild>
-      <TouchableOpacity>
-        <Post
-          post={
-            item as Doc<"posts"> & {
-              author: Doc<"users">;
-              userHasLiked: boolean;
-            }
-          }
-          colors={colors}
-        />
-      </TouchableOpacity>
-    </Link>
-  );
-
-  const renderFilterTabs = () => (
-    <View style={styles.filterContainer}>
-      <TouchableOpacity
-        style={[
-          styles.filterTab,
-          currentFilter === "all" && styles.activeFilterTab,
-        ]}
-        onPress={() => handleFilterChange("all")}
-      >
-        <Text
-          style={[
-            styles.filterTabText,
-            { color: colors.textTertiary },
-            currentFilter === "all" && { color: colors.textPrimary },
-          ]}
-        >
-          For You
-        </Text>
-        {currentFilter === "all" && (
-          <View
-            style={[
-              styles.filterTabIndicator,
-              { backgroundColor: colors.primary },
-            ]}
-          />
-        )}
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[
-          styles.filterTab,
-          currentFilter === "following" && styles.activeFilterTab,
-        ]}
-        onPress={() => handleFilterChange("following")}
-      >
-        <Text
-          style={[
-            styles.filterTabText,
-            { color: colors.textTertiary },
-            currentFilter === "following" && { color: colors.textPrimary },
-          ]}
-        >
-          Following
-        </Text>
-        {currentFilter === "following" && (
-          <View
-            style={[
-              styles.filterTabIndicator,
-              { backgroundColor: colors.primary },
-            ]}
-          />
-        )}
-      </TouchableOpacity>
-    </View>
-  );
-
-  const renderHeader = () => (
-    <View>
-      {/* Logo and Actions */}
-      <View style={styles.topBar}>
-        <Animated.View style={pullRefreshStyle}>
-          <Image
-            source={
-              barStyleColors === "light-content"
-                ? require("@/assets/images/spark.webp")
-                : require("@/assets/images/spark-empty.webp")
-            }
-            style={styles.logo}
-          />
-        </Animated.View>
-
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.headerButton} onPress={toggleSearch}>
-            <Ionicons
-              name={showSearch ? "close" : "search-outline"}
-              size={24}
-              color={showSearch ? colors.primary : colors.iconPrimary}
-            />
-          </TouchableOpacity>
-
+  const renderFilterTabs = useCallback(
+    () => (
+      <View style={styles.filterContainer}>
+        {(["all", "following"] as FeedFilter[]).map((filter) => (
           <TouchableOpacity
-            style={styles.headerButton}
-            onPress={() => router.push("/(auth)/(settings)/menu")}
+            key={filter}
+            style={styles.filterTab}
+            onPress={() => handleFilterChange(filter)}
           >
-            <Ionicons
-              name="settings-outline"
-              size={24}
-              color={colors.iconPrimary}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Search Bar */}
-      {showSearch && (
-        <Animated.View
-          entering={FadeInDown.duration(300)}
-          exiting={FadeOutUp.duration(200)}
-          style={styles.searchContainer}
-        >
-          <View
-            style={[
-              styles.searchInputContainer,
-              { backgroundColor: colors.backgroundTertiary },
-            ]}
-          >
-            <Ionicons name="search" size={20} color={colors.textMuted} />
-            <TextInput
-              ref={searchInputRef}
-              style={[styles.searchInput, { color: colors.textPrimary }]}
-              placeholder="Search posts, users, topics..."
-              placeholderTextColor={colors.textMuted}
-              value={searchQuery}
-              onChangeText={handleSearch}
-              returnKeyType="search"
-              autoCorrect={false}
-              autoCapitalize="none"
-            />
-            {(searchQuery.length > 0 || isSearching) && (
-              <View style={styles.searchActions}>
-                {isSearching ? (
-                  <ActivityIndicator size="small" color={colors.primary} />
-                ) : (
-                  <TouchableOpacity onPress={() => handleSearch("")}>
-                    <Ionicons
-                      name="close-circle"
-                      size={20}
-                      color={colors.textMuted}
-                    />
-                  </TouchableOpacity>
-                )}
-              </View>
+            <Text
+              style={[
+                styles.filterTabText,
+                { color: colors.textTertiary },
+                currentFilter === filter && {
+                  color: colors.textPrimary,
+                  fontWeight: "700",
+                },
+              ]}
+            >
+              {filter === "all" ? "For You" : "Following"}
+            </Text>
+            {currentFilter === filter && (
+              <View
+                style={[
+                  styles.filterTabIndicator,
+                  { backgroundColor: colors.primary },
+                ]}
+              />
             )}
-          </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+    ),
+    [colors, currentFilter, handleFilterChange]
+  );
 
-          {searchQuery.length > 0 && (
-            <View style={styles.searchStats}>
+  const renderHeader = useCallback(
+    () => (
+      <View>
+        {/* Logo and Actions */}
+        <View style={[styles.topBar, { backgroundColor: colors.background }]}>
+          <Animated.View style={pullRefreshStyle}>
+            <Image
+              source={
+                barStyleColors === "light-content"
+                  ? require("@/assets/images/spark.webp")
+                  : require("@/assets/images/spark-empty.webp")
+              }
+              style={styles.logo}
+            />
+          </Animated.View>
+
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={[
+                styles.headerButton,
+                { backgroundColor: colors.backgroundTertiary },
+              ]}
+              onPress={toggleSearch}
+            >
+              <Ionicons
+                name={showSearch ? "close" : "search-outline"}
+                size={20}
+                color={showSearch ? colors.primary : colors.iconPrimary}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.headerButton,
+                { backgroundColor: colors.backgroundTertiary },
+              ]}
+              onPress={() => router.push("/(auth)/(settings)/menu")}
+            >
+              <Ionicons
+                name="settings-outline"
+                size={20}
+                color={colors.iconPrimary}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Search Bar */}
+        {showSearch && (
+          <Animated.View
+            entering={FadeInDown.duration(300).springify()}
+            exiting={FadeOutUp.duration(200)}
+            style={styles.searchContainer}
+          >
+            <View
+              style={[
+                styles.searchInputContainer,
+                { backgroundColor: colors.backgroundTertiary },
+              ]}
+            >
+              <Ionicons name="search" size={18} color={colors.textMuted} />
+              <TextInput
+                ref={searchInputRef}
+                style={[styles.searchInput, { color: colors.textPrimary }]}
+                placeholder="Search posts, users, topics..."
+                placeholderTextColor={colors.textMuted}
+                value={searchQuery}
+                onChangeText={handleSearch}
+                returnKeyType="search"
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={clearSearch}>
+                  <Ionicons
+                    name="close-circle"
+                    size={18}
+                    color={colors.textMuted}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {searchQuery.length > 1 && displayPosts.length > 0 && (
               <Text
                 style={[styles.searchStatsText, { color: colors.textTertiary }]}
               >
-                {`${searchResults.length} results for "${searchQuery}"`}
+                {displayPosts.length} result
+                {displayPosts.length !== 1 ? "s" : ""}
               </Text>
-            </View>
-          )}
-        </Animated.View>
-      )}
+            )}
+          </Animated.View>
+        )}
 
-      {/* Filter Tabs - only show when not searching */}
-      {!showSearch && renderFilterTabs()}
+        {/* Filter Tabs - only show when not searching */}
+        {!showSearch && renderFilterTabs()}
 
-      {/* Create Post Preview - only show when not searching */}
-      {!showSearch && (
-        <Link href={`/(auth)/(modals)/create-post`} asChild>
-          <TouchableOpacity style={styles.createPost}>
-            <Image
-              source={{ uri: userInfo?.imageUrl as string }}
-              style={[styles.avatar, { backgroundColor: colors.border }]}
-            />
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  color: colors.textPrimary,
-                  backgroundColor: colors.backgroundTertiary,
-                },
-              ]}
-              placeholder={"What's happening?"}
-              placeholderTextColor={colors.textMuted}
-              textAlignVertical="top"
-              scrollEnabled={false}
-              editable={false}
-            />
-          </TouchableOpacity>
-        </Link>
-      )}
-    </View>
+        {/* Create Post Preview - only show when not searching */}
+        {!showSearch && (
+          <Link href="/(auth)/(modals)/create-post" asChild>
+            <TouchableOpacity style={styles.createPost}>
+              <Image
+                source={{ uri: userInfo?.imageUrl as string }}
+                style={[styles.avatar, { borderColor: colors.border }]}
+              />
+              <View
+                style={[
+                  styles.createPostInput,
+                  { backgroundColor: colors.backgroundTertiary },
+                ]}
+              >
+                <Text
+                  style={[styles.createPostText, { color: colors.textMuted }]}
+                >
+                  {"What's happening?"}
+                </Text>
+                <Ionicons
+                  name="images-outline"
+                  size={20}
+                  color={colors.iconSecondary}
+                />
+              </View>
+            </TouchableOpacity>
+          </Link>
+        )}
+      </View>
+    ),
+    [
+      colors,
+      pullRefreshStyle,
+      barStyleColors,
+      toggleSearch,
+      showSearch,
+      searchQuery,
+      handleSearch,
+      clearSearch,
+      displayPosts.length,
+      renderFilterTabs,
+      userInfo?.imageUrl,
+      router,
+    ]
   );
 
-  const renderFooter = () => {
+  const renderFooter = useCallback(() => {
     if (displayStatus === "LoadingFirstPage" || searchQuery.length >= 2)
       return null;
-
-    if (loadingMore) {
+    if (displayStatus === "LoadingMore") {
       return (
         <View style={styles.footerLoader}>
           <ActivityIndicator size="small" color={colors.primary} />
@@ -383,13 +403,9 @@ const Feed = () => {
       );
     }
 
-    if (displayPosts.length > 0 && status !== "Exhausted") {
+    if (displayPosts.length > 0 && filterStatus !== "Exhausted") {
       return (
-        <TouchableOpacity
-          style={styles.loadMoreButton}
-          onPress={onLoadMore}
-          disabled={loadingMore}
-        >
+        <TouchableOpacity style={styles.loadMoreButton} onPress={onLoadMore}>
           <Text style={[styles.loadMoreText, { color: colors.primary }]}>
             Load More
           </Text>
@@ -397,7 +413,7 @@ const Feed = () => {
       );
     }
 
-    if (displayPosts.length > 0 && status === "Exhausted") {
+    if (displayPosts.length > 0 && filterStatus === "Exhausted") {
       return (
         <View style={styles.endOfFeed}>
           <Ionicons name="checkmark-done" size={24} color={colors.textMuted} />
@@ -409,32 +425,55 @@ const Feed = () => {
     }
 
     return null;
-  };
+  }, [displayStatus, displayPosts.length, colors]);
 
-  const renderEmptyState = () => {
-    if (displayStatus === "LoadingFirstPage") return null;
-
-    // Different empty states for search vs feed
-    if (searchQuery.length >= 2) {
+  const renderEmptyState = useCallback(() => {
+    if (displayStatus === "LoadingFirstPage") {
       return (
-        <View style={styles.emptyState}>
-          <Ionicons name="search-outline" size={64} color={colors.textMuted} />
-          <Text
-            style={[styles.emptyStateTitle, { color: colors.textSecondary }]}
-          >
-            No results found
+        <View
+          style={[
+            styles.loadingOverlay,
+            { backgroundColor: colors.background },
+          ]}
+        >
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textMuted }]}>
+            {searchQuery.length > 0 ? "Searching..." : "Loading your feed..."}
           </Text>
-          <Text
-            style={[styles.emptyStateSubtitle, { color: colors.textMuted }]}
-          >
-            Try searching for different keywords or check your spelling
-          </Text>
+        </View>
+      );
+    }
+
+    const isSearchEmpty = searchQuery.length > 1 && displayPosts.length === 0;
+
+    return (
+      <View style={styles.emptyState}>
+        <Ionicons
+          name={isSearchEmpty ? "search-outline" : "chatbubbles-outline"}
+          size={64}
+          color={colors.textMuted}
+        />
+        <Text style={[styles.emptyStateTitle, { color: colors.textSecondary }]}>
+          {isSearchEmpty
+            ? "No results found"
+            : currentFilter === "following"
+              ? "No posts from following"
+              : "No posts yet"}
+        </Text>
+        <Text style={[styles.emptyStateSubtitle, { color: colors.textMuted }]}>
+          {isSearchEmpty
+            ? "Try different keywords"
+            : currentFilter === "following"
+              ? "Follow users to see their posts"
+              : "Be the first to post!"}
+        </Text>
+        {isSearchEmpty && (
           <TouchableOpacity
             style={[
               styles.emptyStateButton,
               { backgroundColor: colors.primary },
             ]}
-            onPress={() => handleSearch("")}
+            onPress={clearSearch}
           >
             <Text
               style={[styles.emptyStateButtonText, { color: colors.white }]}
@@ -442,39 +481,38 @@ const Feed = () => {
               Clear Search
             </Text>
           </TouchableOpacity>
-        </View>
-      );
-    }
-
-    return (
-      <View style={styles.emptyState}>
-        <Ionicons
-          name="chatbubbles-outline"
-          size={64}
-          color={colors.textMuted}
-        />
-        <Text style={[styles.emptyStateTitle, { color: colors.textSecondary }]}>
-          {currentFilter === "following"
-            ? "No posts from following"
-            : "No posts yet"}
-        </Text>
-        <Text style={[styles.emptyStateSubtitle, { color: colors.textMuted }]}>
-          {currentFilter === "following"
-            ? "Follow some users to see their posts here"
-            : "Be the first to start a conversation!"}
-        </Text>
-        <TouchableOpacity
-          style={[styles.emptyStateButton, { backgroundColor: colors.primary }]}
-          onPress={() => router.push("/(auth)/(modals)/create-post")}
-        >
-          <Text style={[styles.emptyStateButtonText, { color: colors.white }]}>
-            Create Post
-          </Text>
-        </TouchableOpacity>
+        )}
       </View>
     );
-  };
+  }, [
+    displayStatus,
+    searchQuery.length,
+    displayPosts.length,
+    colors,
+    currentFilter,
+    clearSearch,
+  ]);
 
+  const keyExtractor = useCallback((item: PostWithAuthor) => item._id, []);
+
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: 400, // Approximate post height
+      offset: 400 * index,
+      index,
+    }),
+    []
+  );
+  const renderPost: ListRenderItem<PostWithAuthor> = useCallback(
+    ({ item }) => (
+      <Link href={`/(auth)/(modals)/post/${item._id}`} asChild>
+        <TouchableOpacity activeOpacity={0.95}>
+          <Post post={item} colors={colors} />
+        </TouchableOpacity>
+      </Link>
+    ),
+    [colors]
+  );
   return (
     <>
       <StatusBar
@@ -484,13 +522,13 @@ const Feed = () => {
       />
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Animated.FlatList
+          ref={flatListRef}
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
           data={displayPosts}
           renderItem={renderPost}
-          keyExtractor={(item) => item._id}
-          // onEndReached={onLoadMore}
-          onEndReachedThreshold={0.3}
+          keyExtractor={keyExtractor}
+          onEndReached={onLoadMore}
+          onEndReachedThreshold={0.5}
           ListHeaderComponent={renderHeader}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={renderEmptyState}
@@ -507,22 +545,12 @@ const Feed = () => {
               progressBackgroundColor={colors.white}
             />
           }
+          maxToRenderPerBatch={2}
+          decelerationRate="fast"
+          windowSize={3}
+          initialNumToRender={3}
+          getItemLayout={getItemLayout}
         />
-
-        {/* Loading State */}
-        {displayStatus === "LoadingFirstPage" && (
-          <View
-            style={[
-              styles.loadingOverlay,
-              { backgroundColor: colors.background },
-            ]}
-          >
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={[styles.loadingText, { color: colors.textMuted }]}>
-              {searchQuery.length > 0 ? "Searching..." : "Loading your feed..."}
-            </Text>
-          </View>
-        )}
       </View>
     </>
   );
@@ -536,81 +564,61 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   logo: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   headerActions: {
     flexDirection: "row",
     gap: 8,
   },
   headerButton: {
-    width: 44,
-    height: 44,
+    width: 36,
+    height: 36,
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
-  },
-  notificationBadge: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+
+    borderRadius: 18,
   },
   searchContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    gap: 8,
   },
   searchInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    gap: 12,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    gap: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
-  },
-  searchActions: {
-    width: 20,
-    height: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  searchStats: {
-    paddingTop: 8,
-    paddingHorizontal: 4,
+    fontSize: 15,
+    paddingVertical: 0,
   },
   searchStatsText: {
     fontSize: 12,
     fontWeight: "500",
+    paddingHorizontal: 4,
   },
-
-  // Filter Tabs
   filterContainer: {
     flexDirection: "row",
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
     gap: 24,
   },
   filterTab: {
     position: "relative",
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-  },
-  activeFilterTab: {
-    // No additional background needed
+    paddingVertical: 6,
   },
   filterTabText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
   },
   filterTabIndicator: {
@@ -618,61 +626,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 2,
-    borderRadius: 1,
-  },
-
-  scrollContent: {
-    flexGrow: 1,
-  },
-
-  footerLoader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 20,
-    gap: 12,
-  },
-  loadingText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  loadingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 60,
-    paddingHorizontal: 40,
-  },
-  emptyStateTitle: {
-    fontSize: 24,
-    fontWeight: "700",
-    marginTop: 16,
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  emptyStateSubtitle: {
-    fontSize: 16,
-    textAlign: "center",
-    lineHeight: 24,
-    marginBottom: 24,
-  },
-  emptyStateButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  emptyStateButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
+    height: 3,
+    borderRadius: 1.5,
   },
   createPost: {
     flexDirection: "row",
@@ -680,12 +635,80 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     gap: 12,
+    marginBottom: 8,
   },
   avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 24,
-    borderWidth: 1,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+  },
+  createPostInput: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  createPostText: {
+    fontSize: 15,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  footerLoader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 20,
+    gap: 10,
+  },
+  loadingText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  loadingOverlay: {
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+    flex: 1,
+  },
+  endOfFeed: {
+    alignItems: "center",
+    paddingVertical: 32,
+    gap: 8,
+  },
+  endOfFeedText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: 80,
+    paddingHorizontal: 40,
+    gap: 12,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  emptyStateSubtitle: {
+    fontSize: 15,
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 12,
+  },
+  emptyStateButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  emptyStateButtonText: {
+    fontSize: 15,
+    fontWeight: "600",
   },
   input: {
     fontSize: 14,
@@ -706,15 +729,6 @@ const styles = StyleSheet.create({
   loadMoreText: {
     fontSize: 16,
     fontFamily: "DMSans_600SemiBold",
-  },
-  endOfFeed: {
-    alignItems: "center",
-    paddingVertical: 32,
-    gap: 12,
-  },
-  endOfFeedText: {
-    fontSize: 14,
-    fontFamily: "DMSans_400Regular",
   },
 });
 

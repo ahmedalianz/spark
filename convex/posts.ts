@@ -229,7 +229,74 @@ export const getUserPosts = query({
     };
   },
 });
+export const searchPosts = query({
+  args: {
+    query: v.string(),
+    paginationOpts: paginationOptsValidator,
+    filters: v.optional(
+      v.object({
+        authorId: v.optional(v.id("users")),
+        type: v.optional(
+          v.union(v.literal("post"), v.literal("repost"), v.literal("tagged"))
+        ),
+        visibility: v.optional(
+          v.union(v.literal("public"), v.literal("followers"))
+        ),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
 
+    // Use the search index to find posts matching the query
+    const results = await ctx.db
+      .query("posts")
+      .withSearchIndex("searchPosts", (q) => {
+        let searchQuery = q.search("content", args.query);
+
+        // Apply filters if provided
+        if (args.filters?.authorId) {
+          searchQuery = searchQuery.eq("authorId", args.filters.authorId);
+        }
+        if (args.filters?.type) {
+          searchQuery = searchQuery.eq("type", args.filters.type);
+        }
+        if (args.filters?.visibility) {
+          searchQuery = searchQuery.eq("visibility", args.filters.visibility);
+        } else {
+          // Default to public posts only if no visibility filter
+          searchQuery = searchQuery.eq("visibility", "public");
+        }
+
+        return searchQuery;
+      })
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    // Enrich posts with author and media details
+    const postsWithDetails = await Promise.all(
+      results.page.map(async (post) => {
+        const [author, mediaUrls, userLike] = await Promise.all([
+          getUserWithImage(ctx, post.authorId),
+          getMediaUrls(ctx, post.mediaFiles),
+          user ? getUserLikeStatus(ctx, user._id, post._id) : false,
+        ]);
+
+        return {
+          ...post,
+          author,
+          mediaFiles: mediaUrls,
+          userHasLiked: userLike,
+        };
+      })
+    );
+
+    return {
+      ...results,
+      page: postsWithDetails,
+    };
+  },
+});
 export const likePost = mutation({
   args: { postId: v.id("posts") },
   handler: async (ctx, args) => {
@@ -390,9 +457,7 @@ export const repost = mutation({
           type: "repost",
           postId: repostId,
           originalPostId: args.originalPostId,
-          message: args.content
-            ? `${user.first_name} quoted your post`
-            : `${user.first_name} reposted your post`,
+          message: `${user.first_name} shared your post`,
           isRead: false,
           createdAt: now,
         });

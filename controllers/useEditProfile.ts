@@ -1,19 +1,14 @@
 import { api } from "@/convex/_generated/api";
-import { EditProfileProps } from "@/types";
 import * as Sentry from "@sentry/react-native";
 import { useMutation } from "convex/react";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Alert } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, BackHandler } from "react-native";
 
-const useEditProfile = ({
-  biostring,
-  linkstring,
-}: Omit<EditProfileProps, "imageUrl">) => {
+const useEditProfile = ({ biostring }: { biostring: string }) => {
   const [bio, setBio] = useState(decodeURIComponent(biostring || ""));
-  const [link, setLink] = useState(decodeURIComponent(linkstring || ""));
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] =
     useState<ImagePicker.ImagePickerAsset | null>(null);
@@ -29,11 +24,7 @@ const useEditProfile = ({
   const isOverLimit = bioCharacterCount > maxBioLength;
 
   const onDone = async () => {
-    if (
-      bio === decodeURIComponent(biostring || "") &&
-      link === decodeURIComponent(linkstring || "") &&
-      !selectedImage
-    ) {
+    if (bio === decodeURIComponent(biostring || "") && !selectedImage) {
       router.dismiss();
       return;
     }
@@ -51,7 +42,6 @@ const useEditProfile = ({
     try {
       await updateUser({
         bio: bio || undefined,
-        websiteUrl: link || undefined,
       });
 
       if (selectedImage) {
@@ -60,7 +50,7 @@ const useEditProfile = ({
 
       Sentry.captureEvent({
         message: "User Profile updated",
-        extra: { bio, link },
+        extra: { bio },
       });
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -143,29 +133,32 @@ const useEditProfile = ({
     }
   };
 
-  const handleCancel = () => {
-    if (
-      bio !== decodeURIComponent(biostring || "") ||
-      link !== decodeURIComponent(linkstring || "") ||
-      selectedImage
-    ) {
-      Alert.alert(
-        "Discard Changes?",
-        "You have unsaved changes. Are you sure you want to leave?",
-        [
-          { text: "Keep Editing", style: "cancel" },
-          {
-            text: "Discard",
-            style: "destructive",
-            onPress: () => router.dismiss(),
-          },
-        ]
-      );
-    } else {
-      router.dismiss();
-    }
-  };
-
+  useEffect(() => {
+    const backAction = () => {
+      if (bio !== decodeURIComponent(biostring || "") || selectedImage) {
+        Alert.alert(
+          "Discard Changes?",
+          "You have unsaved changes. Are you sure you want to leave?",
+          [
+            { text: "Keep Editing", style: "cancel", onPress: () => null },
+            {
+              text: "Discard",
+              style: "destructive",
+              onPress: () => router.dismiss(),
+            },
+          ]
+        );
+        return true;
+      } else {
+        router.dismiss();
+      }
+    };
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+    return () => backHandler.remove();
+  }, [bio, selectedImage, router, biostring]);
   return {
     isLoading,
     isOverLimit,
@@ -173,12 +166,9 @@ const useEditProfile = ({
     bioCharacterCount,
     maxBioLength,
     bio,
-    link,
     setBio,
-    setLink,
     onDone,
     selectImage,
-    handleCancel,
   };
 };
 

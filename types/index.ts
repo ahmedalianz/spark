@@ -109,14 +109,13 @@ export type FormFieldsProps = {
 export type ProfilePictureProps = {
   isLoading: boolean;
   selectedImage: ImagePicker.ImagePickerAsset | null;
-  imageUrl: string | null;
+  imageUrl?: string | null;
   colors: ColorsType;
   selectImage: () => void;
 };
 
 export type EditProfileProps = {
   biostring: string;
-  linkstring: string;
   imageUrl: string;
 };
 
@@ -133,7 +132,43 @@ export type UserInfoProps = {
   isCurrentUserProfile: boolean;
   colors: ColorsType;
 };
+export type CreateAccountProps = {
+  onSuccess?: (userData: any) => void;
+  onCancel?: () => void;
+};
 
+export type CreateAccountFormData = {
+  name: string;
+  username: string;
+  email: string;
+  bio: string;
+  link: string;
+};
+
+export type CreateAccountErrors = {
+  name?: string;
+  username?: string;
+  email?: string;
+  link?: string;
+};
+
+export type CreateAccountFormFieldsProps = {
+  isOverLimit: boolean;
+  bioCharacterCount: number;
+  maxBioLength: number;
+  formData: CreateAccountFormData;
+  errors: CreateAccountErrors;
+  setFormData: React.Dispatch<React.SetStateAction<CreateAccountFormData>>;
+  setFieldError: (field: keyof CreateAccountErrors, error: string) => void;
+  colors: ColorsType;
+};
+
+export type CreateAccountProfilePictureProps = {
+  isLoading: boolean;
+  selectImage: () => void;
+  selectedImage: ImagePicker.ImagePickerAsset | null;
+  colors: ColorsType;
+};
 /* -------------------------------------------------------------------------- */
 /*                                    POST                                    */
 /* -------------------------------------------------------------------------- */
@@ -141,7 +176,6 @@ export type UserInfoProps = {
 export type PostWithAuthorDetails = EntityWithAuthor<Doc<"posts">>;
 
 export type CreatePostProps = BasePostProps & {
-  isPreview?: boolean;
   postId?: Id<"posts">;
 };
 
@@ -161,7 +195,6 @@ export type CreatePostInputProps = {
   postContent: string;
   handleContentChange: (text: string) => void;
   isExpanded: boolean;
-  isPreview?: boolean;
   colors: ColorsType;
   setTextSelection: (selection: TextSelection) => void;
 };
@@ -398,4 +431,11 @@ export type ImageViewerProps = {
   url: string;
   likeCount: string;
   commentCount: string;
+};
+export type ActionButtonProps = {
+  onPress: () => void;
+  isLoading: boolean;
+  disabled: boolean;
+  colors: ColorsType;
+  title: string;
 };

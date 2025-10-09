@@ -69,7 +69,7 @@ const UserInfo = ({
 
   const editProfileRoute: any = `/(auth)/(modals)/edit-profile?biostring=${
     userInfo?.bio ? encodeURIComponent(userInfo?.bio) : ""
-  }&linkstring=${userInfo?.websiteUrl ? encodeURIComponent(userInfo?.websiteUrl) : ""}&userId=${
+  }&userId=${
     userInfo?._id
   }&imageUrl=${userInfo?.imageUrl ? encodeURIComponent(userInfo?.imageUrl) : ""}`;
 
@@ -165,18 +165,6 @@ const UserInfo = ({
         >
           {userInfo?.bio || "✨ No bio yet"}
         </Text>
-
-        {userInfo?.websiteUrl && (
-          <TouchableOpacity style={styles.websiteContainer}>
-            <Ionicons name="link-outline" size={14} color={colors.primary} />
-            <Text
-              style={[styles.websiteText, { color: colors.primary }]}
-              numberOfLines={1}
-            >
-              {userInfo.websiteUrl.replace(/^https?:\/\//, "")}
-            </Text>
-          </TouchableOpacity>
-        )}
       </View>
 
       {/* Action Buttons */}

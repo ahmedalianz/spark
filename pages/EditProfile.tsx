@@ -1,24 +1,22 @@
-import { FormFields, ProfilePicture, Tips } from "@/components/edit-profile";
+import { ActionButton, InputField } from "@/components/create-account";
+import ProfilePicture from "@/components/ProfilePicture";
 import useEditProfile from "@/controllers/useEditProfile";
 import useAppTheme from "@/hooks/useAppTheme";
 import { EditProfileProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const EditProfile = ({ biostring, linkstring, imageUrl }: EditProfileProps) => {
-  const { top } = useSafeAreaInsets();
+const EditProfile = ({ biostring, imageUrl }: EditProfileProps) => {
+  const { top, bottom } = useSafeAreaInsets();
   const { colors } = useAppTheme();
   const {
     isLoading,
@@ -27,149 +25,149 @@ const EditProfile = ({ biostring, linkstring, imageUrl }: EditProfileProps) => {
     bioCharacterCount,
     maxBioLength,
     bio,
-    link,
     setBio,
-    setLink,
     onDone,
     selectImage,
-    handleCancel,
   } = useEditProfile({
     biostring,
-    linkstring,
   });
 
   return (
-    <KeyboardAvoidingView
-      style={{
-        flex: 1,
-        backgroundColor: colors.backgroundLight,
-      }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.background, paddingTop: top },
+      ]}
     >
-      <LinearGradient
-        colors={[colors.primary, colors.primaryDark]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={[styles.header, { paddingTop: top + 10 }]}
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.headerContent}>
-          <TouchableOpacity
-            style={[
-              styles.headerButton,
-              {
-                backgroundColor: colors.transparentWhite20,
-              },
-            ]}
-            onPress={handleCancel}
-            disabled={isLoading}
-          >
-            <Ionicons name="close" size={24} color={colors.white} />
-            <Text
-              style={[
-                styles.headerButtonText,
-                {
-                  color: colors.white,
-                },
-              ]}
-            >
-              Cancel
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottom + 20 },
+          ]}
+        >
+          {/* Title Section */}
+          <View style={styles.titleSection}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>
+              Update Your Profile
             </Text>
-          </TouchableOpacity>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              You can update your profile picture and bio
+            </Text>
+          </View>
 
-          <TouchableOpacity
-            style={[
-              styles.headerButton,
-              { backgroundColor: colors.transparentWhite30 },
-            ]}
+          {/* Avatar Upload */}
+          <ProfilePicture
+            selectedImage={selectedImage}
+            selectImage={selectImage}
+            colors={colors}
+            isLoading={isLoading}
+            imageUrl={imageUrl}
+          />
+
+          {/* Form Fields */}
+          <View style={styles.formSection}>
+            <InputField
+              label="Bio (Optional)"
+              value={bio}
+              onChangeText={setBio}
+              placeholder="Tell us about yourself..."
+              error={isOverLimit ? "Bio exceeds maximum length" : ""}
+              icon="text-outline"
+              colors={colors}
+              multiline
+              characterCount={{
+                current: bioCharacterCount,
+                max: maxBioLength,
+              }}
+            />
+          </View>
+
+          <View style={styles.tipItem}>
+            <Ionicons name="bulb-outline" size={16} color={colors.primary} />
+            <Text style={[styles.tipText, { color: colors.textSecondary }]}>
+              A good bio helps others understand who you are
+            </Text>
+          </View>
+        </ScrollView>
+
+        {/* Action Button */}
+        <View style={[styles.buttonContainer, { paddingBottom: bottom + 16 }]}>
+          <ActionButton
             onPress={onDone}
+            isLoading={isLoading}
             disabled={isLoading || isOverLimit}
-          >
-            {isLoading ? (
-              <ActivityIndicator color={colors.white} size="small" />
-            ) : (
-              <Ionicons name="checkmark" size={20} color={colors.white} />
-            )}
-          </TouchableOpacity>
+            colors={colors}
+            title="Update Profile"
+          />
         </View>
-      </LinearGradient>
-
-      <ScrollView
-        style={[
-          styles.content,
-          {
-            backgroundColor: colors.white,
-          },
-        ]}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <ProfilePicture
-          isLoading={isLoading}
-          selectImage={selectImage}
-          selectedImage={selectedImage}
-          imageUrl={imageUrl}
-          colors={colors}
-        />
-        <FormFields
-          {...{
-            isOverLimit,
-            bioCharacterCount,
-            maxBioLength,
-            bio,
-            link,
-            setBio,
-            setLink,
-            colors,
-          }}
-        />
-        <Tips colors={colors} />
-
-        <View style={styles.bottomSpacing} />
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
 export default EditProfile;
 
 const styles = StyleSheet.create({
-  header: {
-    paddingBottom: 16,
+  container: {
+    flex: 1,
   },
-  headerContent: {
-    flexDirection: "row",
+  keyboardView: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+  },
+  titleSection: {
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    marginTop: 24,
+    marginBottom: 32,
   },
-  headerButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-  },
-  headerButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "DMSans_500Medium",
-  },
-  doneButtonText: {
+  title: {
+    fontSize: 28,
     fontWeight: "700",
     fontFamily: "DMSans_700Bold",
+    marginBottom: 8,
+    textAlign: "center",
   },
-  disabledText: {
-    opacity: 0.5,
+  subtitle: {
+    fontSize: 16,
+    fontFamily: "DMSans_400Regular",
+    textAlign: "center",
+    lineHeight: 22,
   },
-  content: {
+  formSection: {
+    gap: 20,
+    marginBottom: 32,
+  },
+  errorText: {
+    fontSize: 14,
+    marginTop: 6,
+    fontFamily: "DMSans_400Regular",
+  },
+  tipItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  tipText: {
     flex: 1,
-    marginTop: -16,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    fontSize: 14,
+    fontFamily: "DMSans_400Regular",
+    lineHeight: 20,
   },
-  bottomSpacing: {
-    height: 40,
+  buttonContainer: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    backgroundColor: "transparent",
   },
 });

@@ -1,22 +1,22 @@
 export const Colors = {
-  primary: "#8B5CF6",
-  primaryDark: "#7C3AED",
+  primary: "#2563EB", // Bright blue
+  primaryDark: "#1D4ED8", // Darker blue
+  primaryLight: "#3B82F6", // Lighter blue
+  primaryTint: "#DBEAFE", // Very light blue for backgrounds
   primaryDarker: "#6D28D9",
-  primaryLight: "#A78BFA",
-  primaryTint: "#F5F3FF", // NEW: Light purple tint for active states
 
   white: "#FFFFFF",
-  black: "#111827",
+  black: "#1F2937",
   blackPure: "#000000",
   background: "#FFFFFF",
-  backgroundSecondary: "#F8F9FA", // Slightly darker for card backgrounds
+  backgroundSecondary: "#F9FAFB", // Slightly darker for card backgrounds
   backgroundTertiary: "#F3F4F6", // NEW: For input backgrounds, borders
   backgroundMuted: "#F9FAFB", // NEW: For very subtle backgrounds
 
   // Text Colors - Better hierarchy
-  textPrimary: "#111827",
-  textSecondary: "#374151",
-  textTertiary: "#6B7280",
+  textPrimary: "#1F2937", // High contrast
+  textSecondary: "#4B5563", // Medium contrast
+  textTertiary: "#6B7280", // Lower contrast
   textMuted: "#9CA3AF",
   textDisabled: "#D1D5DB",
 
@@ -25,7 +25,6 @@ export const Colors = {
   borderLight: "#F3F4F6", // Lighter borders
   borderAccent: "#D1D5DB", // NEW: For focused/active borders
   borderDisabled: "#9CA3AF",
-
   // Semantic Colors
   accentLike: "#EC4899",
   iconPrimary: "#374151", // NEW: Default icon color
@@ -68,14 +67,14 @@ export const DarkColors = {
   primaryDark: "#7C3AED",
   primaryDarker: "#6D28D9",
   primaryLight: "#A78BFA",
-  primaryTint: "#1E1B4B", // NEW: Dark purple tint
+  primaryTint: "#1E3A8A", // NEW: Dark purple tint
 
   // Neutral Colors
-  white: "#0F0F15",
-  black: "#F9FAFB",
+  white: "#0F172A",
+  black: "#F8FAFC",
   blackPure: "#FFFFFF",
   background: "#111827",
-  backgroundSecondary: "#1A1F2E",
+  backgroundSecondary: "#1E293B",
   backgroundTertiary: "#374151", // NEW: For input backgrounds
   backgroundMuted: "#1F2937", // NEW: For subtle backgrounds
 

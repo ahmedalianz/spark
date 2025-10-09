@@ -15,14 +15,14 @@ const Login = () => {
   const {
     handleFacebookLogin,
     handleGoogleLogin,
-    handleGuestLogin,
+    handleCreateAccount,
     triggerError,
   } = useLogin();
-  const { colors } = useAppTheme();
+  const { colors, barStyleColors } = useAppTheme();
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar
-        barStyle="light-content"
+        barStyle={barStyleColors}
         backgroundColor="transparent"
         translucent
       />
@@ -158,7 +158,7 @@ const Login = () => {
             </View>
           </TouchableOpacity>
 
-          {/* Guest Button */}
+          {/* Create Account Button - Replaces Guest Button */}
           <TouchableOpacity
             style={[
               styles.loginButton,
@@ -166,43 +166,42 @@ const Login = () => {
                 backgroundColor: colors.backgroundMuted,
                 borderColor: colors.transparentBlack08,
               },
-              styles.guestButton,
-              { borderLeftColor: colors.iconSecondary },
+              styles.createAccountButton,
+              { borderLeftColor: colors.primary },
             ]}
-            onPress={handleGuestLogin}
+            onPress={handleCreateAccount}
             activeOpacity={0.85}
           >
             <View style={styles.loginButtonContent}>
               <View
                 style={[
                   styles.iconWrapper,
-                  styles.guestIconWrapper,
-                  { backgroundColor: colors.backgroundSecondary },
+                  { backgroundColor: colors.primaryTint },
                 ]}
               >
                 <Ionicons
-                  name="eye-outline"
+                  name="person-add-outline"
                   size={20}
-                  color={colors.textTertiary}
+                  color={colors.primary}
                 />
               </View>
               <View style={styles.textContainer}>
                 <Text
                   style={[styles.loginButtonText, { color: colors.blackPure }]}
                 >
-                  Browse as Guest
+                  Create Account
                 </Text>
                 <Text
                   style={[styles.buttonSubtext, { color: colors.textTertiary }]}
                 >
-                  Explore without an account
+                  Join the community today
                 </Text>
               </View>
               <View style={styles.chevronContainer}>
                 <Ionicons
                   name="chevron-forward"
                   size={18}
-                  color={colors.textTertiary}
+                  color={colors.primary}
                 />
               </View>
             </View>
@@ -305,7 +304,6 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderRadius: 16,
-
     borderWidth: 1,
   },
   facebookButton: {
@@ -314,7 +312,7 @@ const styles = StyleSheet.create({
   googleButton: {
     borderLeftWidth: 1,
   },
-  guestButton: {
+  createAccountButton: {
     borderLeftWidth: 1,
   },
   loginButtonContent: {
@@ -329,9 +327,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  guestIconWrapper: {
-    // backgroundColor handled inline
-  },
+
   loginButtonImage: {
     width: 22,
     height: 22,

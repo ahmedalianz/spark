@@ -6,7 +6,6 @@ const CreatePostInput = ({
   postContent,
   handleContentChange,
   isExpanded,
-  isPreview,
   setTextSelection,
   colors,
 }: CreatePostInputProps) => {
@@ -21,21 +20,20 @@ const CreatePostInput = ({
           styles.input,
           {
             color: colors.textSecondary,
-            backgroundColor: colors.backgroundLight,
+            backgroundColor: colors.backgroundTertiary,
           },
           isExpanded && styles.inputExpanded,
-          isPreview && styles.inputPreview,
         ]}
         placeholder={"What's happening?"}
-        placeholderTextColor={colors.textMuted}
+        placeholderTextColor={colors.textTertiary}
         value={postContent}
         onChangeText={handleContentChange}
         onSelectionChange={(e) => setTextSelection(e.nativeEvent.selection)}
         multiline
-        autoFocus={!isPreview}
+        autoFocus
         textAlignVertical="top"
         scrollEnabled={false}
-        editable={!isPreview}
+        editable
       />
     </Animated.View>
   );
@@ -56,9 +54,5 @@ const styles = StyleSheet.create({
   },
   inputExpanded: {
     minHeight: 160,
-  },
-  inputPreview: {
-    minHeight: 40,
-    marginBottom: 0,
   },
 });

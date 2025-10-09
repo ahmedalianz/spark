@@ -1,4 +1,4 @@
-import useAppTheme from "@/hooks/useAppTheme";
+import { Colors } from "@/constants/Colors";
 import formatCount from "@/utils/formatCount";
 import { Ionicons } from "@expo/vector-icons";
 import { ImageZoom } from "@likashefqet/react-native-image-zoom";
@@ -28,7 +28,6 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
   likeCount,
   commentCount,
 }) => {
-  const { colors } = useAppTheme();
   const imageArray = JSON.parse(decodeURIComponent(images || "[]"));
   const startIndex = parseInt(initialIndex || "0", 10);
   const likeCountNum = parseInt(likeCount || "0", 10);
@@ -68,13 +67,12 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
     <GestureHandlerRootView
       style={{
         flex: 1,
-        backgroundColor: colors.black,
       }}
     >
       <View
         style={{
           flex: 1,
-          backgroundColor: colors.black,
+          backgroundColor: Colors.black,
         }}
       >
         <FlatList
@@ -103,7 +101,7 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
               style={[
                 styles.counterBadge,
                 {
-                  backgroundColor: colors.transparentBlack70,
+                  backgroundColor: Colors.transparentBlack70,
                 },
               ]}
             >
@@ -119,7 +117,7 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
           style={[
             styles.statsOverlay,
             {
-              backgroundColor: colors.transparentBlack70,
+              backgroundColor: Colors.transparentBlack70,
             },
           ]}
         >
@@ -142,7 +140,7 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
                 style={[
                   styles.dot,
                   {
-                    backgroundColor: colors.transparentWhite40,
+                    backgroundColor: Colors.transparentWhite40,
                   },
                   currentIndex === index && styles.activeDot,
                 ]}

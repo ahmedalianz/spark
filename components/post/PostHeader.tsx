@@ -2,6 +2,7 @@ import { ColorsType, PostWithAuthorDetails } from "@/types";
 import formatCount from "@/utils/formatCount";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import { Image, StyleSheet, Text, View } from "react-native";
+import PostMedia from "../feed-post/PostMedia";
 
 const PostHeader = ({
   post,
@@ -38,13 +39,12 @@ const PostHeader = ({
       </Text>
 
       {/* Media */}
-      {post?.mediaFiles && post.mediaFiles.length > 0 && (
-        <Image
-          source={{ uri: post.mediaFiles[0] }}
-          style={styles.postImage}
-          resizeMode="cover"
-        />
-      )}
+      <PostMedia
+        mediaFiles={post?.mediaFiles || []}
+        likeCount={post?.likeCount || 0}
+        commentCount={post?.commentCount || 0}
+        colors={colors}
+      />
 
       {/* Stats */}
       <View style={[styles.statsContainer, { borderTopColor: colors.border }]}>
