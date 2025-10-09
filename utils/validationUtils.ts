@@ -128,6 +128,21 @@ export const validateConfirmPassword = (
 
   return undefined;
 };
+export const validateVerificationCode = (code: string): string | undefined => {
+  if (!code.trim()) {
+    return "Verification code is required";
+  }
+
+  if (code.length !== 6) {
+    return "Code must be 6 digits";
+  }
+
+  if (!/^\d+$/.test(code)) {
+    return "Code must contain only numbers";
+  }
+
+  return undefined;
+};
 
 /**
  * Sanitizes user input to prevent XSS attacks

@@ -1,5 +1,4 @@
 import { useSSO } from "@clerk/clerk-expo";
-import { router } from "expo-router";
 
 const useLogin = () => {
   const { startSSOFlow } = useSSO();
@@ -31,14 +30,9 @@ const useLogin = () => {
     }
   };
 
-  const handleCreateAccount = () => {
-    router.push("/(public)/create-account");
-  };
-
   return {
     handleFacebookLogin,
     handleGoogleLogin,
-    handleCreateAccount,
   };
 };
 

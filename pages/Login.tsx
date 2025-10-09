@@ -2,6 +2,7 @@ import { Colors } from "@/constants/Colors";
 import useLogin from "@/controllers/useLogin";
 import useAppTheme from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 import {
   Image,
   ScrollView,
@@ -13,13 +14,12 @@ import {
 } from "react-native";
 
 const Login = () => {
-  const { handleFacebookLogin, handleGoogleLogin, handleCreateAccount } =
-    useLogin();
-  const { colors, barStyleColors } = useAppTheme();
+  const { handleFacebookLogin, handleGoogleLogin } = useLogin();
+  const { colors } = useAppTheme();
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar
-        barStyle={barStyleColors}
+        barStyle={"light-content"}
         backgroundColor="transparent"
         translucent
       />
@@ -41,7 +41,6 @@ const Login = () => {
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        bounces={false}
       >
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
@@ -61,28 +60,20 @@ const Login = () => {
               styles.loginButton,
               {
                 backgroundColor: colors.backgroundSecondary,
-                borderTopColor: colors.transparentBlack04,
-                borderBottomColor: colors.transparentBlack04,
-                borderRightColor: colors.transparentBlack04,
+                borderTopColor: colors.transparentBlack15,
+                borderBottomColor: colors.transparentBlack15,
+                borderRightColor: colors.transparentBlack15,
+                borderLeftColor: colors.primary,
               },
-              styles.facebookButton,
-              { borderLeftColor: colors.primary },
             ]}
             onPress={handleFacebookLogin}
             activeOpacity={0.85}
           >
             <View style={styles.loginButtonContent}>
-              <View
-                style={[
-                  styles.iconWrapper,
-                  { backgroundColor: colors.iconPrimary },
-                ]}
-              >
-                <Image
-                  source={require("@/assets/images/facebook_icon.png")}
-                  style={styles.loginButtonImage}
-                />
-              </View>
+              <Image
+                source={require("@/assets/images/facebook_icon.png")}
+                style={styles.loginButtonImage}
+              />
               <View style={styles.textContainer}>
                 <Text
                   style={[styles.loginButtonText, { color: colors.blackPure }]}
@@ -111,28 +102,20 @@ const Login = () => {
               styles.loginButton,
               {
                 backgroundColor: colors.backgroundSecondary,
-                borderTopColor: colors.transparentBlack04,
-                borderBottomColor: colors.transparentBlack04,
-                borderRightColor: colors.transparentBlack04,
+                borderTopColor: colors.transparentBlack15,
+                borderBottomColor: colors.transparentBlack15,
+                borderRightColor: colors.transparentBlack15,
+                borderLeftColor: colors.primary,
               },
-              styles.googleButton,
-              { borderLeftColor: colors.primary },
             ]}
             onPress={handleGoogleLogin}
             activeOpacity={0.85}
           >
             <View style={styles.loginButtonContent}>
-              <View
-                style={[
-                  styles.iconWrapper,
-                  { backgroundColor: colors.iconPrimary },
-                ]}
-              >
-                <Image
-                  source={require("@/assets/images/google_logo.webp")}
-                  style={styles.loginButtonImage}
-                />
-              </View>
+              <Image
+                source={require("@/assets/images/google_logo.webp")}
+                style={styles.loginButtonImage}
+              />
               <View style={styles.textContainer}>
                 <Text
                   style={[styles.loginButtonText, { color: colors.blackPure }]}
@@ -156,55 +139,67 @@ const Login = () => {
           </TouchableOpacity>
 
           {/* Create Account Button - Replaces Guest Button */}
-          <TouchableOpacity
-            style={[
-              styles.loginButton,
-              {
-                backgroundColor: colors.backgroundSecondary,
-                borderColor: colors.transparentBlack08,
-              },
-              styles.createAccountButton,
-              { borderLeftColor: colors.primary },
-            ]}
-            onPress={handleCreateAccount}
-            activeOpacity={0.85}
-          >
-            <View style={styles.loginButtonContent}>
-              <View
-                style={[
-                  styles.iconWrapper,
-                  { backgroundColor: colors.iconPrimary },
-                ]}
-              >
-                <Ionicons
-                  name="person-add-outline"
-                  size={20}
-                  color={colors.primary}
-                />
-              </View>
-              <View style={styles.textContainer}>
-                <Text
-                  style={[styles.loginButtonText, { color: colors.blackPure }]}
-                >
-                  Create Account
-                </Text>
-                <Text
-                  style={[styles.buttonSubtext, { color: colors.textTertiary }]}
-                >
-                  Join the community today
-                </Text>
-              </View>
-              <View style={styles.chevronContainer}>
-                <Ionicons
-                  name="chevron-forward"
-                  size={18}
-                  color={colors.primary}
-                />
-              </View>
-            </View>
-          </TouchableOpacity>
-        </View>
+          <Link asChild href={"/(public)/email-login"}>
+            <TouchableOpacity
+              style={{
+                ...styles.loginButton,
 
+                backgroundColor: colors.backgroundSecondary,
+                borderColor: colors.transparentBlack15,
+              }}
+              activeOpacity={0.85}
+            >
+              <View style={styles.loginButtonContent}>
+                <View style={[styles.iconWrapper]}>
+                  <Ionicons
+                    name="mail-outline"
+                    size={25}
+                    color={colors.primary}
+                  />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text
+                    style={[
+                      styles.loginButtonText,
+                      { color: colors.blackPure },
+                    ]}
+                  >
+                    Login in With Email
+                  </Text>
+                  <Text
+                    style={[
+                      styles.buttonSubtext,
+                      { color: colors.textTertiary },
+                    ]}
+                  >
+                    Become a member
+                  </Text>
+                </View>
+                <View style={styles.chevronContainer}>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={18}
+                    color={colors.primary}
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+          </Link>
+
+          {/* Sign Up Link */}
+          <View style={styles.signUpContainer}>
+            <Text style={[styles.signUpText, { color: colors.textSecondary }]}>
+              {"Don't have an account?"}
+            </Text>
+            <Link asChild href={"/(public)/create-account"}>
+              <TouchableOpacity>
+                <Text style={{ ...styles.signUpLink, color: colors.primary }}>
+                  Sign up
+                </Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+        </View>
         <View style={styles.footerSection}>
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <Text style={[styles.legalText, { color: colors.textMuted }]}>
@@ -230,9 +225,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   imageContainer: {
-    position: "relative",
     height: 280,
-    overflow: "hidden",
+    position: "relative",
   },
   loginImage: {
     width: "100%",
@@ -270,7 +264,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   buttonContainer: {
-    width: "100%",
     gap: 14,
     marginBottom: 32,
   },
@@ -279,15 +272,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 16,
     borderWidth: 1,
-  },
-  facebookButton: {
-    borderLeftWidth: 1,
-  },
-  googleButton: {
-    borderLeftWidth: 1,
-  },
-  createAccountButton: {
-    borderLeftWidth: 1,
   },
   loginButtonContent: {
     flexDirection: "row",
@@ -301,10 +285,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   loginButtonImage: {
-    width: 22,
-    height: 22,
+    width: 40,
+    height: 40,
     resizeMode: "contain",
   },
   textContainer: {
@@ -343,5 +326,19 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontFamily: "DMSans_500Medium",
+  },
+  signUpContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 24,
+  },
+  signUpText: {
+    fontSize: 14,
+    fontFamily: "DMSans_400Regular",
+  },
+  signUpLink: {
+    fontSize: 14,
+    fontFamily: "DMSans_600SemiBold",
   },
 });

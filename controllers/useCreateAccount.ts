@@ -74,14 +74,13 @@ const useCreateAccount = () => {
         emailAddress: sanitizeInput(formData?.email),
         password: sanitizeInput(formData?.password),
       };
-      console.log({ data });
       const response = await signUp.create(data);
       if (response.createdSessionId) {
         setActive({ session: response.createdSessionId });
       }
     } catch (error) {
       console.error("Update failed:", error);
-      Alert.alert("Update Failed", "Please try again.");
+      Alert.alert("Failed", "Please try again.");
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setIsLoading(false);
@@ -94,11 +93,11 @@ const useCreateAccount = () => {
     showConfirmPassword,
     isLoading,
     scrollRef,
+    onDone,
     setFormData,
     toggleConfirmPasswordVisibility,
     togglePasswordVisibility,
     handleFieldChange,
-    onDone,
   };
 };
 
