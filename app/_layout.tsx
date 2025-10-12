@@ -1,3 +1,5 @@
+import BottomSheetModal from "@/components/BottomSheetModal";
+import Toast from "@/components/Toast";
 import AnimatedSplash from "@/pages/AnimatedSplash";
 import {
   ClerkLoaded,
@@ -81,6 +83,8 @@ export default function RootLayout() {
       <ClerkLoaded>
         <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
           <RootLayoutNav />
+          <Toast />
+          <BottomSheetModal />
         </ConvexProviderWithClerk>
       </ClerkLoaded>
     </ClerkProvider>

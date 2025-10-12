@@ -1,8 +1,8 @@
 import { Post } from "@/components/feed-post";
 import { api } from "@/convex/_generated/api";
-import { Doc } from "@/convex/_generated/dataModel";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { FeedFilter, PostWithAuthor } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { usePaginatedQuery } from "convex/react";
@@ -14,7 +14,6 @@ import {
   FlatList,
   Image,
   ListRenderItem,
-  RefreshControl,
   StatusBar,
   StyleSheet,
   Text,
@@ -22,32 +21,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
-  Extrapolate,
-  FadeInDown,
-  FadeOutUp,
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-type FeedFilter = "all" | "following";
-
-type PostWithAuthor = Doc<"posts"> & {
-  author: Doc<"users">;
-  userHasLiked: boolean;
-  userHasReposted?: boolean;
-  userHasBookmarked?: boolean;
-};
 
 const Feed = () => {
   const { colors, barStyleColors } = useAppTheme();
   const [currentFilter, setCurrentFilter] = useState<FeedFilter>("all");
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
   const { top } = useSafeAreaInsets();
@@ -57,7 +38,6 @@ const Feed = () => {
   const searchInputRef = useRef<TextInput>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
   const flatListRef = useRef<FlatList<PostWithAuthor>>(null);
-  const isRefreshingValue = useSharedValue(0);
   // Main feed posts query
   const {
     results: feedPosts,
@@ -114,9 +94,7 @@ const Feed = () => {
 
   const onLoadMore = useCallback(async () => {
     if (
-      displayStatus === "LoadingFirstPage" ||
-      displayStatus === "LoadingMore" ||
-      displayStatus === "Exhausted"
+      ["LoadingFirstPage", "Exhausted", "LoadingMore"].includes(displayStatus)
     )
       return;
 
@@ -130,18 +108,6 @@ const Feed = () => {
       console.error("Load more error:", error);
     }
   }, [loadMore, loadMoreSearch, displayStatus, searchQuery]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    isRefreshingValue.value = withSpring(1);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    isRefreshingValue.value = withSpring(0);
-    if (searchQuery) {
-      setSearchQuery("");
-      setShowSearch(false);
-    }
-    setRefreshing(false);
-  }, [isRefreshingValue, searchQuery]);
 
   const handleFilterChange = useCallback(
     (filter: FeedFilter) => {
@@ -187,28 +153,6 @@ const Feed = () => {
     searchInputRef.current?.focus();
   }, []);
 
-  // Animated styles
-  const pullRefreshStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        scale: interpolate(
-          isRefreshingValue.value,
-          [0, 1],
-          [1, 1.15],
-          Extrapolate.CLAMP
-        ),
-      },
-      {
-        rotate: `${interpolate(
-          isRefreshingValue.value,
-          [0, 1],
-          [0, 360],
-          Extrapolate.CLAMP
-        )}deg`,
-      },
-    ],
-  }));
-
   const renderFilterTabs = useCallback(
     () => (
       <View style={styles.filterContainer}>
@@ -250,7 +194,7 @@ const Feed = () => {
       <View>
         {/* Logo and Actions */}
         <View style={[styles.topBar, { backgroundColor: colors.background }]}>
-          <Animated.View style={pullRefreshStyle}>
+          <View>
             <Image
               source={
                 barStyleColors === "light-content"
@@ -259,7 +203,7 @@ const Feed = () => {
               }
               style={styles.logo}
             />
-          </Animated.View>
+          </View>
 
           <View style={styles.headerActions}>
             <TouchableOpacity
@@ -374,7 +318,6 @@ const Feed = () => {
     ),
     [
       colors,
-      pullRefreshStyle,
       barStyleColors,
       toggleSearch,
       showSearch,
@@ -424,7 +367,14 @@ const Feed = () => {
     }
 
     return null;
-  }, [displayStatus, displayPosts.length, colors]);
+  }, [
+    displayStatus,
+    searchQuery.length,
+    displayPosts.length,
+    filterStatus,
+    colors,
+    onLoadMore,
+  ]);
 
   const renderEmptyState = useCallback(() => {
     if (displayStatus === "LoadingFirstPage") {
@@ -496,7 +446,7 @@ const Feed = () => {
 
   const getItemLayout = useCallback(
     (_: any, index: number) => ({
-      length: 400, // Approximate post height
+      length: 400,
       offset: 400 * index,
       index,
     }),
@@ -535,15 +485,6 @@ const Feed = () => {
             styles.scrollContent,
             { paddingTop: top, paddingBottom: tabBarHeight + 20 },
           ]}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.white}
-            />
-          }
           maxToRenderPerBatch={2}
           decelerationRate="fast"
           windowSize={3}

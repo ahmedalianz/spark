@@ -2,6 +2,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import { usePaginatedQuery } from "convex/react";
+import { Link } from "expo-router";
 import {
   ActivityIndicator,
   Image,
@@ -48,28 +49,40 @@ const Replies = ({
                 { backgroundColor: colors.borderPrimary },
               ]}
             />
-            <Image
-              source={{
-                uri:
-                  reply.author?.imageUrl ||
-                  `https://ui-avatars.com/api/?name=${reply.author?.first_name}+${reply.author?.last_name}&background=random`,
-              }}
-              style={styles.avatar}
-            />
+            <Link
+              asChild
+              href={`/(auth)/(modals)/feed-profile/${reply?.author?._id}`}
+            >
+              <TouchableOpacity>
+                <Image
+                  source={{
+                    uri:
+                      reply.author?.imageUrl ||
+                      `https://ui-avatars.com/api/?name=${reply.author?.first_name}+${reply.author?.last_name}&background=random`,
+                  }}
+                  style={styles.avatar}
+                />
+              </TouchableOpacity>
+            </Link>
             <View style={styles.replyContent}>
-              <View style={styles.replyHeader}>
-                <Text
-                  style={[styles.authorName, { color: colors.textPrimary }]}
-                  numberOfLines={1}
-                >
-                  {reply.author?.first_name} {reply.author?.last_name}
-                </Text>
-                <Text
-                  style={[styles.replyTime, { color: colors.textTertiary }]}
-                >
-                  {formatTimeAgo(reply._creationTime)}
-                </Text>
-              </View>
+              <Link
+                asChild
+                href={`/(auth)/(modals)/feed-profile/${reply?.author?._id}`}
+              >
+                <TouchableOpacity style={styles.replyHeader}>
+                  <Text
+                    style={[styles.authorName, { color: colors.textPrimary }]}
+                    numberOfLines={1}
+                  >
+                    {reply.author?.first_name} {reply.author?.last_name}
+                  </Text>
+                  <Text
+                    style={[styles.replyTime, { color: colors.textTertiary }]}
+                  >
+                    {formatTimeAgo(reply._creationTime)}
+                  </Text>
+                </TouchableOpacity>
+              </Link>
               <Text style={[styles.replyText, { color: colors.textPrimary }]}>
                 {reply.content}
               </Text>

@@ -1,10 +1,6 @@
 import useAppTheme from "@/hooks/useAppTheme";
-import {
-  BottomSheetModalProps,
-  ColorsType,
-  MenuItemProps,
-  MenuSection,
-} from "@/types";
+import { useBottomSheet } from "@/store/bottomSheetStore";
+import { ColorsType, MenuItemProps, MenuSection } from "@/types";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef } from "react";
 import {
@@ -17,7 +13,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  ViewStyle,
 } from "react-native";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -30,11 +25,9 @@ const MenuItem = ({
   onPress,
   isDestructive,
   isDisabled = false,
-  style,
   showArrow = true,
   colors,
 }: MenuItemProps & {
-  style?: ViewStyle;
   showArrow?: boolean;
   colors: ColorsType;
 }) => {
@@ -47,7 +40,6 @@ const MenuItem = ({
         isDestructive && { backgroundColor: colors.danger + "05" },
         isDisabled && styles.disabledMenuItem,
         !subtitle && styles.menuItemWithoutSubtitle,
-        style,
       ]}
       onPress={onPress}
       activeOpacity={0.6}
@@ -110,25 +102,11 @@ const MenuItem = ({
   );
 };
 
-const BottomSheetModal = ({
-  visible,
-  onClose,
-  sections,
-  height = SCREEN_HEIGHT * 0.85,
-  closeOnBackdropPress = true,
-  closeOnActionPress = true,
-  animationType = "none",
-  animationDuration = 300,
-  containerStyle,
-  sectionStyle,
-  itemStyle,
-  dividerStyle,
-  renderFooter,
-  renderCustomItem,
-}: BottomSheetModalProps) => {
+const BottomSheetModal = () => {
+  const { colors } = useAppTheme();
+  const { visible, sections, height, hideSheet } = useBottomSheet();
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const { colors } = useAppTheme();
   useEffect(() => {
     if (visible) {
       Animated.parallel([
@@ -140,7 +118,7 @@ const BottomSheetModal = ({
         }),
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: animationDuration,
+          duration: 300,
           useNativeDriver: true,
         }),
       ]).start();
@@ -148,56 +126,52 @@ const BottomSheetModal = ({
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: SCREEN_HEIGHT,
-          duration: animationDuration,
+          duration: 300,
           useNativeDriver: true,
         }),
         Animated.timing(fadeAnim, {
           toValue: 0,
-          duration: animationDuration,
+          duration: 300,
           useNativeDriver: true,
         }),
       ]).start();
     }
-  }, [visible, animationDuration]);
+  }, [visible]);
+  if (!visible) return null;
 
   const handleAction = (item: MenuItemProps) => {
-    if (closeOnActionPress) {
-      onClose();
-      // Small delay to allow animation to complete
-      setTimeout(() => item.onPress(), animationDuration / 2);
-    } else {
-      item.onPress();
-    }
+    hideSheet();
+    setTimeout(() => item.onPress(), 150);
   };
 
   const renderSection = (section: MenuSection, sectionIndex: number) => (
-    <View key={section.id} style={[styles.menuSection, sectionStyle]}>
+    <View
+      key={section.id}
+      style={[
+        styles.menuSection,
+        {
+          borderTopColor: colors.border,
+          borderTopWidth: sectionIndex === 0 ? 0 : 1,
+        },
+      ]}
+    >
       {section.title && (
         <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>
           {section.title}
         </Text>
       )}
-      {section.data.map((item, itemIndex) =>
-        renderCustomItem ? (
-          renderCustomItem(item, itemIndex)
-        ) : (
-          <MenuItem
-            key={item.id}
-            {...item}
-            colors={colors}
-            onPress={() => handleAction(item)}
-            style={itemStyle}
-            showArrow={!item.isDisabled}
-          />
-        )
-      )}
+      {section.data.map((item, itemIndex) => (
+        <MenuItem
+          key={item.id}
+          {...item}
+          colors={colors}
+          onPress={() => handleAction(item)}
+          showArrow={!item.isDisabled}
+        />
+      ))}
       {section.showDivider && sectionIndex < sections.length - 1 && (
         <View
-          style={[
-            styles.menuDivider,
-            { backgroundColor: colors.borderLight },
-            dividerStyle,
-          ]}
+          style={[styles.menuDivider, { backgroundColor: colors.borderLight }]}
         />
       )}
     </View>
@@ -207,13 +181,11 @@ const BottomSheetModal = ({
     <Modal
       visible={visible}
       transparent
-      animationType={animationType}
-      onRequestClose={onClose}
+      animationType={"none"}
+      onRequestClose={hideSheet}
       statusBarTranslucent
     >
-      <TouchableWithoutFeedback
-        onPress={closeOnBackdropPress ? onClose : undefined}
-      >
+      <TouchableWithoutFeedback onPress={hideSheet}>
         <Animated.View
           style={[
             styles.modalOverlay,
@@ -232,7 +204,6 @@ const BottomSheetModal = ({
                   maxHeight: height as number,
                   backgroundColor: colors.backgroundSecondary,
                 },
-                containerStyle,
               ]}
             >
               {/* Content */}
@@ -243,18 +214,6 @@ const BottomSheetModal = ({
               >
                 {sections.map(renderSection)}
               </ScrollView>
-
-              {/* Footer */}
-              {renderFooter && (
-                <View
-                  style={[
-                    styles.menuFooter,
-                    { borderTopColor: colors.borderLight },
-                  ]}
-                >
-                  {renderFooter()}
-                </View>
-              )}
             </Animated.View>
           </TouchableWithoutFeedback>
         </Animated.View>
@@ -339,10 +298,6 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth,
     marginVertical: 12,
     marginHorizontal: 24,
-  },
-  menuFooter: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    padding: 16,
   },
 });
 

@@ -1,3 +1,5 @@
+import useDownloadImage from "@/hooks/useDownloadImage";
+import { useBottomSheet } from "@/store/bottomSheetStore";
 import { PostMediaProps } from "@/types";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
@@ -21,12 +23,12 @@ const PostMedia: React.FC<PostMediaProps> = ({
 }) => {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const containerWidth = SCREEN_WIDTH * POST_MEDIA_WIDTH;
-
+  const { showSheet } = useBottomSheet();
+  const { downloadImage } = useDownloadImage();
   if (!mediaFiles?.length) return null;
 
   const imageCount = mediaFiles.length;
 
-  // Reusable Image Component
   const PostImage = ({
     imageUrl,
     index,
@@ -37,10 +39,30 @@ const PostMedia: React.FC<PostMediaProps> = ({
     style: any;
   }) => (
     <Link
-      href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=0&likeCount=${likeCount}&commentCount=${commentCount}`}
+      href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=${index}&likeCount=${likeCount}&commentCount=${commentCount}`}
       asChild
     >
-      <TouchableOpacity style={style}>
+      <TouchableOpacity
+        style={style}
+        onLongPress={() => {
+          showSheet({
+            sections: [
+              {
+                id: "download",
+                data: [
+                  {
+                    id: "Save",
+                    iconName: "download-outline",
+                    title: "Save Image",
+                    onPress: () => downloadImage(imageUrl),
+                  },
+                ],
+              },
+            ],
+          });
+        }}
+        delayLongPress={500}
+      >
         <Image
           source={{ uri: imageUrl }}
           style={styles.image}
@@ -119,19 +141,24 @@ const PostMedia: React.FC<PostMediaProps> = ({
             />
             {/* on last image and image count is greater than 4 */}
             {index === 3 && imageCount > 4 && (
-              <View style={styles.overlayContainer}>
-                <LinearGradient
-                  colors={[
-                    colors.transparentBlack30,
-                    colors.transparentBlack70,
-                  ]}
-                  style={styles.overlay}
-                >
-                  <Text style={[styles.overlayText, { color: colors.white }]}>
-                    +{imageCount - 4}
-                  </Text>
-                </LinearGradient>
-              </View>
+              <Link
+                href={`/(auth)/(modals)/image-gallery?images=${encodeURIComponent(JSON.stringify(mediaFiles))}&initialIndex=3&likeCount=${likeCount}&commentCount=${commentCount}`}
+                asChild
+              >
+                <TouchableOpacity style={styles.overlayContainer}>
+                  <LinearGradient
+                    colors={[
+                      colors.transparentBlack30,
+                      colors.transparentBlack70,
+                    ]}
+                    style={styles.overlay}
+                  >
+                    <Text style={[styles.overlayText, { color: colors.white }]}>
+                      +{imageCount - 4}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </Link>
             )}
           </View>
         ))}

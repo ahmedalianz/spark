@@ -63,11 +63,16 @@ export type FollowWithDetails = {
 };
 
 export type FollowTabType = "followers" | "following";
-
+export type PaginationStatue =
+  | "LoadingFirstPage"
+  | "CanLoadMore"
+  | "LoadingMore"
+  | "Exhausted";
 export type EmptyFollowListProps = {
   searchQuery: string;
   activeTab: FollowTabType;
   colors: ColorsType;
+  followStatus: PaginationStatue;
 };
 
 export type FollowTabProps = {
@@ -223,13 +228,6 @@ export type PostMediaProps = {
   colors: ColorsType;
 };
 
-export type PostEngagementProps = {
-  likeCount: number;
-  commentCount: number;
-  onCommentsPress: () => void;
-  colors: ColorsType;
-};
-
 export type PostMenuModalProps = {
   visible: boolean;
   onClose: () => void;
@@ -341,27 +339,17 @@ export type MenuSection = {
   showDivider?: boolean;
 };
 
-export type BottomSheetModalProps = {
-  visible: boolean;
-  onClose: () => void;
-  sections: MenuSection[];
+/* -------------------------------------------------------------------------- */
+/*                                  Feed                                      */
+/* -------------------------------------------------------------------------- */
+export type FeedFilter = "all" | "following";
 
-  height?: number | string;
-  closeOnBackdropPress?: boolean;
-  closeOnActionPress?: boolean;
-  animationType?: "slide" | "fade" | "none";
-  animationDuration?: number;
-  backdropOpacity?: number;
-
-  containerStyle?: ViewStyle;
-  sectionStyle?: ViewStyle;
-  itemStyle?: ViewStyle;
-  dividerStyle?: ViewStyle;
-
-  renderFooter?: () => React.ReactNode;
-  renderCustomItem?: (item: MenuItemProps, index: number) => React.ReactNode;
+export type PostWithAuthor = Doc<"posts"> & {
+  author: Doc<"users">;
+  userHasLiked: boolean;
+  userHasReposted?: boolean;
+  userHasBookmarked?: boolean;
 };
-
 /* -------------------------------------------------------------------------- */
 /*                                  SETTINGS                                  */
 /* -------------------------------------------------------------------------- */
@@ -374,6 +362,7 @@ export type UserSettings = {
       follows: boolean;
       mentions: boolean;
       reposts: boolean;
+      posts: boolean;
       directMessages: boolean;
       storyReplies: boolean;
     };

@@ -1,13 +1,11 @@
 import { Colors } from "@/constants/Colors";
 import { ProfilePictureProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useRef } from "react";
 import {
   Animated,
   Image,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -51,7 +49,7 @@ const ProfilePicture = ({
           style={[styles.imageContainer, { transform: [{ scale: scaleAnim }] }]}
         >
           <LinearGradient
-            colors={[colors.primary, colors.primaryDark]}
+            colors={[colors.primary, colors.primaryDarker]}
             style={styles.imageGradient}
           >
             <Image
@@ -64,34 +62,32 @@ const ProfilePicture = ({
                         decodeURIComponent(imageUrl || ""),
                     }
               }
-              style={[
-                styles.profileImage,
-                { borderColor: colors.backgroundSecondary },
-              ]}
+              style={styles.profileImage}
             />
           </LinearGradient>
           <View
             style={[
               styles.imageOverlay,
               {
-                opacity: Platform.OS === "ios" ? 0 : 0.8,
+                opacity: 0.8,
               },
             ]}
           >
-            <BlurView
-              tint="dark"
+            <View
               style={[
                 styles.overlayBlur,
-                Platform.OS === "android" && {
-                  backgroundColor: Colors.transparentBlack30,
+                {
+                  backgroundColor: Colors.transparentBlack50,
                 },
               ]}
             >
-              <Ionicons name="camera" size={24} color={colors.black} />
-              <Text style={[styles.overlayText, { color: colors.black }]}>
+              <Ionicons name="camera" size={24} color={colors.textDisabled} />
+              <Text
+                style={[styles.overlayText, { color: colors.textDisabled }]}
+              >
                 {imageUrl?.length ? "Change Photo" : "Select Photo"}
               </Text>
-            </BlurView>
+            </View>
           </View>
         </Animated.View>
       </TouchableOpacity>

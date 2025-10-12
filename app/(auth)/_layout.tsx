@@ -1,7 +1,5 @@
-import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import { Platform, TouchableOpacity } from "react-native";
+import { Platform } from "react-native";
 import { StackAnimationTypes, SwipeDirectionTypes } from "react-native-screens";
 
 const Layout = () => {
@@ -60,13 +58,7 @@ const Layout = () => {
         name="(modals)/image-gallery"
         options={{
           presentation: "fullScreenModal",
-          headerStyle: { backgroundColor: Colors.blackPure },
-          headerTitle: "",
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.dismiss()}>
-              <Ionicons name="close" size={24} color="white" />
-            </TouchableOpacity>
-          ),
+          headerShown: false,
         }}
       />
       <Stack.Screen

@@ -1,17 +1,39 @@
-import { ColorsType, ProfileEmptyConfig, ProfileTabs } from "@/types";
+import {
+  ColorsType,
+  PaginationStatue,
+  ProfileEmptyConfig,
+  ProfileTabs,
+} from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const ProfileEmpty = ({
   activeTab,
   colors,
+  status,
 }: {
   activeTab: ProfileTabs;
   colors: ColorsType;
+  status: PaginationStatue;
 }) => {
   const router = useRouter();
+  if (status === "LoadingFirstPage")
+    return (
+      <View style={styles.firstPageLoading}>
+        <ActivityIndicator color={colors.primary} size="large" />
+        <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
+          Loading {activeTab}...
+        </Text>
+      </View>
+    );
   const emptyConfig: ProfileEmptyConfig = {
     posts: {
       icon: "create-outline",
@@ -40,14 +62,7 @@ const ProfileEmpty = ({
 
   return (
     <View style={styles.emptyState}>
-      <View
-        style={[
-          styles.emptyIconContainer,
-          { backgroundColor: colors.backgroundLight },
-        ]}
-      >
-        <Ionicons name={config.icon} size={52} color={colors.borderDisabled} />
-      </View>
+      <Ionicons name={config.icon} size={52} color={colors.borderDisabled} />
       <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
         {config.title}
       </Text>
@@ -71,16 +86,8 @@ export default ProfileEmpty;
 const styles = StyleSheet.create({
   emptyState: {
     alignItems: "center",
-    paddingVertical: 80,
-    paddingHorizontal: 40,
-  },
-  emptyIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
+    marginTop: 20,
+    flex: 1,
   },
   emptyStateText: {
     fontSize: 20,
@@ -105,5 +112,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     fontFamily: "DMSans_600SemiBold",
+  },
+  firstPageLoading: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    flex: 1,
+  },
+  loadingText: {
+    fontSize: 14,
+    fontFamily: "DMSans_400Regular",
   },
 });

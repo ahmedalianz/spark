@@ -51,12 +51,50 @@ export const createPost = mutation({
       updatedAt: now,
     });
 
+    // Get all followers of the user who created the post
+    const followers = await ctx.db
+      .query("follows")
+      .withIndex("byFollowing", (q) => q.eq("followingId", user._id))
+      .collect();
+
+    // Send notifications to followers
+    if (followers.length > 0) {
+      await Promise.all(
+        followers.map(async (follow) => {
+          const followerId = follow.followerId;
+
+          // Skip if the follower is the post author
+          if (followerId === user._id) return;
+
+          // Check follower's notification settings
+          const followerSettings = await ctx.db
+            .query("userSettings")
+            .withIndex("byUserId", (q) => q.eq("userId", followerId))
+            .first();
+
+          const shouldNotifyNewPost =
+            !followerSettings?.notifications?.push?.posts;
+
+          if (shouldNotifyNewPost) {
+            await ctx.db.insert("notifications", {
+              userId: followerId,
+              authorId: user._id,
+              type: "post",
+              postId,
+              message: `${user.first_name} ${user.last_name ? user.last_name : ""} created a new post`,
+              isRead: false,
+              createdAt: now,
+            });
+          }
+        })
+      );
+    }
+
     // Send notifications for mentions
     if (mentions.length > 0) {
       await Promise.all(
         mentions.map(async (mentionedUserId) => {
           if (mentionedUserId !== user._id) {
-            // Check mentioned user's notification settings
             const mentionedUserSettings = await ctx.db
               .query("userSettings")
               .withIndex("byUserId", (q) => q.eq("userId", mentionedUserId))
@@ -80,6 +118,8 @@ export const createPost = mutation({
         })
       );
     }
+
+    // Handle repost notifications
     if (args.type === "repost" && args.originalPostId) {
       const originalPost = await ctx.db.get(args.originalPostId);
       if (originalPost && originalPost.authorId !== user._id) {
@@ -105,6 +145,7 @@ export const createPost = mutation({
         }
       }
     }
+
     return postId;
   },
 });

@@ -16,13 +16,13 @@ const useFollowersFollowing = ({
     results: followers,
     status: followersStatus,
     loadMore: loadMoreFollowers,
-  } = usePaginatedQuery(api.follows.getFollowers, {}, { initialNumItems: 15 });
+  } = usePaginatedQuery(api.follows.getFollowers, {}, { initialNumItems: 20 });
 
   const {
     results: following,
     status: followingsStatus,
     loadMore: loadMoreFollowing,
-  } = usePaginatedQuery(api.follows.getFollowing, {}, { initialNumItems: 15 });
+  } = usePaginatedQuery(api.follows.getFollowing, {}, { initialNumItems: 20 });
 
   const filterUsers = useCallback(
     (users: FollowWithDetails[]) => {
@@ -47,19 +47,31 @@ const useFollowersFollowing = ({
         : filterUsers(following || []),
     [activeTab, followers, following, filterUsers]
   );
-
+  const currentStatus = useMemo(
+    () => (activeTab === "followers" ? followersStatus : followingsStatus),
+    [activeTab, followersStatus, followingsStatus]
+  );
+  const onLoadMore = useCallback(() => {
+    if (
+      ["LoadingFirstPage", "Exhausted", "LoadingMore"].includes(currentStatus)
+    )
+      return;
+    if (activeTab === "followers") {
+      loadMoreFollowers(15);
+    } else {
+      loadMoreFollowing(15);
+    }
+  }, [currentStatus, activeTab, loadMoreFollowers, loadMoreFollowing]);
   return {
     followers,
     following,
     activeTab,
     searchQuery,
     currentData,
-    followersStatus,
-    followingsStatus,
+    currentStatus,
     setActiveTab,
     setSearchQuery,
-    loadMoreFollowers,
-    loadMoreFollowing,
+    onLoadMore,
   };
 };
 

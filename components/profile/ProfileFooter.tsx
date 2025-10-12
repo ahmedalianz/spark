@@ -1,22 +1,16 @@
+import { Doc } from "@/convex/_generated/dataModel";
 import useAppTheme from "@/hooks/useAppTheme";
+import { PaginationStatue } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 const ProfileFooter = ({
   posts,
   status,
-  handleLoadMore,
 }: {
-  posts: any;
-  status: any;
-  handleLoadMore: any;
+  posts: Doc<"posts">[];
+  status: PaginationStatue;
 }) => {
   const { colors } = useAppTheme();
 
@@ -28,26 +22,6 @@ const ProfileFooter = ({
           Loading more...
         </Text>
       </View>
-    );
-  }
-
-  if (status === "CanLoadMore") {
-    return (
-      <TouchableOpacity
-        style={[
-          styles.loadMoreButton,
-          {
-            backgroundColor: colors.tintBlueLight,
-            borderColor: colors.tintBlue,
-          },
-        ]}
-        onPress={handleLoadMore}
-      >
-        <Text style={[styles.loadMoreText, { color: colors.primary }]}>
-          Load More
-        </Text>
-        <Ionicons name="chevron-down" size={16} color={colors.primary} />
-      </TouchableOpacity>
     );
   }
 
@@ -78,17 +52,6 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 14,
     fontFamily: "DMSans_400Regular",
-  },
-  loadMoreButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    marginHorizontal: 20,
-    marginVertical: 12,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    gap: 8,
   },
   loadMoreText: {
     fontSize: 15,

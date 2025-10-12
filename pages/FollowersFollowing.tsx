@@ -3,12 +3,11 @@ import useFollowersFollowing from "@/controllers/useFollowersFollowing";
 import useAppTheme from "@/hooks/useAppTheme";
 import { FollowTabType, FollowWithDetails } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -31,12 +30,10 @@ const FollowersFollowing = (
     activeTab,
     searchQuery,
     currentData,
-    followersStatus,
-    followingsStatus,
+    currentStatus,
     setActiveTab,
     setSearchQuery,
-    loadMoreFollowers,
-    loadMoreFollowing,
+    onLoadMore,
   } = useFollowersFollowing({ initialTab });
   const renderUserItem = useCallback(
     ({ item }: { item: FollowWithDetails }) => {
@@ -45,33 +42,16 @@ const FollowersFollowing = (
     [colors]
   );
   const { top } = useSafeAreaInsets();
-  if (
-    followersStatus === "LoadingFirstPage" ||
-    followingsStatus === "LoadingFirstPage"
-  ) {
-    return (
-      <View
-        style={[
-          styles.loadingContainer,
-          {
-            backgroundColor: colors.background,
-          },
-        ]}
-      >
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text
-          style={[
-            styles.loadingText,
-            {
-              color: colors.textTertiary,
-            },
-          ]}
-        >
-          Loading connections...
-        </Text>
-      </View>
-    );
-  }
+  const tabBarHeight = useBottomTabBarHeight();
+  const ApproximateUserItemHeight = 68;
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: ApproximateUserItemHeight,
+      offset: ApproximateUserItemHeight * index,
+      index,
+    }),
+    []
+  );
   return (
     <View
       style={[
@@ -144,20 +124,27 @@ const FollowersFollowing = (
         data={currentData}
         renderItem={renderUserItem}
         keyExtractor={(item) => item._id}
-        onEndReached={
-          activeTab === "followers"
-            ? () => loadMoreFollowers(15)
-            : () => loadMoreFollowing(15)
-        }
+        onEndReached={onLoadMore}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContentContainer}
+        contentContainerStyle={[
+          styles.listContentContainer,
+          {
+            paddingBottom: tabBarHeight + 20,
+            backgroundColor: colors.background,
+          },
+        ]}
         ListEmptyComponent={
           <EmptyList
             searchQuery={searchQuery}
             activeTab={activeTab}
             colors={colors}
+            followStatus={currentStatus}
           />
         }
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={21}
+        getItemLayout={getItemLayout}
       />
     </View>
   );
@@ -166,15 +153,6 @@ const FollowersFollowing = (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
   },
   tabContainer: {
     flexDirection: "row",
@@ -191,7 +169,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   listContentContainer: {
-    paddingBottom: 20,
+    flexGrow: 1,
   },
 });
 

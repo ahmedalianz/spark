@@ -8,7 +8,9 @@ import * as Haptics from "expo-haptics";
 import { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import useCopyText from "@/hooks/useCopyText";
 import { CommentProps } from "@/types";
+import { Link } from "expo-router";
 import Animated, { FadeInUp, Layout } from "react-native-reanimated";
 import Replies from "./Replies";
 
@@ -20,6 +22,7 @@ const Comment = ({
   setReplyingTo,
   colors,
 }: CommentProps) => {
+  const { copyText } = useCopyText();
   const [showReplies, setShowReplies] = useState(false);
   const [expandedComment, setExpandedComment] = useState(false);
   const isLongComment = comment.content.length > 120;
@@ -27,7 +30,6 @@ const Comment = ({
     isLongComment && !expandedComment
       ? comment.content.slice(0, 120) + "..."
       : comment.content;
-
   const likeComment = useMutation(api.comments.likeComment);
 
   const handleCommentLike = async (commentId: Id<"comments">) => {
@@ -43,17 +45,14 @@ const Comment = ({
     setReplyingTo(commentId);
     setCommentText(`@${authorName} `);
     commentInputRef.current?.focus();
-    Haptics.selectionAsync();
   };
 
   const toggleCommentExpansion = () => {
     setExpandedComment(!expandedComment);
-    Haptics.selectionAsync();
   };
 
   const toggleReplies = () => {
     setShowReplies(!showReplies);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const hasReplies = comment.replyCount > 0;
@@ -73,33 +72,48 @@ const Comment = ({
       >
         {/* Comment Content */}
         <View style={styles.commentMain}>
-          <Image
-            source={{
-              uri:
-                comment.author?.imageUrl ||
-                `https://ui-avatars.com/api/?name=${comment.author?.first_name}+${comment.author?.last_name}&background=random`,
-            }}
-            style={styles.avatar}
-          />
-
+          <Link
+            asChild
+            href={`/(auth)/(modals)/feed-profile/${comment?.author?._id}`}
+          >
+            <TouchableOpacity>
+              <Image
+                source={{
+                  uri:
+                    comment.author?.imageUrl ||
+                    `https://ui-avatars.com/api/?name=${comment.author?.first_name}+${comment.author?.last_name}&background=random`,
+                }}
+                style={styles.avatar}
+              />
+            </TouchableOpacity>
+          </Link>
           <View style={styles.commentContent}>
-            <View style={styles.commentHeader}>
-              <Text
-                style={[styles.authorName, { color: colors.textPrimary }]}
-                numberOfLines={1}
-              >
-                {comment.author?.first_name} {comment.author?.last_name}
+            <Link
+              asChild
+              href={`/(auth)/(modals)/feed-profile/${comment?.author?._id}`}
+            >
+              <TouchableOpacity style={styles.commentHeader}>
+                <Text
+                  style={[styles.authorName, { color: colors.textPrimary }]}
+                  numberOfLines={1}
+                >
+                  {comment.author?.first_name} {comment.author?.last_name}
+                </Text>
+                <Text
+                  style={[styles.commentTime, { color: colors.textTertiary }]}
+                >
+                  {formatTimeAgo(comment._creationTime)}
+                </Text>
+              </TouchableOpacity>
+            </Link>
+            <TouchableOpacity
+              delayLongPress={500}
+              onLongPress={() => copyText(comment.content)}
+            >
+              <Text style={[styles.commentText, { color: colors.textPrimary }]}>
+                {displayContent}
               </Text>
-              <Text
-                style={[styles.commentTime, { color: colors.textTertiary }]}
-              >
-                {formatTimeAgo(comment._creationTime)}
-              </Text>
-            </View>
-
-            <Text style={[styles.commentText, { color: colors.textPrimary }]}>
-              {displayContent}
-            </Text>
+            </TouchableOpacity>
 
             {/* Actions Row */}
             <View style={styles.actionsRow}>

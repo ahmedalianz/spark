@@ -1,14 +1,6 @@
 import { Id } from "@/convex/_generated/dataModel";
 import { Link } from "expo-router";
-import {
-  ActivityIndicator,
-  Animated,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { Post } from "@/components/feed-post";
 import {
@@ -19,7 +11,8 @@ import {
 import TabButton from "@/components/TabButton";
 import useProfile from "@/controllers/useProfile";
 import useAppTheme from "@/hooks/useAppTheme";
-import { PostWithAuthorDetails } from "@/types";
+import { PostWithAuthorDetails, ProfileTabs } from "@/types";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useCallback } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -27,7 +20,6 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
   const {
     posts,
     router,
-    scrollY,
     activeTab,
     userInfo,
     isLoading,
@@ -38,16 +30,16 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
     setActiveTab,
     handleLoadMore,
   } = useProfile({ userId });
-
   const { colors } = useAppTheme();
   const { top } = useSafeAreaInsets();
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const renderEmptyComponent = useCallback(() => {
-    return <ProfileEmpty activeTab={activeTab} colors={colors} />;
-  }, [activeTab]);
+    return <ProfileEmpty {...{ activeTab, status, colors }} />;
+  }, [activeTab, status, colors]);
 
   const renderFooter = useCallback(() => {
-    return <ProfileFooter {...{ posts, status, handleLoadMore }} />;
-  }, [status, posts, handleLoadMore]);
+    return <ProfileFooter {...{ posts, status }} />;
+  }, [status, posts]);
 
   const renderItem = useCallback(
     ({ item }: { item: PostWithAuthorDetails }) => (
@@ -61,12 +53,23 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
   );
 
   const TabButtonWrapper = useCallback(
-    ({ tab, icon, label }: { tab: string; icon: string; label: string }) => (
+    ({
+      tab,
+      icon,
+      label,
+    }: {
+      tab: ProfileTabs;
+      icon: string;
+      label: string;
+    }) => (
       <TabButton {...{ activeTab, setActiveTab, tab, label, icon, colors }} />
     ),
-    [activeTab]
+    [activeTab, setActiveTab, colors]
   );
-
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({ length: 400, offset: 400 * index, index }),
+    []
+  );
   if (error) {
     router.replace("/(auth)/error");
   }
@@ -81,18 +84,9 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
       <FlatList
         data={posts}
         renderItem={renderItem}
-        keyExtractor={(item) => item._id}
-        showsVerticalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: false }
-        )}
-        scrollEventThrottle={16}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
-        ListEmptyComponent={
-          status === "LoadingFirstPage" ? null : renderEmptyComponent
-        }
+        ListEmptyComponent={renderEmptyComponent}
         ListFooterComponent={renderFooter}
         ListHeaderComponent={
           <>
@@ -132,20 +126,19 @@ export default function Profile({ userId }: { userId?: Id<"users"> }) {
                 />
               </View>
             )}
-
-            {/* Loading indicator for first page */}
-            {status === "LoadingFirstPage" && (
-              <View style={styles.firstPageLoading}>
-                <ActivityIndicator color={colors.primary} size="large" />
-                <Text
-                  style={[styles.loadingText, { color: colors.textTertiary }]}
-                >
-                  Loading {activeTab}...
-                </Text>
-              </View>
-            )}
           </>
         }
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom:
+            status === "LoadingFirstPage" ? 0 : bottomTabBarHeight + 20,
+        }}
+        keyExtractor={(item) => item._id}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={1}
+        maxToRenderPerBatch={3}
+        windowSize={3}
+        getItemLayout={getItemLayout}
       />
     </View>
   );
@@ -158,14 +151,5 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: "row",
     borderBottomWidth: 1,
-  },
-  loadingText: {
-    fontSize: 14,
-    fontFamily: "DMSans_400Regular",
-  },
-  firstPageLoading: {
-    alignItems: "center",
-    paddingVertical: 40,
-    gap: 12,
   },
 });

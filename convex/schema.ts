@@ -122,6 +122,7 @@ export default defineSchema({
       v.literal("mention"),
       v.literal("reply"),
       v.literal("system"),
+      v.literal("post"),
       v.literal("repost")
     ),
     postId: v.optional(v.id("posts")),
@@ -149,6 +150,7 @@ export default defineSchema({
         follows: v.boolean(),
         mentions: v.boolean(),
         reposts: v.boolean(),
+        posts: v.boolean(),
         directMessages: v.boolean(),
         storyReplies: v.boolean(),
       }),

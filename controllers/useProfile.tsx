@@ -1,16 +1,14 @@
 import { useRouter } from "expo-router";
-import { Animated } from "react-native";
 
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { ProfileTabs } from "@/types";
 import { usePaginatedQuery, useQuery } from "convex/react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 const useProfile = ({ userId }: { userId?: Id<"users"> }) => {
   const router = useRouter();
-  const scrollY = useRef(new Animated.Value(0)).current;
   const [activeTab, setActiveTab] = useState<ProfileTabs>("posts");
   const { userInfo, isLoading, error } = useUserInfo();
   const viewedUserInfo = useQuery(api.users.getUserById, { userId });
@@ -38,7 +36,6 @@ const useProfile = ({ userId }: { userId?: Id<"users"> }) => {
 
   return {
     router,
-    scrollY,
     activeTab,
     userInfo,
     isLoading,

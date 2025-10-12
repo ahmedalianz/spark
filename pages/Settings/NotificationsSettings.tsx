@@ -26,6 +26,7 @@ export default function NotificationsSettings() {
       follows: settings?.notifications?.push?.follows ?? true,
       mentions: settings?.notifications?.push?.mentions ?? true,
       reposts: settings?.notifications?.push?.reposts ?? true,
+      posts: settings?.notifications?.push?.posts ?? true,
       directMessages: settings?.notifications?.push?.directMessages ?? true,
       storyReplies: settings?.notifications?.push?.storyReplies ?? true,
     },

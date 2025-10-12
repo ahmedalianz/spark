@@ -1,5 +1,6 @@
+import { ColorsType, ProfileTabs } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const TabButton = ({
@@ -10,12 +11,12 @@ const TabButton = ({
   icon,
   colors,
 }: {
-  activeTab: any;
-  setActiveTab: any;
-  tab: any;
-  label: any;
+  activeTab: string;
+  setActiveTab: Dispatch<SetStateAction<ProfileTabs>>;
+  tab: ProfileTabs;
+  label: string;
   icon: any;
-  colors: any;
+  colors: ColorsType;
 }) => {
   return (
     <TouchableOpacity
@@ -23,7 +24,7 @@ const TabButton = ({
         styles.tabButton,
         activeTab === tab && { backgroundColor: colors.tintBlue },
       ]}
-      onPress={() => setActiveTab(tab as any)}
+      onPress={() => setActiveTab(tab)}
     >
       <Ionicons
         name={icon}

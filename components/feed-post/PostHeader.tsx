@@ -17,7 +17,14 @@ const PostHeader: React.FC<PostHeaderProps> = ({
       <Link href={`/(auth)/(modals)/feed-profile/${author?._id}`} asChild>
         <TouchableOpacity style={styles.userInfo}>
           <View style={styles.avatarContainer}>
-            <Image source={{ uri: author?.imageUrl }} style={styles.avatar} />
+            <Image
+              source={{
+                uri:
+                  author?.imageUrl ||
+                  `https://ui-avatars.com/api/?name=${author?.first_name}+${author?.last_name}&background=random`,
+              }}
+              style={styles.avatar}
+            />
           </View>
           <View style={styles.userDetails}>
             <View style={styles.nameRow}>

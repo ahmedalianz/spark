@@ -2,7 +2,6 @@ import { CreatePostHeaderProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Header = ({
   handleCancel,
@@ -13,14 +12,9 @@ const Header = ({
   mediaFiles,
   colors,
 }: CreatePostHeaderProps) => {
-  const { top } = useSafeAreaInsets();
-
   return (
     <View
-      style={[
-        styles.headerContainer,
-        { backgroundColor: colors.background, paddingTop: top },
-      ]}
+      style={[styles.headerContainer, { borderBottomColor: colors.border }]}
     >
       <View style={styles.headerContent}>
         <TouchableOpacity onPress={handleCancel} style={styles.headerButton}>
@@ -98,7 +92,6 @@ export default Header;
 const styles = StyleSheet.create({
   headerContainer: {
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   headerContent: {
     flexDirection: "row",

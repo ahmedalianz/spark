@@ -3,6 +3,7 @@ import useAppTheme from "@/hooks/useAppTheme";
 import { NotificationType, NotificationWithDetails } from "@/types";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import { Ionicons } from "@expo/vector-icons";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useMutation, usePaginatedQuery } from "convex/react";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
@@ -12,7 +13,6 @@ import {
   Alert,
   FlatList,
   Image,
-  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -27,6 +27,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Notifications = () => {
   const { top } = useSafeAreaInsets();
+  const bottomTabHeight = useBottomTabBarHeight();
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -45,12 +46,16 @@ const Notifications = () => {
   const markAllAsRead = useMutation(
     api.notifications.markAllNotificationsAsRead
   );
-  const displayedNotifications = useMemo(
-    () =>
-      filter === "all" ? notifications : notifications.filter((n) => !n.isRead),
-    [notifications, filter]
+
+  const unreadNotifications = useMemo(
+    () => notifications.filter((n) => !n.isRead),
+    [notifications]
   );
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const displayedNotifications = useMemo(
+    () => (filter === "all" ? notifications : unreadNotifications),
+    [notifications, unreadNotifications, filter]
+  );
+  const unreadCount = unreadNotifications.length;
   const handleNotificationPress = async (
     notification: NotificationWithDetails
   ) => {
@@ -92,15 +97,6 @@ const Notifications = () => {
       Alert.alert("Error", "Failed to mark all as read");
     }
   };
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } finally {
-      setRefreshing(false);
-    }
-  }, []);
 
   const onLoadMore = useCallback(async () => {
     if (status === "CanLoadMore") {
@@ -312,92 +308,85 @@ const Notifications = () => {
     </View>
   );
 
-  const renderEmptyState = () => (
-    <View style={styles.emptyState}>
-      <View
-        style={[
-          styles.emptyIconContainer,
-          { backgroundColor: colors.backgroundMuted },
-        ]}
-      >
-        <Ionicons
-          name="notifications-outline"
-          size={64}
-          color={colors.textMuted}
-        />
-      </View>
-      <Text style={[styles.emptyStateTitle, { color: colors.textPrimary }]}>
-        {filter === "unread"
-          ? "No unread notifications"
-          : "No notifications yet"}
-      </Text>
-      <Text style={[styles.emptyStateSubtitle, { color: colors.textTertiary }]}>
-        {filter === "unread"
-          ? "All caught up! Check back later for new notifications."
-          : "We'll notify you when something happens with your posts and interactions."}
-      </Text>
-    </View>
-  );
-
-  const renderFooter = () => {
-    if (status !== "LoadingMore") return null;
+  const renderEmptyState = () => {
+    if (status === "LoadingFirstPage")
+      return (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
+            Loading notifications...
+          </Text>
+        </View>
+      );
     return (
-      <View style={styles.loadingFooter}>
-        <ActivityIndicator size="small" color={colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
-          Loading more notifications...
+      <View style={styles.emptyState}>
+        <View
+          style={[
+            styles.emptyIconContainer,
+            { backgroundColor: colors.backgroundMuted },
+          ]}
+        >
+          <Ionicons
+            name="notifications-outline"
+            size={64}
+            color={colors.textMuted}
+          />
+        </View>
+        <Text style={[styles.emptyStateTitle, { color: colors.textPrimary }]}>
+          {filter === "unread"
+            ? "No unread notifications"
+            : "No notifications yet"}
+        </Text>
+        <Text
+          style={[styles.emptyStateSubtitle, { color: colors.textTertiary }]}
+        >
+          {filter === "unread"
+            ? "All caught up! Check back later for new notifications."
+            : "We'll notify you when something happens with your posts and interactions."}
         </Text>
       </View>
     );
+  };
+
+  const renderFooter = () => {
+    if (status === "LoadingMore")
+      return (
+        <View style={styles.loadingFooter}>
+          <ActivityIndicator size="small" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
+            Loading more notifications...
+          </Text>
+        </View>
+      );
   };
 
   return (
     <View
       style={[
         styles.container,
-        { paddingTop: top, backgroundColor: colors.backgroundSecondary },
+        { paddingTop: top, backgroundColor: colors.background },
       ]}
     >
       <FlatList
         data={displayedNotifications}
         renderItem={renderNotification}
-        keyExtractor={(item) => item._id}
         ListHeaderComponent={renderHeader}
-        ListEmptyComponent={
-          status === "LoadingFirstPage" ? null : renderEmptyState
-        }
+        ListEmptyComponent={renderEmptyState}
         ListFooterComponent={renderFooter}
         onEndReached={onLoadMore}
         onEndReachedThreshold={0.3}
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          notifications.length === 0 && { flex: 1 },
+          {
+            paddingBottom: bottomTabHeight + 20,
+          },
         ]}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.backgroundMuted}
-          />
-        }
+        keyExtractor={(item) => item._id}
+        initialNumToRender={10}
+        showsVerticalScrollIndicator={false}
+        windowSize={21}
+        maxToRenderPerBatch={10}
       />
-
-      {status === "LoadingFirstPage" && (
-        <View
-          style={[
-            styles.loadingOverlay,
-            { backgroundColor: colors.backgroundMuted },
-          ]}
-        >
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.textTertiary }]}>
-            Loading notifications...
-          </Text>
-        </View>
-      )}
     </View>
   );
 };
@@ -407,7 +396,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    flexGrow: 1,
   },
 
   // Header
@@ -535,7 +524,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 40,
   },
   emptyIconContainer: {
     width: 80,
@@ -569,14 +557,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loadingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
     justifyContent: "center",
     alignItems: "center",
     gap: 16,
+    flex: 1,
   },
 });
 

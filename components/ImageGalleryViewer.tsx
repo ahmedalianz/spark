@@ -1,4 +1,6 @@
 import { Colors } from "@/constants/Colors";
+import useDownloadImage from "@/hooks/useDownloadImage";
+import { useBottomSheet } from "@/store/bottomSheetStore";
 import formatCount from "@/utils/formatCount";
 import { Ionicons } from "@expo/vector-icons";
 import { ImageZoom } from "@likashefqet/react-native-image-zoom";
@@ -8,11 +10,11 @@ import {
   FlatList,
   StyleSheet,
   Text,
+  TouchableWithoutFeedback,
   View,
   ViewToken,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 interface ImageGalleryViewerProps {
@@ -28,6 +30,8 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
   likeCount,
   commentCount,
 }) => {
+  const { showSheet } = useBottomSheet();
+  const { downloadImage } = useDownloadImage();
   const imageArray = JSON.parse(decodeURIComponent(images || "[]"));
   const startIndex = parseInt(initialIndex || "0", 10);
   const likeCountNum = parseInt(likeCount || "0", 10);
@@ -48,20 +52,45 @@ const ImageGalleryViewer: React.FC<ImageGalleryViewerProps> = ({
     itemVisiblePercentThreshold: 50,
   }).current;
 
-  const renderItem = ({ item }: { item: string }) => (
-    <View style={styles.imageContainer}>
-      <ImageZoom
-        uri={item}
-        minScale={0.5}
-        maxScale={5}
-        doubleTapScale={2}
-        isSingleTapEnabled
-        isDoubleTapEnabled
-        style={styles.image}
-        resizeMode="contain"
-      />
-    </View>
-  );
+  const renderItem = ({ item: uri }: { item: string }) => {
+    return (
+      <TouchableWithoutFeedback
+        delayLongPress={500}
+        onLongPress={() => {
+          showSheet({
+            sections: [
+              {
+                id: "download",
+                data: [
+                  {
+                    id: "Save",
+                    iconName: "download-outline",
+                    title: "Save Image",
+                    onPress: () => downloadImage(uri),
+                  },
+                ],
+              },
+            ],
+          });
+        }}
+        accessibilityLabel="Press and hold to save image"
+        accessibilityHint="Opens options to save image to your photo gallery"
+      >
+        <View style={styles.imageContainer}>
+          <ImageZoom
+            uri={uri}
+            minScale={0.5}
+            maxScale={5}
+            doubleTapScale={2}
+            isSingleTapEnabled
+            isDoubleTapEnabled
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  };
 
   return (
     <GestureHandlerRootView

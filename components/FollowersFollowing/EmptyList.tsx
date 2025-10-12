@@ -1,13 +1,31 @@
 import { EmptyFollowListProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 const EmptyList = ({
   searchQuery,
   activeTab,
   colors,
+  followStatus,
 }: EmptyFollowListProps) => {
+  if (followStatus === "LoadingFirstPage") {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text
+          style={[
+            styles.loadingText,
+            {
+              color: colors.textTertiary,
+            },
+          ]}
+        >
+          Loading connections...
+        </Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.emptyState}>
       <Ionicons name="people-outline" size={64} color={colors.textTertiary} />
@@ -45,8 +63,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 40,
-    marginTop: 60,
+    flex: 1,
   },
   emptyStateText: {
     fontSize: 18,
@@ -59,4 +76,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 20,
   },
+  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  loadingText: { marginTop: 10, fontSize: 16 },
 });

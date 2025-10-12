@@ -1,5 +1,7 @@
 import { api } from "@/convex/_generated/api";
-import { PostWithAuthorDetails } from "@/types";
+import { useUserInfo } from "@/hooks/useUserInfo";
+import { useBottomSheet } from "@/store/bottomSheetStore";
+import { MenuSection, PostWithAuthorDetails } from "@/types";
 import { useMutation } from "convex/react";
 import * as Clipboard from "expo-clipboard";
 import * as Haptics from "expo-haptics";
@@ -9,13 +11,14 @@ import { Alert, Animated } from "react-native";
 
 export const useFeedPost = (post: PostWithAuthorDetails) => {
   const router = useRouter();
+  const { showSheet } = useBottomSheet();
   const { likeCount, userHasLiked, author } = post;
   const [isLiked, setIsLiked] = useState(!!userHasLiked);
-  const [menuVisible, setMenuVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;
-
   const likePost = useMutation(api.posts.likePost);
   const deletePost = useMutation(api.posts.deletePost);
+  const { userInfo } = useUserInfo();
+  const isOwnPost = userInfo?._id === author._id;
 
   const handleLike = async () => {
     Animated.sequence([
@@ -43,7 +46,6 @@ export const useFeedPost = (post: PostWithAuthorDetails) => {
 
   const handleOpenComments = () => {
     router.push(`/(auth)/(modals)/post/${post._id as string}`);
-    Haptics.selectionAsync();
   };
 
   const handleCopyLink = async () => {
@@ -94,7 +96,6 @@ export const useFeedPost = (post: PostWithAuthorDetails) => {
   };
 
   const handleShare = () => {
-    // Implement native sharing
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
@@ -142,16 +143,167 @@ export const useFeedPost = (post: PostWithAuthorDetails) => {
         break;
     }
   };
+  const postSections: MenuSection[] = [
+    {
+      id: "actions",
+      data: [
+        {
+          id: "save",
+          iconName: "bookmark-outline",
+          title: "Save post",
+          subtitle: "Add this to your saved items",
+          onPress: () => handleMenuAction("save"),
+        },
+        ...(!isOwnPost
+          ? [
+              {
+                id: "notifications",
+                iconName: "notifications-outline",
+                title: "Turn on notifications",
+                subtitle: "Get notified about new activity",
+                onPress: () => handleMenuAction("notifications"),
+              },
+            ]
+          : []),
+        {
+          id: "copyLink",
+          iconName: "link-outline",
+          title: "Copy link",
+          onPress: () => handleMenuAction("copyLink"),
+        },
+        ...(isOwnPost
+          ? [
+              {
+                id: "edit",
+                iconName: "create-outline",
+                title: "Edit post",
+                subtitle: "Update your post content",
+                onPress: () => handleMenuAction("edit"),
+              },
+            ]
+          : []),
+        ...(isOwnPost
+          ? [
+              {
+                id: "pin",
+                iconName: "pin-outline",
+                title: "Pin to profile",
+                subtitle: "Feature this post at the top of your profile",
+                onPress: () => handleMenuAction("pin"),
+              },
+            ]
+          : []),
+      ],
+    },
+    ...(!isOwnPost
+      ? [
+          {
+            id: "content-control",
+            showDivider: true,
+            data: [
+              {
+                id: "snooze",
+                iconName: "time-outline",
+                title: "Snooze for 30 days",
+                subtitle: `Temporarily stop seeing posts from ${author}`,
+                onPress: () => handleMenuAction("snooze"),
+              },
+              {
+                id: "hideAuthor",
+                iconName: "eye-off-outline",
+                title: `Hide all from ${author}`,
+                subtitle: "Stop seeing their posts in your feed",
+                onPress: () => handleMenuAction("hideAuthor"),
+              },
+            ],
+          },
+        ]
+      : []),
+    {
+      id: "analytics",
+      showDivider: true,
+      data: [
+        ...(isOwnPost
+          ? [
+              {
+                id: "viewStats",
+                iconName: "stats-chart-outline",
+                title: "View post analytics",
+                subtitle: "See likes, views, and engagement",
+                onPress: () => handleMenuAction("viewStats"),
+              },
+            ]
+          : []),
+        ...(isOwnPost
+          ? [
+              {
+                id: "promote",
+                iconName: "rocket-outline",
+                title: "Promote this post",
+                subtitle: "Reach more people",
+                onPress: () => handleMenuAction("promote"),
+              },
+            ]
+          : []),
+      ],
+    },
+    {
+      id: "moderation",
+      showDivider: true,
+      data: [
+        ...(!isOwnPost
+          ? [
+              {
+                id: "report",
+                iconName: "flag-outline",
+                title: `Report ${author}'s post`,
+                subtitle: "We won't let them know who reported this",
+                onPress: () => handleMenuAction("report"),
+              },
+            ]
+          : []),
+        isOwnPost
+          ? {
+              id: "delete",
+              iconName: "trash-outline",
+              title: "Delete post",
+              isDestructive: true,
+              onPress: () => handleMenuAction("delete"),
+            }
+          : {
+              id: "block",
+              iconName: "ban-outline",
+              title: `Block ${author}`,
+              subtitle: "You won't be able to see or contact each other",
+              isDestructive: true,
+              onPress: () => handleMenuAction("block"),
+            },
+        ...(isOwnPost
+          ? [
+              {
+                id: "archive",
+                iconName: "archive-outline",
+                title: "Archive post",
+                subtitle: "Hide this post from your profile",
+                onPress: () => handleMenuAction("archive"),
+              },
+            ]
+          : []),
+      ],
+    },
+  ].filter((section) => section.data.length > 0);
 
+  const handleShowSheet = () => {
+    showSheet({ sections: postSections, height: "70%" });
+  };
   return {
     likeCount,
     isLiked,
-    menuVisible,
     scaleAnim,
-    setMenuVisible,
     handleLike,
     handleOpenComments,
     handleShare,
     handleMenuAction,
+    handleShowSheet,
   };
 };

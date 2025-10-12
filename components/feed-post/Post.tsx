@@ -1,13 +1,11 @@
 import { useFeedPost } from "@/controllers/useFeedPost";
-import { useUserInfo } from "@/hooks/useUserInfo";
+import useCopyText from "@/hooks/useCopyText";
 import { ColorsType, PostWithAuthorDetails } from "@/types";
 import React, { memo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import PostActions from "./PostActions";
-import PostEngagement from "./PostEngagement";
 import PostHeader from "./PostHeader";
 import PostMedia from "./PostMedia";
-import PostMenuModal from "./PostMenuModal";
 
 interface PostProps {
   post: PostWithAuthorDetails;
@@ -15,21 +13,17 @@ interface PostProps {
 }
 
 const Post: React.FC<PostProps> = ({ post, colors }) => {
-  const { content, mediaFiles, commentCount, author } = post;
-  const { userInfo } = useUserInfo();
+  const { content, mediaFiles, commentCount } = post;
+  const { copyText } = useCopyText();
   const {
     likeCount,
     isLiked,
-    menuVisible,
     scaleAnim,
-    setMenuVisible,
     handleLike,
     handleOpenComments,
     handleShare,
-    handleMenuAction,
+    handleShowSheet,
   } = useFeedPost(post);
-
-  const isOwnPost = userInfo?._id === author._id;
 
   return (
     <View
@@ -41,16 +35,19 @@ const Post: React.FC<PostProps> = ({ post, colors }) => {
         },
       ]}
     >
-      <PostHeader
-        post={post}
-        onMenuPress={() => setMenuVisible(true)}
-        colors={colors}
-      />
+      <PostHeader post={post} onMenuPress={handleShowSheet} colors={colors} />
 
       <View style={styles.content}>
-        <Text style={[styles.contentText, { color: colors.textPrimary }]}>
-          {content}
-        </Text>
+        <TouchableOpacity
+          onLongPress={() => copyText(content)}
+          activeOpacity={0.5}
+          delayLongPress={500}
+          onPress={handleOpenComments}
+        >
+          <Text style={[styles.contentText, { color: colors.textPrimary }]}>
+            {content}
+          </Text>
+        </TouchableOpacity>
         <PostMedia
           mediaFiles={mediaFiles}
           likeCount={likeCount}
@@ -58,13 +55,6 @@ const Post: React.FC<PostProps> = ({ post, colors }) => {
           colors={colors}
         />
       </View>
-
-      <PostEngagement
-        likeCount={likeCount}
-        commentCount={commentCount}
-        onCommentsPress={handleOpenComments}
-        colors={colors}
-      />
 
       <PostActions
         likeCount={likeCount}
@@ -75,14 +65,6 @@ const Post: React.FC<PostProps> = ({ post, colors }) => {
         onComments={handleOpenComments}
         onShare={handleShare}
         colors={colors}
-      />
-
-      <PostMenuModal
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-        isOwnPost={isOwnPost}
-        onMenuAction={handleMenuAction}
-        author={post?.author?.first_name || ""}
       />
     </View>
   );

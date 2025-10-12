@@ -1,7 +1,8 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { ColorsType } from "@/types";
+import { Link } from "expo-router";
 import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const UserAvatar = ({
   userInfo,
@@ -11,20 +12,24 @@ const UserAvatar = ({
   colors: ColorsType;
 }) => {
   return (
-    <View style={styles.userSection}>
-      <Image
-        source={{ uri: userInfo?.imageUrl as string }}
-        style={[styles.avatar, { backgroundColor: colors.borderLighter }]}
-      />
-      <View style={styles.userInfo}>
-        <Text style={[styles.name, { color: colors.textSecondary }]}>
-          {userInfo?.first_name} {userInfo?.last_name}
-        </Text>
-        <Text style={[styles.username, { color: colors.textTertiary }]}>
-          @{userInfo?.email?.split("@")[0]}
-        </Text>
-      </View>
-    </View>
+    <Link asChild href={`/(auth)/(tabs)/profile`}>
+      <TouchableOpacity>
+        <View style={styles.userSection}>
+          <Image
+            source={{ uri: userInfo?.imageUrl as string }}
+            style={[styles.avatar, { borderColor: colors.primary }]}
+          />
+          <View style={styles.userInfo}>
+            <Text style={[styles.name, { color: colors.textSecondary }]}>
+              {userInfo?.first_name} {userInfo?.last_name}
+            </Text>
+            <Text style={[styles.username, { color: colors.textTertiary }]}>
+              @{userInfo?.email?.split("@")[0]}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Link>
   );
 };
 

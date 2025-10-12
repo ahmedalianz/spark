@@ -1,11 +1,12 @@
 import { api } from "@/convex/_generated/api";
 import useFollowHandler from "@/hooks/useFollowHandler";
+import { useBottomSheet } from "@/store/bottomSheetStore";
 import { UserInfoProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   Animated,
   Image,
@@ -14,7 +15,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import BottomSheetModal from "../BottomSheetModal";
 
 const UserInfo = ({
   isCurrentUserProfile,
@@ -24,8 +24,7 @@ const UserInfo = ({
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
-  const [userMenuVisible, setUserMenuVisible] = useState(false);
-  const onClose = () => setUserMenuVisible(false);
+  const { showSheet } = useBottomSheet();
 
   const { handleFollowToggle, loading } = useFollowHandler();
   const followStatus = useQuery(api.follows.checkFollowStatus, {
@@ -107,7 +106,9 @@ const UserInfo = ({
       ],
     },
   ];
-
+  const handleShowSheet = () => {
+    showSheet({ sections: otherUserSections, height: "90%" });
+  };
   return (
     <Animated.View
       style={[
@@ -238,7 +239,7 @@ const UserInfo = ({
                 styles.moreButton,
                 { backgroundColor: colors.backgroundTertiary },
               ]}
-              onPress={() => setUserMenuVisible(true)}
+              onPress={handleShowSheet}
             >
               <Ionicons
                 name="ellipsis-horizontal"
@@ -249,12 +250,6 @@ const UserInfo = ({
           </View>
         )}
       </View>
-      <BottomSheetModal
-        visible={userMenuVisible}
-        onClose={onClose}
-        sections={otherUserSections}
-        height="90%"
-      />
     </Animated.View>
   );
 };

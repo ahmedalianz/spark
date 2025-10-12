@@ -1,7 +1,9 @@
+import useCopyText from "@/hooks/useCopyText";
 import { ColorsType, PostWithAuthorDetails } from "@/types";
 import formatCount from "@/utils/formatCount";
 import formatTimeAgo from "@/utils/formatTimeAgo";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import PostMedia from "../feed-post/PostMedia";
 
 const PostHeader = ({
@@ -11,33 +13,41 @@ const PostHeader = ({
   post: PostWithAuthorDetails;
   colors: ColorsType;
 }) => {
+  const { copyText } = useCopyText();
+
   return (
     <View style={styles.postContainer}>
       {/* Author Row */}
-      <View style={styles.authorRow}>
-        <Image
-          source={{
-            uri:
-              post?.author?.imageUrl ||
-              `https://ui-avatars.com/api/?name=${post?.author?.first_name}+${post?.author?.last_name}&background=random`,
-          }}
-          style={styles.avatar}
-        />
-        <View style={styles.authorInfo}>
-          <Text style={[styles.authorName, { color: colors.textPrimary }]}>
-            {post?.author?.first_name} {post?.author?.last_name}
-          </Text>
-          <Text style={[styles.postTime, { color: colors.textTertiary }]}>
-            {formatTimeAgo(post?._creationTime || 0)}
-          </Text>
-        </View>
-      </View>
-
+      <Link href={`/(auth)/(modals)/feed-profile/${post?.author?._id}`} asChild>
+        <TouchableOpacity style={styles.authorRow}>
+          <Image
+            source={{
+              uri:
+                post?.author?.imageUrl ||
+                `https://ui-avatars.com/api/?name=${post?.author?.first_name}+${post?.author?.last_name}&background=random`,
+            }}
+            style={styles.avatar}
+          />
+          <View style={styles.authorInfo}>
+            <Text style={[styles.authorName, { color: colors.textPrimary }]}>
+              {post?.author?.first_name} {post?.author?.last_name}
+            </Text>
+            <Text style={[styles.postTime, { color: colors.textTertiary }]}>
+              {formatTimeAgo(post?._creationTime || 0)}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </Link>
       {/* Post Content */}
-      <Text style={[styles.postContent, { color: colors.textPrimary }]}>
-        {post?.content}
-      </Text>
-
+      <TouchableOpacity
+        onLongPress={() => copyText(post?.content)}
+        delayLongPress={500}
+        activeOpacity={0.5}
+      >
+        <Text style={[styles.postContent, { color: colors.textPrimary }]}>
+          {post?.content}
+        </Text>
+      </TouchableOpacity>
       {/* Media */}
       <PostMedia
         mediaFiles={post?.mediaFiles || []}
